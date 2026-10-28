@@ -1,26 +1,184 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ───────────────────────── Design tokens ───────────────────────── */
+@theme {
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Brand navy, anchored on the logo's #030A8C */
+  --color-brand-50: #eef0ff;
+  --color-brand-100: #dfe3ff;
+  --color-brand-200: #c2c8ff;
+  --color-brand-300: #969ffc;
+  --color-brand-400: #6470f2;
+  --color-brand-500: #3a44de;
+  --color-brand-600: #1b23bd;
+  --color-brand-700: #030a8c;
+  --color-brand-800: #060c6c;
+  --color-brand-900: #0b104c;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Neutral surfaces: cool, bright, never black */
+  --color-ink: #0e1433;
+  --color-ink-soft: #3d4566;
+  --color-mute: #6b7393;
+  --color-line: #dde3ee;
+  --color-mist: #edf1f8;
+  --color-canvas: #f6f8fc;
+
+  /* Method signal colours, borrowed from the physics of each test */
+  --color-mt: #6fd11c; /* fluorescent magnetic particles under UV */
+  --color-mt-soft: #ecfbd9;
+  --color-pt: #e3263f; /* penetrant red dye */
+  --color-pt-soft: #fde7ea;
+  --color-ut: #0aa6e6; /* ultrasonic A-scan */
+  --color-ut-soft: #e0f5fd;
+  --color-vt: #f29a0b; /* calibrated measurement */
+  --color-vt-soft: #fff1d9;
+  --color-whatsapp: #25d366;
+
+  --shadow-soft: 0 1px 2px rgb(14 20 51 / 0.04), 0 8px 24px -8px rgb(14 20 51 / 0.1);
+  --shadow-lift: 0 2px 6px rgb(14 20 51 / 0.05), 0 24px 48px -16px rgb(14 20 51 / 0.18);
+  --shadow-float: 0 30px 80px -20px rgb(3 10 140 / 0.28), 0 8px 24px -12px rgb(14 20 51 / 0.2);
+  --shadow-glow-mt: 0 0 0 1px rgb(111 209 28 / 0.35), 0 12px 40px -8px rgb(111 209 28 / 0.55);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-scan: scan 3.2s var(--ease-out-expo) infinite;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+  --animate-spin-slow: spin 24s linear infinite;
+  --animate-float: float 7s ease-in-out infinite;
+
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+  @keyframes scan {
+    0% { transform: translateY(-10%); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(110%); opacity: 0; }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 0.7; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ───────────────────────── Base ───────────────────────── */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scroll-padding-top: 7rem;
+  }
+  body {
+    @apply bg-canvas font-sans text-ink;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: var(--color-brand-200);
+    color: var(--color-brand-900);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-brand-400);
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+  }
+}
+
+/* ───────────────────────── Textures ───────────────────────── */
+@utility bg-blueprint {
+  background-image:
+    linear-gradient(to right, rgb(3 10 140 / 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(3 10 140 / 0.055) 1px, transparent 1px),
+    linear-gradient(to right, rgb(3 10 140 / 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(3 10 140 / 0.03) 1px, transparent 1px);
+  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
+}
+@utility bg-dots {
+  background-image: radial-gradient(rgb(3 10 140 / 0.13) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+@utility bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.07 0 0 0 0 0.2 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@utility bg-contours {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300' viewBox='0 0 600 300'%3E%3Cg fill='none' stroke='%23030a8c' stroke-opacity='.07' stroke-width='1.2'%3E%3Cpath d='M0 150 Q75 90 150 150 T300 150 T450 150 T600 150'/%3E%3Cpath d='M0 175 Q75 115 150 175 T300 175 T450 175 T600 175'/%3E%3Cpath d='M0 200 Q75 140 150 200 T300 200 T450 200 T600 200'/%3E%3Cpath d='M0 125 Q75 65 150 125 T300 125 T450 125 T600 125'/%3E%3Cpath d='M0 100 Q75 40 150 100 T300 100 T450 100 T600 100'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 600px 300px;
+}
+
+/* Fade a textured layer out toward its edges */
+@utility mask-fade-y {
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+}
+@utility mask-fade-x {
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+@utility mask-radial {
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 72%);
+}
+
+/* ───────────────────────── Card shapes ───────────────────────── */
+/* Corner cut, like a machined plate */
+@utility shape-cut {
+  clip-path: polygon(0 0, calc(100% - 2.75rem) 0, 100% 2.75rem, 100% 100%, 0 100%);
+}
+@utility shape-cut-bl {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 2.75rem 100%, 0 calc(100% - 2.75rem));
+}
+/* Inspection ticket: semicircular notches on both sides */
+@utility shape-ticket {
+  mask: radial-gradient(circle 14px at 0 62%, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 14px at 100% 62%, #0000 98%, #000) right / 51% 100% no-repeat;
+}
+@utility shape-hex {
+  clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+}
+@utility shape-leaf {
+  border-radius: 2.75rem 0.75rem 2.75rem 0.75rem;
+}
+@utility shape-arch {
+  border-radius: 999px 999px 1.75rem 1.75rem;
+}
+
+/* ───────────────────────── Components ───────────────────────── */
+@utility glass {
+  background: rgb(255 255 255 / 0.62);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid rgb(255 255 255 / 0.7);
+}
+@utility glass-brand {
+  background: rgb(238 240 255 / 0.55);
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid rgb(194 200 255 / 0.6);
+}
+/* Fluorescent "UV marker" highlight for key words */
+@utility uv-mark {
+  background-image: linear-gradient(transparent 62%, rgb(111 209 28 / 0.45) 62%, rgb(111 209 28 / 0.45) 92%, transparent 92%);
+  background-repeat: no-repeat;
+}
+@utility text-balance {
+  text-wrap: balance;
+}
+@utility perspective-1600 {
+  perspective: 1600px;
+}
+@utility preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
