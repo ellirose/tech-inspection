@@ -166,12 +166,13 @@ export function ServicesBento({ lang, dict }: { lang: Locale; dict: Dictionary }
               </div>
             </Link>
           </RevealItem>
-          {/* 7. Lifting: arch photo */}
+          {/* 7. Lifting: arch-topped photo above a brand panel (text never sits on the crew) */}
           <RevealItem className="md:col-span-3 lg:col-span-4 lg:row-span-2">
-            <Link href={href(lifting)} className="group relative flex h-full min-h-[28rem] flex-col justify-end overflow-hidden p-7 text-white shape-arch">
-              <Image src={lifting.image} alt="" fill sizes="(min-width:1024px) 33vw, 50vw" className="object-cover transition duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-900/85 via-brand-900/20 to-transparent" />
-              <div className="relative">
+            <Link href={href(lifting)} className="group flex h-full min-h-[28rem] flex-col overflow-hidden rounded-b-[2rem] rounded-t-[12rem] bg-brand-800 text-white">
+              <div className="relative min-h-56 flex-1 overflow-hidden">
+                <Image src={lifting.image} alt="" fill sizes="(min-width:1024px) 33vw, 50vw" className="object-cover object-[50%_45%] transition duration-700 group-hover:scale-105" />
+              </div>
+              <div className="p-7">
                 <span className="grid size-16 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/30 backdrop-blur-md">
                   <ServiceGlyph name={lifting.icon} className="size-9" />
                 </span>

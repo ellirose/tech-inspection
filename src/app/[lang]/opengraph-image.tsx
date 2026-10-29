@@ -8,16 +8,17 @@ export const alt = "Tech-Inspection S.A.S. — NDT";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const dataUrl = async (path: string, mime: string) => `data:${mime};base64,${(await readFile(join(process.cwd(), path))).toString("base64")}`;
+// Paths stay literal at each readFile call: a variable path makes Next trace the whole project into this function.
+const dataUrl = async (file: Promise<Buffer>, mime: string) => `data:${mime};base64,${(await file).toString("base64")}`;
 
 export default async function Image({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: raw } = await params;
   const lang: Locale = hasLocale(raw) ? raw : "es";
   const dict = getDictionary(lang);
   const [photo, mt, logo, bold, semibold] = await Promise.all([
-    dataUrl("src/assets/og-photo.jpg", "image/jpeg"),
-    dataUrl("src/assets/og-mt.jpg", "image/jpeg"),
-    dataUrl("public/media/brand/logo.png", "image/png"),
+    dataUrl(readFile(join(process.cwd(), "src/assets/og-photo.jpg")), "image/jpeg"),
+    dataUrl(readFile(join(process.cwd(), "src/assets/og-mt.jpg")), "image/jpeg"),
+    dataUrl(readFile(join(process.cwd(), "public/media/brand/logo.png")), "image/png"),
     readFile(join(process.cwd(), "src/assets/fonts/bricolage-800.ttf")),
     readFile(join(process.cwd(), "src/assets/fonts/bricolage-600.ttf")),
   ]);

@@ -28,7 +28,8 @@ const frames = [
   "rounded-[2.5rem] rounded-bl-[6rem]",
   "shape-leaf",
 ];
-const photoFrames = ["rounded-[1.75rem]", "rounded-full", "rounded-[1.75rem] rounded-tr-[4rem]", "shape-arch"];
+// Full-width frames only: a circle here used to crop the crews out of their own photos.
+const photoFrames = ["rounded-[1.75rem]", "rounded-[1.75rem] rounded-bl-[4rem]", "rounded-[1.75rem] rounded-tr-[4rem]", "rounded-b-[1.75rem] rounded-t-[7rem]"];
 
 export default async function ServicesPage({ params }: PageProps<"/[lang]/servicios">) {
   const { lang } = await params;
@@ -50,7 +51,7 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
           {services.map((s, i) => (
             <RevealItem key={s.slug}>
               <Link href={`/${lang}/servicios/${s.slug}`} className={cn("group flex h-full flex-col bg-white p-5 shadow-soft ring-1 ring-line transition hover:-translate-y-1.5 hover:shadow-lift", frames[i % frames.length])}>
-                <div className={cn("relative aspect-[4/3] overflow-hidden bg-mist", photoFrames[i % photoFrames.length], i % 4 === 1 && "mx-auto aspect-square w-3/4")}>
+                <div className={cn("relative aspect-[4/3] overflow-hidden bg-mist", photoFrames[i % photoFrames.length])}>
                   <Image src={s.image} alt={s.name[lang]} fill sizes="(min-width:1280px) 22vw, 50vw" className="object-cover transition duration-700 group-hover:scale-110" />
                 </div>
                 <div className="flex flex-1 flex-col px-2 pb-2 pt-6">

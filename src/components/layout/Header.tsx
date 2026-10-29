@@ -74,7 +74,7 @@ export function Header({ data }: { data: NavData }) {
           open
             ? "border-b border-line bg-white/97 shadow-[0_24px_60px_-24px_rgb(14_20_51/0.35)] backdrop-blur-xl"
             : scrolled
-              ? "glass shadow-[0_10px_40px_-18px_rgb(14_20_51/0.25)]"
+              ? "border-b border-line/70 bg-white/92 shadow-[0_10px_40px_-18px_rgb(14_20_51/0.25)] backdrop-blur-xl"
               : "border-b border-transparent bg-transparent",
         )}
       >

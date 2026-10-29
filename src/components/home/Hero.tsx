@@ -157,7 +157,8 @@ export function Hero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
               className="absolute inset-y-[4%] left-[14%] right-[4%] preserve-3d"
             >
               <div className="absolute inset-0 overflow-hidden rounded-[2.75rem] shadow-float ring-1 ring-white/60">
-                <Image src="/media/photos/crew-yard.jpg" alt="" fill preload sizes="(min-width:1024px) 45vw, 0px" className="object-cover object-[58%_50%]" quality={80} />
+                {/* Framed on the inspector at right so the floating cards only cover wall and equipment. */}
+                <Image src="/media/photos/crew-yard.jpg" alt="" fill preload sizes="(min-width:1024px) 45vw, 0px" className="object-cover object-[92%_50%]" quality={80} />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-900/45 via-transparent to-transparent" />
                 {/* UV scan line */}
                 <div className="absolute inset-x-0 top-0 h-1/3 animate-scan">

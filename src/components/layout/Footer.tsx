@@ -7,6 +7,7 @@ import { methods } from "@/content/methods";
 import { services } from "@/content/services";
 import { Logo } from "@/components/ui/Logo";
 import { Container } from "@/components/ui/Section";
+import { Email } from "@/components/ui/Email";
 
 export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const base = `/${lang}`;
@@ -43,10 +44,9 @@ export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
             <div>
               <p className={col}>{dict.nav.services}</p>
               <ul className="mt-5 space-y-3">
-                {services.slice(0, 5).map((s) => (
+                {services.map((s) => (
                   <li key={s.slug}><Link className={link} href={`${base}/servicios/${s.slug}`}>{s.name[lang]}</Link></li>
                 ))}
-                <li><Link className="font-semibold text-brand-700" href={`${base}/servicios`}>+ {services.length - 5}</Link></li>
               </ul>
             </div>
             <div>
@@ -66,9 +66,11 @@ export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
               <MapPin weight="duotone" className="mt-0.5 size-6 shrink-0 text-brand-700" />
               <span>{company.address}, {company.country[lang]}</span>
             </a>
-            <a href={`mailto:${company.email}`} className="flex gap-3 break-all text-ink-soft hover:text-brand-700">
+            <a href={`mailto:${company.email}`} className="flex gap-3 text-ink-soft hover:text-brand-700">
               <EnvelopeSimple weight="duotone" className="mt-0.5 size-6 shrink-0 text-brand-700" />
-              {company.email}
+              <span className="min-w-0">
+                <Email address={company.email} />
+              </span>
             </a>
             <p className="flex gap-3 text-ink-soft">
               <Clock weight="duotone" className="mt-0.5 size-6 shrink-0 text-brand-700" />

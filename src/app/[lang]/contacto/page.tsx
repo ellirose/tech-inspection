@@ -8,6 +8,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { QuoteSection } from "@/components/quote/QuoteSection";
+import { Email } from "@/components/ui/Email";
 import { cn } from "@/lib/cn";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/contacto">) {
@@ -33,6 +34,7 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
         lead={d.contact.lead}
         image="/media/photos/crew-yard.jpg"
         imageClass="rounded-[3rem] rounded-tl-[8rem]"
+        imagePosition="50% 30%"
       />
       <QuoteSection lang={lang} dict={d} heading={false} />
 
@@ -56,8 +58,11 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
                         <WhatsappLogo weight="fill" className="size-5" />
                       </a>
                     </div>
-                    <a href={`mailto:${c.email}`} className="flex items-center gap-2 break-all rounded-full bg-white px-4 py-2.5 text-[0.95rem] font-semibold text-ink ring-1 ring-line hover:ring-brand-300">
-                      <EnvelopeSimple weight="duotone" className="size-5 shrink-0 text-brand-700" /> {c.email}
+                    <a href={`mailto:${c.email}`} className="flex items-center gap-2 rounded-[1.4rem] bg-white px-4 py-2.5 text-[0.95rem] font-semibold text-ink ring-1 ring-line hover:ring-brand-300">
+                      <EnvelopeSimple weight="duotone" className="size-5 shrink-0 text-brand-700" />
+                      <span className="min-w-0">
+                        <Email address={c.email} />
+                      </span>
                     </a>
                   </div>
                 </RevealItem>

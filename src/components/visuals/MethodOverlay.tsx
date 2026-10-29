@@ -96,19 +96,16 @@ export function MethodOverlay({ method }: { method: MethodKey }) {
 
   if (method === "ut") {
     return (
-      <div className="absolute inset-x-[7%] bottom-[8%] rounded-2xl bg-brand-900/55 p-4 text-white ring-1 ring-white/25 backdrop-blur-md">
-        <div className="flex items-center justify-between font-mono text-[0.7rem] font-bold tracking-widest">
-          <span className="text-ut">A-SCAN · 5 MHz · 0°</span>
+      // Compact readout pinned to the lower-right corner so the inspector stays fully visible.
+      <div className="absolute bottom-[5%] right-[4%] w-[min(16rem,44%)] rounded-2xl bg-brand-900/70 p-3 text-white ring-1 ring-white/25 backdrop-blur-md">
+        <div className="flex items-center justify-between font-mono text-[0.62rem] font-bold tracking-widest">
+          <span className="text-ut">A-SCAN · 5 MHz</span>
           <span className="flex items-center gap-1.5">
             <span className="size-1.5 animate-pulse rounded-full bg-ut" /> GATE A
           </span>
         </div>
-        <Waveform className="mt-2 h-20 w-full text-white" color="#5fd4ff" />
-        <div className="mt-1 flex justify-between font-mono text-xs text-white/70">
-          <span>0.0</span>
-          <span className="font-display text-xl font-bold text-white">t = 12.70 mm</span>
-          <span>25.0</span>
-        </div>
+        <Waveform className="mt-1.5 h-12 w-full text-white" color="#5fd4ff" />
+        <p className="mt-1 text-right font-display text-lg font-bold">t = 12.70 mm</p>
       </div>
     );
   }
