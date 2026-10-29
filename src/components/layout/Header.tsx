@@ -11,7 +11,7 @@ import type { MethodKey } from "@/content/methods";
 import type { ServiceIcon } from "@/content/services";
 import { Logo } from "@/components/ui/Logo";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
-import { LangToggle } from "./LangToggle";
+import { LangMenu } from "./LangMenu";
 import { cn } from "@/lib/cn";
 
 export type NavData = {
@@ -67,7 +67,7 @@ export function Header({ data }: { data: NavData }) {
   const isActive = (href: string, exact?: boolean) => (exact ? pathname === href : pathname.startsWith(href));
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50" onMouseLeave={() => setOpen(null)}>
+    <header className={cn("fixed inset-x-0 top-0", drawer ? "z-[70]" : "z-50")} onMouseLeave={() => setOpen(null)}>
       <div
         className={cn(
           "transition-all duration-500 ease-out",
@@ -78,22 +78,22 @@ export function Header({ data }: { data: NavData }) {
               : "border-b border-transparent bg-transparent",
         )}
       >
-        <div className={cn("mx-auto flex max-w-[90rem] items-center gap-6 px-5 transition-[height] duration-500 sm:px-8 lg:px-12", scrolled ? "h-20" : "h-24")}>
+        <div className={cn("mx-auto flex max-w-[90rem] items-center gap-4 px-5 transition-[height] duration-500 sm:px-8 2xl:gap-8 2xl:px-12", scrolled ? "h-20" : "h-24")}>
           <Link href={base} className="shrink-0" aria-label="Tech-Inspection">
             <Logo preload className={cn("transition-all duration-500", scrolled ? "h-11" : "h-[3.25rem]")} />
           </Link>
 
-          <nav className="mx-auto hidden items-center gap-0.5 xl:flex" aria-label="Principal">
+          <nav className="mx-auto hidden min-w-0 items-center xl:flex 2xl:gap-0.5" aria-label="Principal">
             {links.map((l) => {
               const active = isActive(l.href, l.exact);
               return (
-                <div key={l.href} className="relative" onMouseEnter={() => setOpen(l.menu ?? null)}>
+                <div key={l.href} className="relative shrink-0" onMouseEnter={() => setOpen(l.menu ?? null)}>
                   <Link
                     href={l.href}
                     aria-expanded={l.menu ? open === l.menu : undefined}
                     onFocus={() => setOpen(l.menu ?? null)}
                     className={cn(
-                      "relative flex items-center gap-1 rounded-full px-3.5 py-3 font-display text-[1.08rem] font-bold tracking-[-0.01em] transition-colors 2xl:px-4",
+                      "relative flex items-center gap-1 whitespace-nowrap rounded-full px-3 py-3 font-display text-base font-bold tracking-[-0.01em] transition-colors 2xl:px-4 2xl:text-[1.08rem]",
                       active ? "text-brand-700" : "text-ink hover:text-brand-700",
                     )}
                   >
@@ -108,14 +108,15 @@ export function Header({ data }: { data: NavData }) {
             })}
           </nav>
 
-          <div className="ml-auto flex items-center gap-3 xl:ml-0">
-            <LangToggle lang={lang} label={nav.language} compact className="hidden sm:flex" />
+          <div className="ml-auto flex shrink-0 items-center gap-3 xl:ml-0">
+            <LangMenu lang={lang} label={nav.language} className="hidden sm:block" />
+            {/* Fixed width so the CTA keeps its size in every language. */}
             <Link
               href={`${base}/contacto#cotizar`}
-              className="group hidden items-center gap-2 rounded-full bg-brand-700 py-3.5 pl-6 pr-4 font-display text-[1.05rem] font-bold text-white shadow-[0_10px_30px_-10px_rgb(3_10_140/0.7)] transition hover:bg-brand-600 md:flex"
+              className="group hidden h-12 w-[11.5rem] items-center justify-between gap-2 whitespace-nowrap rounded-full bg-brand-700 pl-6 pr-1.5 font-display text-[1.05rem] font-bold text-white shadow-[0_10px_30px_-10px_rgb(3_10_140/0.7)] transition hover:bg-brand-600 md:flex"
             >
               {nav.quote}
-              <span className="grid size-7 place-items-center rounded-full bg-white/15 transition group-hover:translate-x-0.5 group-hover:bg-mt group-hover:text-brand-900">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/15 transition group-hover:translate-x-0.5 group-hover:bg-mt group-hover:text-brand-900">
                 <ArrowRight weight="bold" className="size-4" />
               </span>
             </Link>
@@ -217,7 +218,7 @@ export function Header({ data }: { data: NavData }) {
                 ))}
               </nav>
               <div className="mt-auto space-y-4 p-6">
-                <LangToggle lang={lang} label={nav.language} className="w-fit" />
+                <LangMenu lang={lang} label={nav.language} placement="up" className="w-fit" />
                 <Link href={`${base}/contacto#cotizar`} className="flex items-center justify-center gap-2 rounded-full bg-brand-700 px-6 py-4 font-display text-lg font-bold text-white">
                   {nav.quote}
                   <ArrowRight weight="bold" className="size-5" />

@@ -1,9 +1,12 @@
+import { useId } from "react";
 import type { Locale } from "@/i18n/config";
 
 type FlagProps = { className?: string };
 
 // Circular flags: each is drawn inside a 32×32 circle clip with a soft glass highlight.
-function Disc({ id, children, className }: FlagProps & { id: string; children: React.ReactNode }) {
+// Ids are per instance: a flag can render twice (header + drawer), and a hidden copy's clip would win.
+function Disc({ id: name, children, className }: FlagProps & { id: string; children: React.ReactNode }) {
+  const id = `${name}-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
       <defs>
