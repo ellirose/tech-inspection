@@ -33,6 +33,8 @@ const es = {
     download: "Descargar PDF",
     platformClients: "Acceso clientes",
     platformTeam: "Acceso colaboradores",
+    prev: "Anterior",
+    next: "Siguiente",
   },
   hero: {
     eyebrow: "Ensayos no destructivos · Colombia",
@@ -85,6 +87,11 @@ const es = {
     lead: "Ocho líneas de servicio pensadas para la operación real del sector energético e industrial.",
     methodsUsed: "Métodos aplicados",
     scope: "Alcance",
+  },
+  gallery: {
+    eyebrow: "Registro de campo",
+    title: "Nuestro trabajo, tal como es.",
+    lead: "Fotografías reales de inspecciones, talleres y jornadas de nuestro equipo en Colombia.",
   },
   field: {
     eyebrow: "En campo",
@@ -235,6 +242,9 @@ const es = {
       ],
       leadership: "Liderazgo",
       clients: "Clientes",
+      team: "Nuestro equipo",
+      teamTitle: "Las personas detrás de cada informe.",
+      teamLead: "Inspectores, coordinadores y personal administrativo que acompañan cada servicio de principio a fin.",
     },
     methods: {
       title: "Métodos de ensayo no destructivo.",
@@ -249,6 +259,7 @@ const es = {
       title: "Servicios de inspección.",
       lead: "Ocho líneas de servicio para componentes críticos de perforación, producción e industria.",
       others: "Otros servicios",
+      gallery: "Registro fotográfico",
     },
     hseq: {
       title: "Salud, seguridad, medio ambiente y calidad.",
@@ -263,6 +274,12 @@ const es = {
       environmentText: "Jornadas de siembra y cuidado del entorno con colaboradores y familias.",
       wellbeing: "Bienestar",
       wellbeingText: "Prevención del consumo de sustancias psicoactivas y promoción de hábitos saludables.",
+      planting: "Jornadas de siembra",
+      plantingLead: "Colaboradores y sus familias siembran árboles nativos como parte de nuestro compromiso ambiental.",
+      life: "Integración y bienestar",
+      lifeLead: "Celebramos juntos y cuidamos la salud de quienes hacen posible cada inspección.",
+      ppe: "Seguridad en cada tarea",
+      ppeText: "Elementos de protección personal adecuados para cada método y cada locación.",
     },
     platform: {
       title: "TI-QMS: la inspección, siempre a la mano.",
@@ -311,6 +328,8 @@ const pt: Dictionary = {
     download: "Baixar PDF",
     platformClients: "Acesso clientes",
     platformTeam: "Acesso colaboradores",
+    prev: "Anterior",
+    next: "Próximo",
   },
   hero: {
     eyebrow: "Ensaios não destrutivos · Colômbia",
@@ -363,6 +382,11 @@ const pt: Dictionary = {
     lead: "Oito linhas de serviço pensadas para a operação real do setor energético e industrial.",
     methodsUsed: "Métodos aplicados",
     scope: "Escopo",
+  },
+  gallery: {
+    eyebrow: "Registro de campo",
+    title: "Nosso trabalho, como ele é.",
+    lead: "Fotografias reais de inspeções, oficinas e atividades da nossa equipe na Colômbia.",
   },
   field: {
     eyebrow: "Em campo",
@@ -513,6 +537,9 @@ const pt: Dictionary = {
       ],
       leadership: "Liderança",
       clients: "Clientes",
+      team: "Nossa equipe",
+      teamTitle: "As pessoas por trás de cada relatório.",
+      teamLead: "Inspetores, coordenadores e equipe administrativa que acompanham cada serviço do início ao fim.",
     },
     methods: {
       title: "Métodos de ensaio não destrutivo.",
@@ -527,6 +554,7 @@ const pt: Dictionary = {
       title: "Serviços de inspeção.",
       lead: "Oito linhas de serviço para componentes críticos de perfuração, produção e indústria.",
       others: "Outros serviços",
+      gallery: "Registro fotográfico",
     },
     hseq: {
       title: "Saúde, segurança, meio ambiente e qualidade.",
@@ -541,6 +569,12 @@ const pt: Dictionary = {
       environmentText: "Plantios e cuidado com o entorno junto a colaboradores e famílias.",
       wellbeing: "Bem-estar",
       wellbeingText: "Prevenção do consumo de substâncias psicoativas e promoção de hábitos saudáveis.",
+      planting: "Jornadas de plantio",
+      plantingLead: "Colaboradores e suas famílias plantam árvores nativas como parte do nosso compromisso ambiental.",
+      life: "Integração e bem-estar",
+      lifeLead: "Celebramos juntos e cuidamos da saúde de quem torna cada inspeção possível.",
+      ppe: "Segurança em cada tarefa",
+      ppeText: "Equipamentos de proteção individual adequados a cada método e a cada local.",
     },
     platform: {
       title: "TI-QMS: a inspeção sempre à mão.",
@@ -587,6 +621,8 @@ const en: Dictionary = {
     download: "Download PDF",
     platformClients: "Client access",
     platformTeam: "Staff access",
+    prev: "Previous",
+    next: "Next",
   },
   hero: {
     eyebrow: "Non-destructive testing · Colombia",
@@ -639,6 +675,11 @@ const en: Dictionary = {
     lead: "Eight service lines built around real operations in energy and industry.",
     methodsUsed: "Methods applied",
     scope: "Scope",
+  },
+  gallery: {
+    eyebrow: "Field record",
+    title: "Our work, as it really is.",
+    lead: "Real photos of inspections, workshops and team days across Colombia.",
   },
   field: {
     eyebrow: "In the field",
@@ -789,6 +830,9 @@ const en: Dictionary = {
       ],
       leadership: "Leadership",
       clients: "Clients",
+      team: "Our team",
+      teamTitle: "The people behind every report.",
+      teamLead: "Inspectors, coordinators and administrative staff who see every job through from start to finish.",
     },
     methods: {
       title: "Non-destructive testing methods.",
@@ -803,6 +847,7 @@ const en: Dictionary = {
       title: "Inspection services.",
       lead: "Eight service lines for critical drilling, production and industrial components.",
       others: "Other services",
+      gallery: "Photo record",
     },
     hseq: {
       title: "Health, safety, environment and quality.",
@@ -817,6 +862,12 @@ const en: Dictionary = {
       environmentText: "Tree-planting days and care for our surroundings with staff and families.",
       wellbeing: "Wellbeing",
       wellbeingText: "Substance-use prevention and the promotion of healthy habits.",
+      planting: "Tree-planting days",
+      plantingLead: "Team members and their families plant native trees as part of our environmental commitment.",
+      life: "Team life & wellbeing",
+      lifeLead: "We celebrate together and look after the health of the people behind every inspection.",
+      ppe: "Safety in every task",
+      ppeText: "The right personal protective equipment for every method and every site.",
     },
     platform: {
       title: "TI-QMS: your inspections, always at hand.",

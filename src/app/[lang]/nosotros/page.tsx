@@ -6,11 +6,14 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { clients, leadership } from "@/content/site";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
-import { Container, Eyebrow } from "@/components/ui/Section";
+import { Container, Eyebrow, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { Experience } from "@/components/home/Experience";
 import { Certifications } from "@/components/home/Certifications";
 import { CtaBand } from "@/components/ui/CtaBand";
+import { Mosaic } from "@/components/media/Mosaic";
+import { photo } from "@/lib/media";
+import { Email } from "@/components/ui/Email";
 import { cn } from "@/lib/cn";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/nosotros">) {
@@ -28,6 +31,15 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
   const a = d.pages.about;
+  const team = [
+    { ...photo("/media/photos/team-office.jpg"), pos: "50% 45%" },
+    { ...photo("/media/photos/team-uniform.jpg"), pos: "50% 30%" },
+    { ...photo("/media/photos/workshop-team.jpg"), pos: "50% 40%" },
+    { ...photo("/media/photos/crew-yard.jpg"), pos: "50% 35%" },
+    { ...photo("/media/photos/inspector-logo.jpg"), pos: "50% 25%" },
+    { ...photo("/media/photos/bit-inspection.jpg"), pos: "65% 35%" },
+    { ...photo("/media/hseq/integration-3.jpg"), pos: "50% 55%" },
+  ];
 
   return (
     <>
@@ -37,7 +49,8 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
         title={a.title}
         lead={a.lead}
         image="/media/photos/team-blue.jpg"
-        imageClass="shape-arch"
+        imageClass="rounded-[3rem] rounded-tr-[8rem]"
+        imagePosition="50% 30%"
       />
 
       {/* Story + mission / vision */}
@@ -80,24 +93,36 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
         </Container>
       </section>
 
+      {/* Team */}
+      <section className="relative py-20 sm:py-24">
+        <Container>
+          <SectionHeading eyebrow={a.team} title={a.teamTitle} lead={a.teamLead} />
+          <Mosaic className="mt-12" items={team} alt={a.team} />
+        </Container>
+      </section>
+
       <Experience lang={lang} dict={d} />
 
       {/* Leadership */}
       <section id="liderazgo" className="py-20">
         <Container>
           <Eyebrow>{a.leadership}</Eyebrow>
-          <RevealGroup className="mt-10 grid gap-6 md:grid-cols-2">
+          <RevealGroup className="mt-10 grid gap-6 xl:grid-cols-2">
             {leadership.map((p, i) => (
-              <RevealItem key={p.name} className="grid items-center gap-6 rounded-[2.5rem] bg-white p-6 shadow-lift ring-1 ring-line sm:grid-cols-[13rem_1fr] sm:p-7">
-                <div className={cn("relative aspect-square overflow-hidden bg-mist sm:aspect-[4/5]", i ? "rounded-[2rem] rounded-tr-[5rem]" : "shape-arch")}>
-                  <Image src={p.photo} alt={p.name} fill sizes="(min-width:640px) 13rem, 100vw" className="object-cover object-top" />
+              <RevealItem key={p.name} className="grid items-center gap-6 rounded-[2.5rem] bg-white p-5 shadow-lift ring-1 ring-line sm:grid-cols-[15rem_minmax(0,1fr)] sm:p-6">
+                {/* Portraits are 3:4, so the frame matches and nothing is cropped. */}
+                <div className={cn("relative mx-auto aspect-[3/4] w-full max-w-72 overflow-hidden rounded-[2rem] bg-mist", i ? "rounded-br-[4rem]" : "rounded-bl-[4rem]")}>
+                  <Image src={p.photo} alt={p.name} fill sizes="(min-width:640px) 15rem, 18rem" className="object-cover" />
                 </div>
                 <div>
                   <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-brand-600">{p.role[lang]}</p>
                   <h3 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink">{p.name}</h3>
                   <p className="mt-3 leading-relaxed text-ink-soft">{p.bio[lang]}</p>
-                  <a href={`mailto:${p.email}`} className="mt-5 inline-flex items-center gap-2 break-all rounded-full bg-canvas px-4 py-2 text-sm font-semibold text-brand-700 ring-1 ring-line">
-                    <EnvelopeSimple weight="duotone" className="size-5 shrink-0" /> {p.email}
+                  <a href={`mailto:${p.email}`} className="mt-5 inline-flex items-center gap-2 rounded-[1.4rem] bg-canvas px-4 py-2 text-sm font-semibold text-brand-700 ring-1 ring-line">
+                    <EnvelopeSimple weight="duotone" className="size-5 shrink-0" />
+                    <span className="min-w-0">
+                      <Email address={p.email} />
+                    </span>
                   </a>
                 </div>
               </RevealItem>
@@ -113,7 +138,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
           <RevealGroup className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {clients.map((c, i) => (
               <RevealItem key={c.name} className={cn("flex aspect-[4/3] items-center justify-center bg-canvas p-6 ring-1 ring-line", i % 2 ? "rounded-full" : "rounded-[2rem]")}>
-                <Image src={c.logo} alt={c.name} width={220} height={120} className="max-h-20 w-auto object-contain" />
+                <Image src={c.logo} alt={c.name} width={220} height={120} className={cn("object-contain", c.square ? "size-24 rounded-2xl sm:size-28" : "max-h-20 w-auto")} />
               </RevealItem>
             ))}
           </RevealGroup>

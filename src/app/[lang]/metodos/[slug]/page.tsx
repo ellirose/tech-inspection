@@ -14,7 +14,8 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
 import { MethodOverlay } from "@/components/visuals/MethodOverlay";
 import { FieldMonitor } from "@/components/visuals/FieldMonitor";
-import { Gallery } from "@/components/ui/Gallery";
+import { Masonry } from "@/components/media/Masonry";
+import { photos } from "@/lib/media";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { cn } from "@/lib/cn";
 
@@ -130,7 +131,7 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
       <Container className="pb-20">
         <Eyebrow>{d.pages.methods.gallery}</Eyebrow>
         <div className="mt-8">
-          <Gallery images={m.gallery} alt={m.name[lang]} />
+          <Masonry items={photos(m.gallery)} alt={m.name[lang]} />
         </div>
       </Container>
 

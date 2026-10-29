@@ -115,8 +115,8 @@ export const clients = [
   { name: "SmartStar Oil & Gas Service Company", logo: "/media/clients/smartstar.png" },
   { name: "Petroexpress Supply", logo: "/media/clients/petroexpress.png" },
   { name: "Universal Machining & Engineering", logo: "/media/clients/universal.png" },
-  { name: "Amertuval", logo: "/media/clients/amertuval.png" },
-  { name: "CT&B Colombian Tools & Bits", logo: "/media/clients/ctb.png" },
+  { name: "Amertuval", logo: "/media/clients/amertuval.png", square: true },
+  { name: "CT&B Colombian Tools & Bits", logo: "/media/clients/ctb.png", square: true },
 ];
 
 export const leadership = [

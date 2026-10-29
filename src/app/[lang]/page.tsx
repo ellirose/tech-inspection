@@ -8,6 +8,7 @@ import { Experience } from "@/components/home/Experience";
 import { MethodsScroll } from "@/components/home/MethodsScroll";
 import { ServicesBento } from "@/components/home/ServicesBento";
 import { FieldBand } from "@/components/home/FieldBand";
+import { FieldGallery } from "@/components/home/FieldGallery";
 import { Platform } from "@/components/home/Platform";
 import { Certifications } from "@/components/home/Certifications";
 import { Team } from "@/components/home/Team";
@@ -37,6 +38,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <MethodsScroll lang={lang} dict={dict} items={methodCards} />
       <ServicesBento lang={lang} dict={dict} />
       <FieldBand dict={dict} />
+      <FieldGallery dict={dict} />
       <Platform dict={dict} />
       <Certifications lang={lang} dict={dict} />
       <Team lang={lang} dict={dict} />

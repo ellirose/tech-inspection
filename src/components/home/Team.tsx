@@ -5,8 +5,16 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { photo } from "@/lib/media";
+import { cn } from "@/lib/cn";
 
-/** Collage of real team photos, each framed in a different shape. */
+const columns = [
+  [photo("/media/photos/team-uniform.jpg"), photo("/media/hseq/training-2.jpg")],
+  [photo("/media/photos/team-office.jpg"), photo("/media/hseq/training-1.jpg")],
+];
+const frames = ["rounded-[2rem] rounded-tl-[5rem]", "rounded-[2rem]", "rounded-[2rem]", "rounded-[2rem] rounded-br-[5rem]"];
+
+/** Collage of real team photos in two offset columns. */
 export function Team({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   const t = dict.team;
   return (
@@ -31,20 +39,18 @@ export function Team({ lang, dict }: { lang: Locale; dict: Dictionary }) {
           </Reveal>
         </div>
 
-        <RevealGroup className="grid grid-cols-6 grid-rows-[repeat(6,4.2rem)] gap-3 sm:grid-rows-[repeat(6,5.5rem)] lg:col-span-8">
-          <RevealItem className="relative col-span-3 row-span-6 overflow-hidden shape-arch shadow-lift">
-            <Image src="/media/photos/team-uniform.jpg" alt="" fill sizes="(min-width:1024px) 30vw, 50vw" className="object-cover" />
-          </RevealItem>
-          <RevealItem className="relative col-span-3 row-span-3 overflow-hidden rounded-full shadow-lift">
-            <Image src="/media/hseq/training-2.jpg" alt="" fill sizes="(min-width:1024px) 30vw, 50vw" className="object-cover" />
-          </RevealItem>
-          <RevealItem className="relative col-span-2 row-span-3 overflow-hidden shape-leaf shadow-lift">
-            <Image src="/media/photos/inspector-logo.jpg" alt="" fill sizes="(min-width:1024px) 20vw, 33vw" className="object-cover object-top" />
-          </RevealItem>
-          <RevealItem className="relative col-span-1 row-span-3 overflow-hidden rounded-full bg-mt-soft shadow-lift">
-            <Image src="/media/hseq/planting-1.jpg" alt="" fill sizes="15vw" className="object-cover" />
-          </RevealItem>
-        </RevealGroup>
+        {/* Staggered columns at each photo's natural ratio: whole groups stay in frame. */}
+        <div className="grid grid-cols-2 items-start gap-3 sm:gap-4 lg:col-span-8">
+          {columns.map((col, c) => (
+            <RevealGroup key={c} className={cn("space-y-3 sm:space-y-4", c === 1 && "pt-10 sm:pt-16")}>
+              {col.map((p, i) => (
+                <RevealItem key={p.src} className={cn("overflow-hidden bg-mist shadow-lift", frames[c * 2 + i])}>
+                  <Image src={p.src} alt="" width={p.w} height={p.h} sizes="(min-width:1024px) 30vw, 50vw" className="h-auto w-full" />
+                </RevealItem>
+              ))}
+            </RevealGroup>
+          ))}
+        </div>
       </Container>
     </section>
   );

@@ -12,6 +12,8 @@ import { Container, Eyebrow } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
 import { CtaBand } from "@/components/ui/CtaBand";
+import { Showcase } from "@/components/media/Showcase";
+import { photos } from "@/lib/media";
 import { cn } from "@/lib/cn";
 
 export async function generateStaticParams() {
@@ -75,11 +77,18 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
         </Reveal>
       </Container>
 
+      <Container className="pb-20">
+        <Eyebrow>{d.pages.services.gallery}</Eyebrow>
+        <Reveal className="mt-8">
+          <Showcase items={photos(s.gallery.filter((g) => g !== s.image))} alt={s.name[lang]} />
+        </Reveal>
+      </Container>
+
       <section className="relative bg-white py-20">
         <div className="pointer-events-none absolute inset-0 bg-dots opacity-60 mask-fade-y" />
         <Container className="relative">
           <Eyebrow>{d.servicesSection.methodsUsed}</Eyebrow>
-          <RevealGroup className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <RevealGroup className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]">
             {s.methods.map((k) => {
               const m = methodByKey(k);
               return (

@@ -15,6 +15,7 @@ export function PageHero({
   lead,
   image,
   imageClass = "rounded-[3rem] rounded-tr-[8rem]",
+  imagePosition = "50% 50%",
   accent,
   children,
 }: {
@@ -24,6 +25,8 @@ export function PageHero({
   lead?: string;
   image?: string;
   imageClass?: string;
+  /** object-position for the photo, so faces stay in frame. */
+  imagePosition?: string;
   accent?: string;
   children?: React.ReactNode;
 }) {
@@ -59,7 +62,7 @@ export function PageHero({
         {image && (
           <Reveal delay={0.15} className="lg:col-span-5">
             <div className={cn("relative aspect-[4/3.4] overflow-hidden shadow-float", imageClass)}>
-              <Image src={image} alt="" fill preload sizes="(min-width:1024px) 40vw, 100vw" className="object-cover" quality={80} />
+              <Image src={image} alt="" fill preload sizes="(min-width:1024px) 40vw, 100vw" className="object-cover" style={{ objectPosition: imagePosition }} quality={80} />
             </div>
           </Reveal>
         )}

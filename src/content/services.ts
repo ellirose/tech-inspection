@@ -7,6 +7,8 @@ export type Service = {
   slug: string;
   icon: ServiceIcon;
   image: string;
+  /** Field photos shown in the service showcase (full frame, never cropped). */
+  gallery: string[];
   name: L10n;
   short: L10n;
   body: [L10n, L10n];
@@ -21,6 +23,7 @@ export const services: Service[] = [
     slug: "tuberia",
     icon: "pipe",
     image: "/media/photos/pipe-bore.jpg",
+    gallery: ["/media/photos/pipe-bore.jpg", "/media/photos/thread-closeup.jpg", "/media/photos/pipe-bore-2.jpg", "/media/methods/mt-8.jpg", "/media/methods/ut-3.jpg", "/media/methods/vt-1.jpg", "/media/photos/crew-yard.jpg"],
     name: { es: "Tubería", pt: "Tubulações", en: "Pipe & OCTG" },
     short: { es: "Drill pipe, casing, tubing y tubería de cementación.", pt: "Drill pipe, casing, tubing e tubulação de cimentação.", en: "Drill pipe, casing, tubing and cementing pipe." },
     body: [
@@ -38,6 +41,7 @@ export const services: Service[] = [
     slug: "componentes-bha",
     icon: "drill",
     image: "/media/photos/drill-bit.jpg",
+    gallery: ["/media/photos/pdc-bit.jpg", "/media/photos/bit-inspection.jpg", "/media/methods/pt-4.jpg", "/media/methods/pt-5.jpg", "/media/methods/mt-5.jpg", "/media/photos/drill-bit.jpg"],
     name: { es: "Componentes de BHA", pt: "Componentes de BHA", en: "BHA components" },
     short: { es: "Brocas, estabilizadores y motores del Bottom Hole Assembly.", pt: "Brocas, estabilizadores e motores do Bottom Hole Assembly.", en: "Bits, stabilizers and motors in the bottom hole assembly." },
     body: [
@@ -55,6 +59,7 @@ export const services: Service[] = [
     slug: "lineas-de-presion",
     icon: "gauge",
     image: "/media/methods/ut-4.jpg",
+    gallery: ["/media/methods/ut-4.jpg", "/media/methods/ut-1.jpg", "/media/methods/ut-5.jpg", "/media/methods/ut-2.jpg", "/media/photos/ut-equipment.jpg", "/media/photos/uv-inspector.jpg"],
     name: { es: "Líneas de presión", pt: "Linhas de pressão", en: "Pressure lines" },
     short: { es: "Sistemas de transporte de fluidos y gases a presión.", pt: "Sistemas de transporte de fluidos e gases sob pressão.", en: "Pressurised fluid and gas transport systems." },
     body: [
@@ -72,6 +77,7 @@ export const services: Service[] = [
     slug: "fishing-wireline",
     icon: "wrench",
     image: "/media/methods/mt-yoke.jpg",
+    gallery: ["/media/methods/mt-yoke.jpg", "/media/methods/mt-16.jpg", "/media/methods/mt-9.jpg", "/media/methods/mt-15.jpg", "/media/methods/mt-14.jpg"],
     name: { es: "Fishing y wireline", pt: "Fishing e wireline", en: "Fishing & wireline" },
     short: { es: "Herramientas de recuperación y mantenimiento de pozos.", pt: "Ferramentas de recuperação e manutenção de poços.", en: "Well recovery and maintenance tools." },
     body: [
@@ -89,6 +95,7 @@ export const services: Service[] = [
     slug: "equipos-de-cementacion",
     icon: "cylinder",
     image: "/media/methods/pt-3.jpg",
+    gallery: ["/media/methods/pt-3.jpg", "/media/methods/pt-9.jpg", "/media/methods/pt-6.jpg", "/media/methods/pt-13.jpg", "/media/methods/pt-1.jpg", "/media/methods/pt-8.jpg"],
     name: { es: "Equipos de cementación", pt: "Equipamentos de cimentação", en: "Cementing equipment" },
     short: { es: "Cabezales, bombas, mezcladores y herramientas asociadas.", pt: "Cabeças, bombas, misturadores e ferramentas associadas.", en: "Heads, pumps, mixers and associated tools." },
     body: [
@@ -106,6 +113,7 @@ export const services: Service[] = [
     slug: "levante-e-izaje",
     icon: "crane",
     image: "/media/photos/workshop-team.jpg",
+    gallery: ["/media/photos/workshop-team.jpg", "/media/photos/tool-measure.jpg", "/media/methods/vt-2.jpg", "/media/methods/vt-3.jpg", "/media/methods/vt-4.jpg", "/media/photos/engineering-tools.jpg"],
     name: { es: "Levante e izaje", pt: "Elevação e içamento", en: "Lifting & hoisting" },
     short: { es: "Cuñas, elevadores, grúas, eslingas, ganchos y polipastos.", pt: "Cunhas, elevadores, guindastes, lingas, ganchos e talhas.", en: "Slips, elevators, cranes, slings, hooks and hoists." },
     body: [
@@ -123,6 +131,7 @@ export const services: Service[] = [
     slug: "tanques",
     icon: "tank",
     image: "/media/photos/pressure-wash.jpg",
+    gallery: ["/media/photos/pressure-wash.jpg", "/media/methods/ut-2.jpg", "/media/photos/oil-field.jpg", "/media/photos/warehouse.jpg"],
     name: { es: "Tanques", pt: "Tanques", en: "Tanks" },
     short: { es: "Espesores, soldaduras y estado general de tanques.", pt: "Espessuras, soldas e estado geral de tanques.", en: "Thickness, welds and overall tank condition." },
     body: [
@@ -141,6 +150,7 @@ export const services: Service[] = [
     slug: "estructural",
     icon: "buildings",
     image: "/media/photos/warehouse.jpg",
+    gallery: ["/media/photos/warehouse.jpg", "/media/photos/inspector-logo.jpg", "/media/photos/team-uniform.jpg", "/media/photos/crew-yard.jpg", "/media/methods/vt-4.jpg"],
     name: { es: "Estructural", pt: "Estrutural", en: "Structural" },
     short: { es: "Puentes, plataformas y edificaciones industriales.", pt: "Pontes, plataformas e edificações industriais.", en: "Bridges, platforms and industrial buildings." },
     body: [

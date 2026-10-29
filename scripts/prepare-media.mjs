@@ -26,6 +26,11 @@ const MAP = {
   "photos/pipe-bore.jpg": "WhatsApp-Image-2018-12-20-at-3.50.14-PM__0b1bae_0e95c0b3189c487b83f53b53d502da35~mv2.jpeg",
   "photos/pipe-bore-2.jpg": "WhatsApp-Image-2018-12-20-at-3.51.03-PM__0b1bae_3d90f33186b446029f22a2c6c4f04f53~mv2.jpeg",
   "photos/drill-bit.jpg": "0b1bae_caee3cc13c7744bb8d6420ab829abe46~mv2.jpeg",
+  "photos/pdc-bit.jpg": "0b1bae_3445d7898ff348d3bc1cdcb0edc5d2fc~mv2.jpeg",
+  "photos/team-office.jpg": "WhatsApp-Image-2018-11-19-at-1.20_edited__0b1bae_51ac034670a24c06b0a3c2579a1f28ab~mv2.jpg",
+  "photos/uv-inspector.jpg": "WhatsApp-Image-2018-08-16-at-7.49.22-PM__0b1bae_a7ff77dcfd9048cbb6b5b9ed5d43ab4e~mv2.jpeg",
+  "photos/engineering-tools.jpg": "Engineering-Tools_edited__0b1bae_51bcb89387d7411c9093ce4cca08ce06~mv2.jpg",
+  "photos/abstract-arch.jpg": "pexels-matheus-natan-3297593-_1_-_2___a3c153_56669e38ce904a728a6246879d546efe~mv2.jpg",
   // Magnetic particles (MT)
   "methods/mt-1.jpg": "0b1bae_43c6b61a68ef45f6b05c42faf54304be~mv2.jpeg",
   "methods/mt-2.jpg": "0b1bae_18f71e00b9cf4707aa1fe5508b37c83d~mv2.jpeg",
@@ -36,6 +41,14 @@ const MAP = {
   "methods/mt-7.jpg": "0b1bae_0ec04b9266c04c7682cfd029f6f89a6f~mv2.jpeg",
   "methods/mt-8.jpg": "IMAG3373__0b1bae_a806e4b70eff4e32a70398e66dd47ed1~mv2_d_5376_3024_s_4_2.jpg",
   "methods/mt-yoke.jpg": "0b1bae_ba84423c88804b1eb4d053305af6c89e~mv2.jpeg",
+  "methods/mt-9.jpg": "0b1bae_6eb8f63e42384ca094272012f7fd57cf~mv2.jpeg",
+  "methods/mt-10.jpg": "0b1bae_907d195cf0e7495cb1ba2149fb932bee~mv2.jpeg",
+  "methods/mt-11.jpg": "0b1bae_ebf7c99534634ef087beaf12f54d146d~mv2.jpeg",
+  "methods/mt-12.jpg": "WhatsApp-Image-2018-12-20-at-3.50.11-PM__0b1bae_d74660f10f374f84b77b48b2bed3a3ed~mv2.jpeg",
+  "methods/mt-13.jpg": "WhatsApp-Image-2018-12-20-at-3.51__0b1bae_650acb0eb73e43fc968bb5adc97be7f8~mv2.jpeg",
+  "methods/mt-14.jpg": "WhatsApp-Image-2018-12-20-at-3.54.48-PM__0b1bae_d6905d5658e445fc8cafbe9b11ee751b~mv2.jpeg",
+  "methods/mt-15.jpg": "0b1bae_92680a4b7d9448c0be0feb418a56cf39~mv2.jpeg",
+  "methods/mt-16.jpg": "WhatsApp-Image-2018-11-04-at-1.21.47-PM__0b1bae_c99a8c7d3ead4f8e8b67df56c51eb871~mv2.jpeg",
   // Penetrant liquids (PT)
   "methods/pt-1.jpg": "0b1bae_5a6ef19dfafa4d3aa695b272e5ccd716f002.jpg",
   "methods/pt-2.jpg": "LIQIDOS-P__0b1bae_f4d0f6c7e3a94ad884b677022d1a0502~mv2.jpg",
@@ -44,11 +57,18 @@ const MAP = {
   "methods/pt-5.jpg": "0b1bae_00ca33189160422384b5682ac0a1be84~mv2.jpeg",
   "methods/pt-6.jpg": "WhatsApp-Image-2018-12-20-at-3.51__0b1bae_f70e884c4d714c9bb8d8044de0fbd980~mv2.jpeg",
   "methods/pt-7.jpg": "0b1bae_428b1530b05e4b9fb924073733dc59a5~mv2.jpeg",
+  "methods/pt-8.jpg": "0b1bae_42c911823ff04fb5819168a1a77adfc5~mv2.jpeg",
+  "methods/pt-9.jpg": "0b1bae_cc65d674f0f34066af596ab8a36d7e66~mv2.jpeg",
+  "methods/pt-10.jpg": "0b1bae_83ff4a1965f047aa813d68b7203210b8~mv2.jpeg",
+  "methods/pt-11.jpg": "0b1bae_a8cc25812a204dc5b52e970260cfb23c~mv2.jpeg",
+  "methods/pt-12.jpg": "0b1bae_e37c44c58845419e8650f07882763194~mv2.jpeg",
+  "methods/pt-13.jpg": "WhatsApp-Image-2018-12-20-at-3.51__0b1bae_b3a37d74de68461691f42e6a5616d302~mv2.jpeg",
   // Ultrasound (UT)
   "methods/ut-1.jpg": "0b1bae_a933dfaec6c74a278e22d65cf69d1be4~mv2.jpeg",
   "methods/ut-2.jpg": "WhatsApp-Image-2018-12-11-at-11.13__0b1bae_47c3cb1fdf944321a762b850e3312129~mv2.jpeg",
   "methods/ut-3.jpg": "0b1bae_26bc3a45f34a473898cbd8bcce13fae8~mv2_d_5376_3024_s_4_2.jpg",
   "methods/ut-4.jpg": "0b1bae_5384f428b04f4d4e86ad4e9d3c19e298~mv2_d_5376_3024_s_4_2.jpg",
+  "methods/ut-5.jpg": "WhatsApp-Image-2018-12-11-at-11.13__0b1bae_dde0cb6c80bf42eaba640b37aa4eec71~mv2.jpeg",
   // Visual & dimensional (VT)
   "methods/vt-1.jpg": "0b1bae_150c58c71fa044e38c3b21a4b8982f05~mv2.jpeg",
   "methods/vt-2.jpg": "0b1bae_ca2121d0f1f04f38af97e08a5dcf2d00~mv2.jpeg",
@@ -65,6 +85,14 @@ const MAP = {
   "hseq/planting-3.jpg": "Grupo-Tech__a4c078_b3137e2f52c74eab8ae7b716dafbf11d~mv2.jpg",
   "hseq/planting-4.jpg": "Siembra-2__a4c078_89c510fdb40643a39619c50ebe889b92~mv2.jpg",
   "hseq/wellbeing.jpg": "bienestar__a4c078_ce1c520a67294f638c56b51401d93c54~mv2.jpg",
+  "hseq/integration-3.jpg": "IMG-20180602-WA0004__a4c078_febde9bf193945228fd1d6f8e52b8a97~mv2.jpg",
+  "hseq/integration-4.jpg": "WhatsApp-Image-2024-12-16-at-2.34_edited__0b1bae_f02b89eed1c8418cb44c07b342439fc1~mv2.jpg",
+  "hseq/planting-carlos.jpg": "Carlos__a4c078_3b90536035a3499eb9d2d721d86e84d7~mv2.jpg",
+  "hseq/planting-juan.jpg": "Juan__a4c078_f746cf5f3c1f4e41922fb9f6f2c1c18e~mv2.jpg",
+  "hseq/planting-julio.jpg": "Julio__a4c078_041ffaf0f41343148db9a80b51786af2~mv2.jpg",
+  "hseq/planting-paola.jpg": "Paola__a4c078_6344d678c5f849a092e5d526acd9d28f~mv2.jpg",
+  "hseq/ppe-strip.jpg": "Grupal__a4c078_e87af9e05d9446d0980bc878ca31c86f~mv2.png",
+  "hseq/data-protection.jpg": "proteccion-datos__a4c078_8de5f2f6afc0436b9440fa74631f1be8~mv2.png",
   // Leadership
   "team/julio.jpg": "Julio-1__a4c078_691382590e4b455286733aabd6c6944a~mv2.jpg",
   "team/mariela.jpg": "Mariela-1__a4c078_41c2b3e648614eebbe83e60270c69940~mv2.jpg",
@@ -89,7 +117,7 @@ const ensure = (p) => fs.mkdirSync(path.dirname(p), { recursive: true });
 for (const [dest, src] of Object.entries(MAP)) {
   const out = path.join(OUT, dest);
   ensure(out);
-  await sharp(img(src)).rotate().resize(2000, 2000, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 84, mozjpeg: true }).toFile(out);
+  await sharp(img(src)).rotate().flatten({ background: "#ffffff" }).resize(2000, 2000, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 84, mozjpeg: true }).toFile(out);
 }
 for (const [dest, src] of Object.entries(LOGOS)) {
   const out = path.join(OUT, dest);
@@ -102,3 +130,13 @@ for (const [dest, src] of Object.entries(VIDEOS)) {
   fs.copyFileSync(path.join(SRC, "videos", src), out);
 }
 console.log(`images ${Object.keys(MAP).length}, logos ${Object.keys(LOGOS).length}, videos ${Object.keys(VIDEOS).length}`);
+
+// Intrinsic sizes let galleries render photos at their natural aspect ratio (no cropping).
+const sizes = {};
+for (const dest of Object.keys(MAP).sort()) {
+  const { width, height } = await sharp(path.join(OUT, dest)).metadata();
+  sizes[`/media/${dest}`] = [width, height];
+}
+const rows = Object.entries(sizes).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)}`);
+fs.writeFileSync(path.resolve("src/content/media-sizes.json"), `{\n${rows.join(",\n")}\n}\n`);
+console.log(`sizes ${Object.keys(sizes).length}`);

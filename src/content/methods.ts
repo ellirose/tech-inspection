@@ -50,7 +50,7 @@ export const methods: Method[] = [
       { title: { es: "Informe", pt: "Relatório", en: "Report" }, text: { es: "Evaluamos frente a la norma y documentamos el resultado.", pt: "Avaliamos conforme a norma e documentamos o resultado.", en: "Indications are judged against the code and documented." } },
     ],
     cover: "/media/methods/mt-1.jpg",
-    gallery: ["/media/methods/mt-1.jpg", "/media/methods/mt-4.jpg", "/media/methods/mt-2.jpg", "/media/methods/mt-7.jpg", "/media/methods/mt-3.jpg", "/media/methods/mt-6.jpg", "/media/methods/mt-8.jpg", "/media/methods/mt-yoke.jpg"],
+    gallery: ["/media/methods/mt-1.jpg", "/media/methods/mt-4.jpg", "/media/methods/mt-2.jpg", "/media/methods/mt-7.jpg", "/media/methods/mt-3.jpg", "/media/methods/mt-6.jpg", "/media/methods/mt-8.jpg", "/media/methods/mt-yoke.jpg", "/media/methods/mt-5.jpg", "/media/methods/mt-10.jpg", "/media/methods/mt-11.jpg", "/media/methods/mt-12.jpg", "/media/methods/mt-13.jpg", "/media/methods/mt-14.jpg", "/media/methods/mt-15.jpg", "/media/photos/uv-inspector.jpg"],
     video: { src: "/media/video/mt-field.mp4", poster: "/media/methods/mt-6.jpg" },
   },
   {
@@ -85,7 +85,7 @@ export const methods: Method[] = [
       { title: { es: "Revelado", pt: "Revelação", en: "Develop" }, text: { es: "El revelador hace visible cada indicación para evaluarla.", pt: "O revelador torna cada indicação visível para avaliação.", en: "The developer makes every indication visible for evaluation." } },
     ],
     cover: "/media/methods/pt-1.jpg",
-    gallery: ["/media/methods/pt-1.jpg", "/media/methods/pt-3.jpg", "/media/methods/pt-4.jpg", "/media/methods/pt-6.jpg", "/media/methods/pt-7.jpg", "/media/methods/pt-5.jpg", "/media/methods/pt-2.jpg"],
+    gallery: ["/media/methods/pt-1.jpg", "/media/methods/pt-3.jpg", "/media/methods/pt-4.jpg", "/media/methods/pt-6.jpg", "/media/methods/pt-7.jpg", "/media/methods/pt-5.jpg", "/media/methods/pt-2.jpg", "/media/methods/pt-8.jpg", "/media/methods/pt-10.jpg", "/media/methods/pt-11.jpg", "/media/methods/pt-12.jpg", "/media/methods/pt-13.jpg"],
     video: { src: "/media/video/pt-field.mp4", poster: "/media/methods/pt-1.jpg" },
   },
   {
@@ -120,7 +120,7 @@ export const methods: Method[] = [
       { title: { es: "Evaluación", pt: "Avaliação", en: "Evaluate" }, text: { es: "Dimensionamos indicaciones y registramos espesores.", pt: "Dimensionamos indicações e registramos espessuras.", en: "Indications are sized and thicknesses recorded." } },
     ],
     cover: "/media/methods/ut-1.jpg",
-    gallery: ["/media/methods/ut-1.jpg", "/media/methods/ut-2.jpg", "/media/methods/ut-3.jpg", "/media/methods/ut-4.jpg", "/media/photos/ut-equipment.jpg"],
+    gallery: ["/media/methods/ut-1.jpg", "/media/methods/ut-2.jpg", "/media/methods/ut-3.jpg", "/media/methods/ut-4.jpg", "/media/methods/ut-5.jpg", "/media/photos/ut-equipment.jpg"],
   },
   {
     key: "vt",
@@ -154,7 +154,7 @@ export const methods: Method[] = [
       { title: { es: "Informe", pt: "Relatório", en: "Report" }, text: { es: "Datos trazables frente a la norma aplicable.", pt: "Dados rastreáveis conforme a norma aplicável.", en: "Traceable data against the applicable code." } },
     ],
     cover: "/media/methods/vt-1.jpg",
-    gallery: ["/media/methods/vt-1.jpg", "/media/methods/vt-2.jpg", "/media/methods/vt-3.jpg", "/media/methods/vt-4.jpg", "/media/photos/tool-measure.jpg", "/media/photos/pipe-bore-2.jpg"],
+    gallery: ["/media/methods/vt-1.jpg", "/media/methods/vt-2.jpg", "/media/methods/vt-3.jpg", "/media/methods/vt-4.jpg", "/media/photos/tool-measure.jpg", "/media/photos/pipe-bore-2.jpg", "/media/photos/engineering-tools.jpg"],
   },
 ];
 
