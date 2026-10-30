@@ -8,7 +8,7 @@ import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
-import { Credentials } from "@/components/home/Credentials";
+import { WhyUs } from "@/components/home/WhyUs";
 import { Timeline } from "@/components/home/Timeline";
 import { Partner } from "@/components/home/Partner";
 import { Closing } from "@/components/home/Closing";
@@ -73,7 +73,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
         </Container>
       </section>
 
-      <Credentials lang={lang} dict={d} index="01" />
+      <WhyUs lang={lang} dict={d} />
       <Timeline lang={lang} dict={d} index="02" />
       <Partner lang={lang} dict={d} index="03" intro={false} />
       <Closing lang={lang} index="04" ulterra />

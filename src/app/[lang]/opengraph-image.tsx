@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { hasLocale, type Locale } from "@/i18n/config";
-import { cover } from "@/content/deck";
+import { home } from "@/content/home";
 
 export const alt = "Tech-Inspection S.A.S. — NDT";
 export const size = { width: 1200, height: 630 };
@@ -21,20 +21,21 @@ export default async function Image({ params }: { params: Promise<{ lang: string
     readFile(join(process.cwd(), "src/assets/fonts/jakarta-800.ttf")),
     readFile(join(process.cwd(), "src/assets/fonts/geist-mono-500.ttf")),
   ]);
-  const words = cover.title[lang].split(" ");
-  const last = words.pop();
+  const h = home.hero;
+  const tail = h.titleB[lang].replace(/[.]$/, "").split(" ");
+  const last = tail.pop();
   const chips = ["ISO 9001", "ISO 45001", "RUC", { es: "ASNT Nivel II", pt: "ASNT Nível II", en: "ASNT Level II" }[lang], "DS-1"];
 
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", background: "#f3f6fb", position: "relative", fontFamily: "Jakarta", color: "#0b1533" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", background: "#f2f7fa", position: "relative", fontFamily: "Jakarta", color: "#071a2e" }}>
         {/* blueprint grid */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             display: "flex",
-            backgroundImage: "linear-gradient(to right, rgba(20,38,173,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(20,38,173,0.07) 1px, transparent 1px)",
+            backgroundImage: "linear-gradient(to right, rgba(10,100,191,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(10,100,191,0.07) 1px, transparent 1px)",
             backgroundSize: "56px 56px",
           }}
         />
@@ -45,28 +46,31 @@ export default async function Image({ params }: { params: Promise<{ lang: string
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12, fontFamily: "Mono", fontSize: 19, letterSpacing: 3, color: "#0592c4" }}>
               <div style={{ display: "flex", width: 14, height: 14, borderRadius: 99, background: "#1fc8f5" }} />
-              NDT · DS-1
+              {h.eyebrow[lang].toUpperCase()}
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", fontSize: 70, fontWeight: 800, lineHeight: 1.0, letterSpacing: -3, marginTop: 18 }}>
-              {words.join(" ")}&nbsp;
-              <span style={{ color: "#1f37d6", backgroundImage: "linear-gradient(transparent 70%, rgba(134,227,58,0.75) 70%)" }}>{last}</span>
+            <div style={{ display: "flex", flexDirection: "column", fontSize: 62, fontWeight: 800, lineHeight: 1.02, letterSpacing: -2.5, marginTop: 18 }}>
+              <span>{h.titleA[lang]}</span>
+              <span style={{ display: "flex", flexWrap: "wrap", color: "#0a64bf" }}>
+                {tail.join(" ")}&nbsp;
+                <span style={{ backgroundImage: "linear-gradient(transparent 70%, rgba(134,227,58,0.75) 70%)" }}>{last + "."}</span>
+              </span>
             </div>
-            <div style={{ display: "flex", fontSize: 25, fontWeight: 600, lineHeight: 1.35, color: "#3b4766", marginTop: 20 }}>{cover.lead[lang]}</div>
+            <div style={{ display: "flex", fontSize: 22, fontWeight: 600, lineHeight: 1.35, color: "#3a4d63", marginTop: 20 }}>{h.lead[lang]}</div>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             {chips.map((c) => (
-              <div key={c} style={{ display: "flex", padding: "9px 16px", borderRadius: 999, background: "white", border: "1px solid #dde4f0", fontSize: 19, fontWeight: 600 }}>
+              <div key={c} style={{ display: "flex", padding: "9px 16px", borderRadius: 999, background: "white", border: "1px solid #dbe5ee", fontSize: 19, fontWeight: 600 }}>
                 {c}
               </div>
             ))}
           </div>
         </div>
         {/* tilted photo card */}
-        <div style={{ position: "absolute", right: 56, top: 70, width: 410, height: 490, display: "flex", borderRadius: 44, overflow: "hidden", border: "8px solid white", boxShadow: "0 40px 80px -30px rgba(20,38,120,0.45)", transform: "rotate(3deg)" }}>
+        <div style={{ position: "absolute", right: 56, top: 70, width: 410, height: 490, display: "flex", borderRadius: 44, overflow: "hidden", border: "8px solid white", boxShadow: "0 40px 80px -30px rgba(8,45,80,0.45)", transform: "rotate(3deg)" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={photo} width={760} height={630} alt="" style={{ width: 410, height: 490, objectFit: "cover" }} />
         </div>
-        <div style={{ position: "absolute", right: 400, bottom: 70, display: "flex", alignItems: "center", gap: 12, padding: "12px 20px 12px 12px", background: "white", borderRadius: 22, boxShadow: "0 20px 40px -18px rgba(20,38,120,0.45)" }}>
+        <div style={{ position: "absolute", right: 330, top: 52, display: "flex", alignItems: "center", gap: 12, padding: "12px 20px 12px 12px", background: "white", borderRadius: 22, boxShadow: "0 20px 40px -18px rgba(8,45,80,0.45)" }}>
           <div style={{ display: "flex", width: 46, height: 46, borderRadius: 14, background: "#86e33a", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 15 }}>+10</div>
           <div style={{ display: "flex", fontSize: 19, fontWeight: 800 }}>Oil & Gas</div>
         </div>

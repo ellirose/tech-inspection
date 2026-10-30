@@ -44,7 +44,7 @@ export function Timeline({ lang, dict, index }: { lang: Locale; dict: Dictionary
             const last = i === n - 1;
             return (
               <div key={m.year} className="absolute flex w-[11.5%] -translate-x-1/2 flex-col items-center text-center" style={{ left: `${((i + 0.5) / n) * 100}%`, bottom: lift(i) - 9 }}>
-                <span className={cn("grid size-16 place-items-center rounded-full shadow-card ring-1", last ? "bg-lime text-[#0b1533] ring-lime" : "bg-surface text-accent ring-line")}>
+                <span className={cn("grid size-16 place-items-center rounded-full shadow-card ring-1", last ? "bg-lime text-[#071a2e] ring-lime" : "bg-surface text-accent ring-line")}>
                   <Icon weight="duotone" className="size-8" />
                 </span>
                 <span className={cn("mt-2 text-2xl font-extrabold tracking-tight", last ? "text-accent-ink" : "text-ink")}>{m.year}</span>
@@ -64,7 +64,7 @@ export function Timeline({ lang, dict, index }: { lang: Locale; dict: Dictionary
             const last = i === n - 1;
             return (
               <RevealItem key={m.year} className="relative flex items-center gap-4">
-                <span className={cn("grid size-16 shrink-0 place-items-center rounded-full shadow-card ring-1", last ? "bg-lime text-[#0b1533] ring-lime" : "bg-surface text-accent ring-line")}>
+                <span className={cn("grid size-16 shrink-0 place-items-center rounded-full shadow-card ring-1", last ? "bg-lime text-[#071a2e] ring-lime" : "bg-surface text-accent ring-line")}>
                   <Icon weight="duotone" className="size-8" />
                 </span>
                 <div>

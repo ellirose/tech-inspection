@@ -4,7 +4,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { ServicesGrid } from "@/components/home/ServicesGrid";
-import { WhyBit } from "@/components/home/WhyBit";
+import { ProcessBand } from "@/components/home/ProcessBand";
 import { CtaBand } from "@/components/ui/CtaBand";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/servicios">) {
@@ -31,7 +31,7 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
         caption={d.ui.services}
       />
       <ServicesGrid lang={lang} dict={d} heading={false} />
-      <WhyBit lang={lang} dict={d} index="DS-1" />
+      <ProcessBand lang={lang} />
       <CtaBand lang={lang} dict={d} />
     </>
   );

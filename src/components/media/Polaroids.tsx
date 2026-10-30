@@ -20,7 +20,7 @@ export function Polaroids({ items, className }: { items: Photo[]; className?: st
           )}
         >
           <Image src={p.src} alt={p.caption ?? ""} width={p.w} height={p.h} sizes="(min-width:640px) 20rem, 45vw" className="h-auto w-full" />
-          {p.caption && <p className="mt-3 text-center text-lg font-bold text-[#0b1533]">{p.caption}</p>}
+          {p.caption && <p className="mt-3 text-center text-lg font-bold text-[#071a2e]">{p.caption}</p>}
         </li>
       ))}
     </ul>

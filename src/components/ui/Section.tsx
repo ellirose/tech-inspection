@@ -74,7 +74,7 @@ const badgeTone = {
   neon: "bg-[#e2f8fe] text-neon-deep ring-neon/30 dark:bg-neon/10 dark:text-neon dark:ring-neon/30",
   lime: "bg-[#eefbe0] text-lime-deep ring-lime/40 dark:bg-lime/10 dark:text-lime dark:ring-lime/30",
   red: "bg-[#feebee] text-pt ring-pt/25 dark:bg-pt/10 dark:ring-pt/30",
-  solid: "bg-brand-600 text-white ring-brand-500 shadow-[0_12px_28px_-10px_rgb(31_55_214/0.7)] dark:bg-neon dark:text-[#0b1533] dark:ring-neon",
+  solid: "bg-brand-600 text-white ring-brand-500 shadow-[0_12px_28px_-10px_rgb(31_55_214/0.7)] dark:bg-neon dark:text-[#071a2e] dark:ring-neon",
 } as const;
 
 /** Large, prominent icon tile: duotone glyph in a tinted square, circle or hexagon. */

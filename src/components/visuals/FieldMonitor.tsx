@@ -26,7 +26,7 @@ export function FieldMonitor({ src, poster, label, className, tone = "#6fd11c" }
         <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/45 px-3 py-1 font-mono text-xs font-bold tracking-widest text-white backdrop-blur">
           <span className="size-2 animate-pulse rounded-full bg-pt" /> REC
         </div>
-        <span className="absolute right-3 top-3 rounded-full px-3 py-1 font-mono text-xs font-bold tracking-widest text-[#0b1533]" style={{ backgroundColor: tone }}>
+        <span className="absolute right-3 top-3 rounded-full px-3 py-1 font-mono text-xs font-bold tracking-widest text-[#071a2e]" style={{ backgroundColor: tone }}>
           {label}
         </span>
         <div className="absolute inset-3 rounded-2xl border border-white/25" />

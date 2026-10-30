@@ -110,10 +110,10 @@ export function Header({ data, theme }: { data: NavData; theme: { light: string;
             <LangMenu lang={lang} label={nav.language} className="hidden sm:block" />
             <Link
               href={`${base}/contacto#cotizar`}
-              className="group hidden h-12 items-center gap-3 whitespace-nowrap rounded-full bg-brand-600 pl-5 pr-1.5 text-[1.02rem] font-bold text-white shadow-[0_12px_26px_-12px_rgb(31_55_214/0.8)] transition hover:bg-brand-500 md:flex dark:bg-neon dark:text-[#0b1533]"
+              className="group hidden h-12 items-center gap-3 whitespace-nowrap rounded-full bg-brand-600 pl-5 pr-1.5 text-[1.02rem] font-bold text-white shadow-[0_12px_26px_-12px_rgb(31_55_214/0.8)] transition hover:bg-brand-500 md:flex dark:bg-neon dark:text-[#071a2e]"
             >
               {nav.quote}
-              <span className="grid size-9 place-items-center rounded-full bg-white/15 transition group-hover:translate-x-0.5 group-hover:bg-lime group-hover:text-[#0b1533] dark:bg-[#0b1533]/10">
+              <span className="grid size-9 place-items-center rounded-full bg-white/15 transition group-hover:translate-x-0.5 group-hover:bg-lime group-hover:text-[#071a2e] dark:bg-[#071a2e]/10">
                 <ArrowRight weight="bold" className="size-4" />
               </span>
             </Link>
@@ -158,7 +158,7 @@ export function Header({ data, theme }: { data: NavData; theme: { light: string;
                 <div className="grid grid-cols-3 gap-2">
                   {data.services.map((s) => (
                     <Link key={s.slug} href={`${base}/servicios/${s.slug}`} className="group flex items-center gap-4 rounded-2xl p-3 transition hover:bg-surface hover:shadow-soft">
-                      <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-tint text-accent ring-1 ring-neon/20 transition group-hover:bg-brand-600 group-hover:text-white dark:group-hover:bg-neon dark:group-hover:text-[#0b1533]">
+                      <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-tint text-accent ring-1 ring-neon/20 transition group-hover:bg-brand-600 group-hover:text-white dark:group-hover:bg-neon dark:group-hover:text-[#071a2e]">
                         <ServiceGlyph name={s.icon} className="size-8" />
                       </span>
                       <span className="min-w-0">
@@ -218,7 +218,7 @@ export function Header({ data, theme }: { data: NavData; theme: { light: string;
                   <LangMenu lang={lang} label={nav.language} placement="up" />
                   <ThemeToggle labels={theme} />
                 </div>
-                <Link href={`${base}/contacto#cotizar`} className="flex h-14 items-center justify-center gap-2 rounded-full bg-brand-600 text-lg font-bold text-white dark:bg-neon dark:text-[#0b1533]">
+                <Link href={`${base}/contacto#cotizar`} className="flex h-14 items-center justify-center gap-2 rounded-full bg-brand-600 text-lg font-bold text-white dark:bg-neon dark:text-[#071a2e]">
                   {nav.quote}
                   <ArrowRight weight="bold" className="size-5" />
                 </Link>

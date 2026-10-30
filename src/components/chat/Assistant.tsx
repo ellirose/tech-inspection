@@ -213,7 +213,7 @@ export function Assistant(props: AssistantProps) {
             {open ? <X weight="bold" className="size-7" /> : <ChatCircleDots weight="light" className="size-7" />}
           </motion.span>
         </AnimatePresence>
-        {!open && <span className="absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full bg-lime text-[#0b1533] ring-2 ring-surface"><Sparkle weight="fill" className="size-3" /></span>}
+        {!open && <span className="absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full bg-lime text-[#071a2e] ring-2 ring-surface"><Sparkle weight="fill" className="size-3" /></span>}
       </motion.button>
 
       <AnimatePresence>
@@ -263,7 +263,7 @@ export function Assistant(props: AssistantProps) {
                       rel={m.link.external ? "noopener" : undefined}
                       className={cn(
                         "mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold",
-                        m.link.whatsapp ? "bg-whatsapp text-white" : "bg-neon text-[#0b1533]",
+                        m.link.whatsapp ? "bg-whatsapp text-white" : "bg-neon text-[#071a2e]",
                       )}
                     >
                       {m.link.whatsapp && <WhatsappLogo weight="fill" className="size-5" />}

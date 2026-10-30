@@ -20,10 +20,10 @@ import { CtaBand } from "@/components/ui/CtaBand";
 import { cn } from "@/lib/cn";
 
 const tone: Record<MethodKey, { tile: string; text: string; hex: string }> = {
-  vt: { tile: "bg-vt text-[#0b1533]", text: "text-[#c47a00] dark:text-vt", hex: "#f5a524" },
-  mt: { tile: "bg-mt text-[#0b1533]", text: "text-lime-deep dark:text-mt", hex: "#7ad62a" },
+  vt: { tile: "bg-vt text-[#071a2e]", text: "text-[#c47a00] dark:text-vt", hex: "#f5a524" },
+  mt: { tile: "bg-mt text-[#071a2e]", text: "text-lime-deep dark:text-mt", hex: "#7ad62a" },
   pt: { tile: "bg-pt text-white", text: "text-pt", hex: "#ef3e57" },
-  ut: { tile: "bg-ut text-[#0b1533]", text: "text-[#0784b8] dark:text-ut", hex: "#1fb3ee" },
+  ut: { tile: "bg-ut text-[#071a2e]", text: "text-[#0784b8] dark:text-ut", hex: "#1fb3ee" },
 };
 
 export async function generateStaticParams() {

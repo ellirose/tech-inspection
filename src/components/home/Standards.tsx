@@ -8,13 +8,13 @@ import { cn } from "@/lib/cn";
 const look = {
   "DS-1": { hex: "bg-pt text-white", check: "text-pt", card: "rounded-[2rem] rounded-tl-[5rem]" },
   ASTM: { hex: "bg-brand-600 text-white dark:bg-brand-400", check: "text-brand-500 dark:text-brand-300", card: "rounded-[2rem]" },
-  API: { hex: "bg-lime text-[#0b1533]", check: "text-lime-deep dark:text-lime", card: "rounded-[2rem] rounded-br-[5rem]" },
+  API: { hex: "bg-lime text-[#071a2e]", check: "text-lime-deep dark:text-lime", card: "rounded-[2rem] rounded-br-[5rem]" },
 } as const;
 
 const moreIcons = [ListChecks, GraduationCap, Headset];
 
 /** Slide 8: the international standards behind each decision. */
-export function Standards({ lang, index = "06" }: { lang: Locale; index?: string }) {
+export function Standards({ lang, index }: { lang: Locale; index?: string }) {
   const t = standards.triad;
   return (
     <section className="relative isolate overflow-hidden py-24 sm:py-32">

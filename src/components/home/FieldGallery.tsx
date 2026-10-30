@@ -12,7 +12,7 @@ const rows: [string[], string[]] = [
 export function FieldGallery({ dict, index }: { dict: Dictionary; index?: string }) {
   const g = dict.gallery;
   return (
-    <section className="relative isolate overflow-hidden pb-4 pt-24 sm:pt-32">
+    <section className="relative isolate overflow-hidden pb-24 pt-24 sm:pb-32 sm:pt-32">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-dots mask-radial" />
       <Container>
         <SectionHeading align="center" index={index} eyebrow={g.eyebrow} title={g.title} lead={g.lead} />

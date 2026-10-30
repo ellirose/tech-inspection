@@ -19,10 +19,10 @@ import { photos } from "@/lib/media";
 import { cn } from "@/lib/cn";
 
 const tile: Record<MethodKey, string> = {
-  vt: "bg-vt text-[#0b1533]",
-  mt: "bg-mt text-[#0b1533]",
+  vt: "bg-vt text-[#071a2e]",
+  mt: "bg-mt text-[#071a2e]",
   pt: "bg-pt text-white",
-  ut: "bg-ut text-[#0b1533]",
+  ut: "bg-ut text-[#071a2e]",
 };
 
 export async function generateStaticParams() {
@@ -63,7 +63,7 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
         image={s.image}
         caption={s.methods.map((k) => methodByKey(k).code).join(" · ")}
       >
-        <span className="mt-8 grid size-20 place-items-center rounded-3xl bg-brand-600 text-white shadow-float dark:bg-neon dark:text-[#0b1533]">
+        <span className="mt-8 grid size-20 place-items-center rounded-3xl bg-brand-600 text-white shadow-float dark:bg-neon dark:text-[#071a2e]">
           <ServiceGlyph name={s.icon} className="size-11" />
         </span>
       </PageHero>

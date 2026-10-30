@@ -15,17 +15,55 @@ const tones = ["solid", "neon", "brand", "lime", "brand", "neon"] as const;
 const shapes = ["rounded-[2rem] rounded-tl-[3.5rem]", "rounded-[2rem]", "rounded-[2rem] rounded-tr-[3.5rem]", "rounded-[2rem] rounded-bl-[3.5rem]", "rounded-[2rem]", "rounded-[2rem] rounded-br-[3.5rem]"];
 
 /** Slide 10: TI-QMS, the digital traceability platform. */
-export function PlatformShowcase({ lang, dict, index = "09", benefits = false, link = true }: { lang: Locale; dict: Dictionary; index?: string; benefits?: boolean; link?: boolean }) {
+export function PlatformShowcase({
+  lang,
+  dict,
+  index,
+  benefits = false,
+  link = true,
+  compact = false,
+  title,
+  className,
+}: {
+  lang: Locale;
+  dict: Dictionary;
+  index?: string;
+  benefits?: boolean;
+  link?: boolean;
+  /** Feature list beside the tablet instead of a card grid (landing page). */
+  compact?: boolean;
+  title?: string;
+  className?: string;
+}) {
   const f = tiqms.features;
   return (
-    <section className="relative isolate overflow-hidden bg-tint py-24 sm:py-32">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-50 mask-fade-y" />
+    <section className={cn("relative isolate overflow-hidden py-24 sm:py-32", compact ? "bg-surface" : "bg-tint", className)}>
+      {compact ? (
+        <div className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-2/3 [mask-image:linear-gradient(to_right,#000_30%,transparent)]">
+          <div className="absolute inset-0 bg-contours opacity-80" />
+        </div>
+      ) : (
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-50 mask-fade-y" />
+      )}
       <Container>
         <div className="grid gap-14 lg:grid-cols-12 lg:items-center">
           <Reveal className="lg:col-span-5">
             <Eyebrow index={index}>TI-QMS · {tiqms.kicker[lang]}</Eyebrow>
-            <h2 className="mt-6 text-balance text-[clamp(2.2rem,4vw,3.6rem)] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink">{tiqms.title[lang]}</h2>
+            <h2 className="mt-6 text-balance text-[clamp(2.2rem,4vw,3.6rem)] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink">{title ?? tiqms.title[lang]}</h2>
             <p className="mt-6 text-lg leading-relaxed text-ink-soft sm:text-xl">{dict.platform.lead}</p>
+            {compact && (
+              <ul className="mt-8 grid gap-x-6 gap-y-4 sm:grid-cols-2">
+                {f.map((x, i) => {
+                  const Icon = featureIcons[x.key as keyof typeof featureIcons];
+                  return (
+                    <li key={x.key} className="flex items-center gap-3.5">
+                      <IconBadge icon={Icon} size="md" tone={tones[i]} shape={i % 2 ? "circle" : "square"} />
+                      <span className="text-[1.05rem] font-bold leading-tight text-ink">{x.t[lang]}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               {link && <ButtonLink href={`/${lang}/plataforma`}>{dict.ui.seePlatform}</ButtonLink>}
               <ButtonLink href={PLATFORM_URL} variant="ghost">
@@ -53,6 +91,7 @@ export function PlatformShowcase({ lang, dict, index = "09", benefits = false, l
           </Reveal>
         </div>
 
+        {!compact && (
         <RevealGroup className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {f.map((x, i) => {
             const Icon = featureIcons[x.key as keyof typeof featureIcons];
@@ -67,6 +106,7 @@ export function PlatformShowcase({ lang, dict, index = "09", benefits = false, l
             );
           })}
         </RevealGroup>
+        )}
 
         {benefits && (
           <div className="mt-16">

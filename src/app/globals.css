@@ -9,17 +9,18 @@
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  /* Brand cobalt, anchored on the logo's #030A8C */
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #dce4ff;
-  --color-brand-200: #bac8ff;
-  --color-brand-300: #8ea3ff;
-  --color-brand-400: #5f78fb;
-  --color-brand-500: #3a52f0;
-  --color-brand-600: #1f37d6;
-  --color-brand-700: #1426ad;
-  --color-brand-800: #0d1a86;
-  --color-brand-900: #0a1460;
+  /* Brand ocean azure: a clean industrial blue that sits between the logo navy and the deck's neon cyan */
+  --color-brand-50: #ecf6ff;
+  --color-brand-100: #d5ebff;
+  --color-brand-200: #aed7ff;
+  --color-brand-300: #74bbfb;
+  --color-brand-400: #3a98f0;
+  --color-brand-500: #157bdc;
+  --color-brand-600: #0a64bf;
+  --color-brand-700: #0b5199;
+  --color-brand-800: #0e437c;
+  --color-brand-900: #0f3866;
+  --color-brand-950: #0a2341;
 
   /* Neon accents from the client deck */
   --color-neon: #1fc8f5;
@@ -34,9 +35,9 @@
   --color-vt: #f5a524;
   --color-whatsapp: #25d366;
 
-  --shadow-soft: 0 1px 2px rgb(20 38 120 / 0.06), 0 10px 30px -12px rgb(20 38 120 / 0.18);
-  --shadow-card: 0 2px 6px rgb(20 38 120 / 0.06), 0 24px 50px -24px rgb(20 38 120 / 0.28);
-  --shadow-float: 0 40px 80px -30px rgb(20 38 120 / 0.38), 0 12px 28px -14px rgb(20 38 120 / 0.2);
+  --shadow-soft: 0 1px 2px rgb(8 45 80 / 0.06), 0 10px 30px -12px rgb(8 45 80 / 0.18);
+  --shadow-card: 0 2px 6px rgb(8 45 80 / 0.06), 0 24px 50px -24px rgb(8 45 80 / 0.28);
+  --shadow-float: 0 40px 80px -30px rgb(8 45 80 / 0.38), 0 12px 28px -14px rgb(8 45 80 / 0.2);
   --shadow-neon: 0 0 0 1px rgb(31 200 245 / 0.35), 0 14px 36px -10px rgb(31 200 245 / 0.55);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -48,6 +49,19 @@
   --animate-orbit-rev: spin-rev 48s linear infinite;
   --animate-float: float 7s ease-in-out infinite;
   --animate-dash: dash 1.6s linear infinite;
+  --animate-sonar: sonar 4.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  --animate-spin-slow: spin 28s linear infinite;
+  --animate-kenburns: kenburns 18s ease-in-out infinite alternate;
+
+  @keyframes sonar {
+    0% { transform: scale(0.35); opacity: 0; }
+    15% { opacity: 0.9; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  @keyframes kenburns {
+    from { transform: scale(1.02) translate(0, 0); }
+    to { transform: scale(1.12) translate(-1.5%, -1%); }
+  }
 
   @keyframes marquee {
     to { transform: translateX(-50%); }
@@ -87,39 +101,44 @@
   --color-accent: var(--accent);
   --color-accent-ink: var(--accent-ink);
   --color-glass: var(--glass);
+  --color-mist: var(--mist);
 }
 
 :root {
-  --canvas: #f3f6fb;
+  --canvas: #f2f7fa;
   --surface: #ffffff;
-  --surface-2: #f7f9fd;
-  --tint: #e9f7fd;
-  --ink: #0b1533;
-  --ink-soft: #3b4766;
-  --mute: #66718f;
-  --line: #dde4f0;
-  --accent: #1426ad;
+  --surface-2: #f6fafc;
+  --tint: #e5f5fc;
+  --mist: #edf3f8;
+  --ink: #071a2e;
+  --ink-soft: #3a4d63;
+  --mute: #64778c;
+  --line: #dbe5ee;
+  --accent: #0a64bf;
   --accent-ink: #0592c4;
-  --glass: rgb(255 255 255 / 0.72);
-  --grid: rgb(20 38 173 / 0.07);
-  --dot: rgb(20 38 173 / 0.14);
+  --glass: rgb(255 255 255 / 0.74);
+  --grid: rgb(10 100 191 / 0.07);
+  --dot: rgb(10 100 191 / 0.15);
+  --contour: rgb(5 146 196 / 0.22);
   color-scheme: light;
 }
 
 [data-theme="dark"] {
-  --canvas: #0c1638;
-  --surface: #13204c;
-  --surface-2: #172759;
-  --tint: #11245a;
-  --ink: #eef3ff;
-  --ink-soft: #bcc7e6;
-  --mute: #8b97bd;
-  --line: #273a78;
-  --accent: #8ea3ff;
+  --canvas: #0a1d30;
+  --surface: #102a42;
+  --surface-2: #13314c;
+  --tint: #0e3049;
+  --mist: #0d2539;
+  --ink: #edf6fc;
+  --ink-soft: #b7cadb;
+  --mute: #86a0b6;
+  --line: #1f4260;
+  --accent: #5cc2ff;
   --accent-ink: #3fd6ff;
-  --glass: rgb(23 39 89 / 0.7);
-  --grid: rgb(142 163 255 / 0.08);
+  --glass: rgb(16 42 66 / 0.72);
+  --grid: rgb(92 194 255 / 0.07);
   --dot: rgb(63 214 255 / 0.16);
+  --contour: rgb(63 214 255 / 0.18);
   color-scheme: dark;
 }
 
@@ -136,7 +155,7 @@
   }
   ::selection {
     background: var(--color-neon);
-    color: #0b1533;
+    color: #071a2e;
   }
   :focus-visible {
     outline: 2px solid var(--color-neon);
@@ -159,6 +178,39 @@
 @utility bg-network {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='none' stroke='%231fc8f5' stroke-opacity='.28' stroke-width='.8'%3E%3Cpath d='M10 40 L90 20 L170 70 L250 30 L310 80 M90 20 L120 110 L170 70 L210 150 L250 30 M120 110 L40 160 L10 40 M210 150 L300 190 L310 80 M40 160 L130 200 L210 150'/%3E%3C/g%3E%3Cg fill='%231fc8f5' fill-opacity='.55'%3E%3Ccircle cx='10' cy='40' r='2'/%3E%3Ccircle cx='90' cy='20' r='2'/%3E%3Ccircle cx='170' cy='70' r='2.4'/%3E%3Ccircle cx='250' cy='30' r='2'/%3E%3Ccircle cx='310' cy='80' r='2'/%3E%3Ccircle cx='120' cy='110' r='2.4'/%3E%3Ccircle cx='210' cy='150' r='2'/%3E%3Ccircle cx='40' cy='160' r='2'/%3E%3Ccircle cx='300' cy='190' r='2'/%3E%3Ccircle cx='130' cy='200' r='2'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 320px 220px;
+}
+
+/* Fine diagonal hatching, like a technical drawing's section fill */
+@utility bg-hatch {
+  background-image: repeating-linear-gradient(135deg, var(--grid) 0 1px, transparent 1px 16px);
+}
+/* Concentric ultrasonic rings; centre set with --rx / --ry */
+@utility bg-rings {
+  background-image: repeating-radial-gradient(circle at var(--rx, 70%) var(--ry, 45%), transparent 0 54px, var(--grid) 54px 55.5px);
+}
+/* Topographic contour lines (oil-field survey maps), tinted by --contour */
+@utility bg-contours {
+  background-color: var(--contour);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.2'%3E%3Cpath d='M-20 60 C 90 10, 180 110, 300 70 S 520 0, 660 50'/%3E%3Cpath d='M-20 100 C 100 50, 190 150, 310 110 S 520 40, 660 90'/%3E%3Cpath d='M-20 140 C 110 92, 200 190, 320 150 S 525 82, 660 130'/%3E%3Cpath d='M-20 180 C 120 134, 210 228, 330 190 S 530 124, 660 170'/%3E%3Cpath d='M-20 220 C 130 176, 220 266, 340 230 S 535 166, 660 210'/%3E%3Cpath d='M-20 260 C 140 218, 230 304, 350 270 S 540 208, 660 250'/%3E%3Cpath d='M-20 300 C 150 260, 240 342, 360 310 S 545 250, 660 290'/%3E%3Cpath d='M-20 340 C 160 302, 250 380, 370 350 S 550 292, 660 330'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 640px 360px repeat;
+}
+
+/* A section that slides up over the previous one like a stacked sheet */
+@utility sheet {
+  position: relative;
+  z-index: 1;
+  margin-top: -3rem;
+  border-top-left-radius: 3rem;
+  border-top-right-radius: 3rem;
+  box-shadow: 0 -24px 60px -36px rgb(8 45 80 / 0.35);
+  @media (width >= 64rem) {
+    margin-top: -4rem;
+    border-top-left-radius: 4.5rem;
+    border-top-right-radius: 4.5rem;
+  }
+}
+@utility text-stroke {
+  -webkit-text-stroke: 2px currentColor;
+  color: transparent;
 }
 
 @utility mask-fade-y {
@@ -201,7 +253,7 @@
     radial-gradient(circle 12px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
 }
 @utility drop {
-  filter: drop-shadow(0 18px 30px rgb(20 38 120 / 0.16)) drop-shadow(0 2px 4px rgb(20 38 120 / 0.06));
+  filter: drop-shadow(0 18px 30px rgb(8 45 80 / 0.16)) drop-shadow(0 2px 4px rgb(8 45 80 / 0.06));
 }
 
 @utility glass {

@@ -30,7 +30,7 @@ function Choice({ on, onClick, children, className }: { on: boolean; onClick: ()
       aria-pressed={on}
       className={cn(
         "relative rounded-2xl px-4 py-3 text-left text-[1rem] font-bold transition",
-        on ? "bg-brand-600 text-white ring-1 ring-brand-600 shadow-[0_12px_26px_-12px_rgb(31_55_214/0.7)] dark:bg-neon dark:text-[#0b1533] dark:ring-neon" : "bg-surface text-ink ring-1 ring-inset ring-line hover:ring-accent/40",
+        on ? "bg-brand-600 text-white ring-1 ring-brand-600 shadow-[0_12px_26px_-12px_rgb(31_55_214/0.7)] dark:bg-neon dark:text-[#071a2e] dark:ring-neon" : "bg-surface text-ink ring-1 ring-inset ring-line hover:ring-accent/40",
         className,
       )}
     >
@@ -139,7 +139,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
               onClick={() => i < step && go(i)}
               className={cn(
                 "grid size-11 shrink-0 place-items-center rounded-full font-mono text-sm font-bold transition",
-                i < step ? "bg-lime text-[#0b1533]" : i === step ? "bg-brand-600 text-white ring-4 ring-neon/30 dark:bg-neon dark:text-[#0b1533]" : "bg-surface text-mute ring-1 ring-line",
+                i < step ? "bg-lime text-[#071a2e]" : i === step ? "bg-brand-600 text-white ring-4 ring-neon/30 dark:bg-neon dark:text-[#071a2e]" : "bg-surface text-mute ring-1 ring-line",
               )}
               aria-current={i === step ? "step" : undefined}
             >
@@ -174,7 +174,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                     const on = form.services.includes(s.name);
                     return (
                       <Choice key={s.slug} on={on} onClick={() => toggle("services", s.name)} className="flex items-center gap-3 py-3.5">
-                        <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", on ? "bg-white/15 text-white dark:bg-[#0b1533]/10 dark:text-[#0b1533]" : "bg-tint text-accent")}>
+                        <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", on ? "bg-white/15 text-white dark:bg-[#071a2e]/10 dark:text-[#071a2e]" : "bg-tint text-accent")}>
                           <ServiceGlyph name={s.icon} className="size-6" />
                         </span>
                         <span>{s.name}</span>
@@ -235,7 +235,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                           onClick={() => set("urgency", u)}
                           className={cn(
                             "flex-1 rounded-xl py-2.5 text-sm font-bold transition",
-                            form.urgency === u ? ["bg-brand-600 text-white", "bg-vt text-[#0b1533]", "bg-pt text-white"][i] : "text-ink-soft hover:bg-surface",
+                            form.urgency === u ? ["bg-brand-600 text-white", "bg-vt text-[#071a2e]", "bg-pt text-white"][i] : "text-ink-soft hover:bg-surface",
                           )}
                         >
                           {u}
@@ -299,12 +299,12 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
           <ArrowLeft weight="bold" className="size-5" /> {t.prev}
         </button>
         {step < 2 ? (
-          <button type="button" onClick={() => go(step + 1)} className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand-600 pl-6 pr-5 font-bold text-white transition hover:bg-brand-500 dark:bg-neon dark:text-[#0b1533]">
+          <button type="button" onClick={() => go(step + 1)} className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand-600 pl-6 pr-5 font-bold text-white transition hover:bg-brand-500 dark:bg-neon dark:text-[#071a2e]">
             {t.next}
             <ArrowRight weight="bold" className="size-4 transition group-hover:translate-x-0.5" />
           </button>
         ) : (
-          <button type="submit" disabled={status === "sending"} className="inline-flex h-14 items-center gap-3 rounded-full bg-neon pl-6 pr-5 font-bold text-[#0b1533] shadow-neon transition hover:bg-lime disabled:opacity-60">
+          <button type="submit" disabled={status === "sending"} className="inline-flex h-14 items-center gap-3 rounded-full bg-neon pl-6 pr-5 font-bold text-[#071a2e] shadow-neon transition hover:bg-lime disabled:opacity-60">
             {status === "sending" ? t.sending : t.send}
             <ArrowRight weight="bold" className="size-5" />
           </button>

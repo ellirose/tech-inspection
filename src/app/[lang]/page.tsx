@@ -1,23 +1,17 @@
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
+import { home } from "@/content/home";
 import { HomeHero } from "@/components/home/HomeHero";
-import { Credentials } from "@/components/home/Credentials";
-import { LevelTwo } from "@/components/home/LevelTwo";
-import { WhyBit } from "@/components/home/WhyBit";
-import { MethodsApplied } from "@/components/home/MethodsApplied";
-import { Process } from "@/components/home/Process";
-import { Standards } from "@/components/home/Standards";
 import { ServicesGrid } from "@/components/home/ServicesGrid";
-import { Partner } from "@/components/home/Partner";
+import { Methods } from "@/components/home/Methods";
+import { ProcessBand } from "@/components/home/ProcessBand";
+import { WhyUs } from "@/components/home/WhyUs";
 import { PlatformShowcase } from "@/components/home/PlatformShowcase";
 import { FieldGallery } from "@/components/home/FieldGallery";
-import { Closing } from "@/components/home/Closing";
-import { Clients } from "@/components/home/Clients";
 import { QuoteSection } from "@/components/quote/QuoteSection";
 
-// Follows the order of the client deck: cover, who we are, Level II, bits, methods, process, standards,
-// services, partnership, TI-QMS, field record, closing.
+// One idea per section: promise → what we inspect → how (methods, process) → why trust us → digital record → field → quote.
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
@@ -26,19 +20,13 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   return (
     <>
       <HomeHero lang={lang} dict={dict} />
-      <Credentials lang={lang} dict={dict} index="01" />
-      <LevelTwo lang={lang} dict={dict} index="02" />
-      <WhyBit lang={lang} dict={dict} index="03" />
-      <MethodsApplied lang={lang} dict={dict} index="04" />
-      <Process lang={lang} index="05" />
-      <Standards lang={lang} index="06" />
-      <ServicesGrid lang={lang} dict={dict} index="07" />
-      <Partner lang={lang} dict={dict} index="08" />
-      <PlatformShowcase lang={lang} dict={dict} index="09" />
-      <FieldGallery dict={dict} index="10" />
-      <Closing lang={lang} index="11" />
-      <Clients lang={lang} dict={dict} />
-      <QuoteSection lang={lang} dict={dict} index="12" />
+      <ServicesGrid lang={lang} dict={dict} />
+      <Methods lang={lang} dict={dict} />
+      <ProcessBand lang={lang} />
+      <WhyUs lang={lang} dict={dict} className="sheet" />
+      <PlatformShowcase lang={lang} dict={dict} compact title={home.platform.title[lang]} />
+      <FieldGallery dict={dict} />
+      <QuoteSection lang={lang} dict={dict} className="sheet bg-surface" />
     </>
   );
 }

@@ -34,11 +34,11 @@ export function Masonry({ items, alt, className }: { items: Photo[]; alt: string
               sizes="(min-width:1280px) 25vw, (min-width:768px) 33vw, 50vw"
               className="h-auto w-full transition duration-700 group-hover:scale-[1.04]"
             />
-            <span className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-white/90 text-[#0b1533] opacity-0 transition group-hover:opacity-100">
+            <span className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-white/90 text-[#071a2e] opacity-0 transition group-hover:opacity-100">
               <MagnifyingGlassPlus weight="bold" className="size-5" />
             </span>
             {p.caption && (
-              <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-sm font-bold text-[#0b1533] backdrop-blur">{p.caption}</span>
+              <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-sm font-bold text-[#071a2e] backdrop-blur">{p.caption}</span>
             )}
           </motion.button>
         ))}

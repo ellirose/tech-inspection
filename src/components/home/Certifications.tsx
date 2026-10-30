@@ -5,7 +5,7 @@ import { Container, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 
-const seal = ["bg-brand-600 text-white dark:bg-brand-500", "bg-lime text-[#0b1533]", "bg-surface text-ink ring-2 ring-line", "bg-neon text-[#0b1533]", "bg-pt text-white", "bg-vt text-[#0b1533]"];
+const seal = ["bg-brand-600 text-white dark:bg-brand-500", "bg-lime text-[#071a2e]", "bg-surface text-ink ring-2 ring-line", "bg-neon text-[#071a2e]", "bg-pt text-white", "bg-vt text-[#071a2e]"];
 
 /** Company certifications and personnel credentials, each with a seal-like badge. */
 export function Certifications({ lang, dict, index }: { lang: Locale; dict: Dictionary; index?: string }) {

@@ -31,10 +31,10 @@ export function Showcase({ items, alt, className }: { items: Photo[]; alt: strin
             <Image src={p.src} alt={p.caption ?? `${alt} ${active + 1}`} fill sizes="(min-width:1024px) 60vw, 100vw" quality={90} className="object-contain" />
           </motion.div>
         </AnimatePresence>
-        <span className="absolute bottom-5 left-5 rounded-full bg-white/90 px-4 py-1.5 font-mono text-sm font-bold text-[#0b1533]">
+        <span className="absolute bottom-5 left-5 rounded-full bg-white/90 px-4 py-1.5 font-mono text-sm font-bold text-[#071a2e]">
           {String(active + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}
         </span>
-        <span className="absolute bottom-5 right-5 grid size-12 place-items-center rounded-full bg-white/90 text-[#0b1533] transition group-hover:scale-110">
+        <span className="absolute bottom-5 right-5 grid size-12 place-items-center rounded-full bg-white/90 text-[#071a2e] transition group-hover:scale-110">
           <ArrowsOut weight="bold" className="size-5" />
         </span>
       </button>

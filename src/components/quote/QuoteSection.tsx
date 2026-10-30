@@ -11,7 +11,7 @@ import { cn } from "@/lib/cn";
 import { Email } from "@/components/ui/Email";
 import { QuoteWizard } from "./QuoteWizard";
 
-export function QuoteSection({ lang, dict, heading = true, index }: { lang: Locale; dict: Dictionary; heading?: boolean; index?: string }) {
+export function QuoteSection({ lang, dict, heading = true, index, className }: { lang: Locale; dict: Dictionary; heading?: boolean; index?: string; className?: string }) {
   const q = dict.quote;
   const c = dict.contact;
   const contactRows = [
@@ -22,7 +22,7 @@ export function QuoteSection({ lang, dict, heading = true, index }: { lang: Loca
   ];
 
   return (
-    <section id="cotizar" className={cn("relative isolate overflow-hidden pb-24 sm:pb-32", heading ? "pt-24 sm:pt-32" : "pt-6")}>
+    <section id="cotizar" className={cn("relative isolate overflow-hidden pb-24 sm:pb-32", heading ? "pt-24 sm:pt-32" : "pt-6", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-blueprint mask-radial" />
       <Container>
         {heading && <SectionHeading index={index} eyebrow={q.eyebrow} title={q.title} lead={q.lead} />}

@@ -60,7 +60,7 @@ export function Process({ lang, index = "05" }: { lang: Locale; index?: string }
                   const last = i === steps.length - 1;
                   return (
                     <RevealItem key={s} className="relative flex items-center gap-4 py-1.5">
-                      <span className={cn("grid size-14 shrink-0 place-items-center rounded-2xl ring-4 ring-brand-600 dark:ring-brand-800", last ? "bg-lime text-[#0b1533]" : "bg-white text-brand-600")}>
+                      <span className={cn("grid size-14 shrink-0 place-items-center rounded-2xl ring-4 ring-brand-600 dark:ring-brand-800", last ? "bg-lime text-[#071a2e]" : "bg-white text-brand-600")}>
                         <Icon weight={last ? "fill" : "duotone"} className="size-7" />
                       </span>
                       <span className="font-mono text-sm text-white/60">{String(i + 1).padStart(2, "0")}</span>
@@ -78,7 +78,7 @@ export function Process({ lang, index = "05" }: { lang: Locale; index?: string }
                   <Image src="/media/deck/pt-inspector.jpg" alt="" fill sizes="(min-width:1024px) 45vw, 100vw" className="object-cover object-[50%_30%]" />
                 </div>
                 <div className="glass absolute -bottom-6 left-6 right-6 flex items-center gap-4 rounded-3xl p-4 text-ink shadow-float ring-1 ring-white/50 sm:left-auto sm:max-w-md">
-                  <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-lime text-[#0b1533]">
+                  <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-lime text-[#071a2e]">
                     <LockKey weight="duotone" className="size-8" />
                   </span>
                   <p className="leading-snug">

@@ -13,7 +13,7 @@ export default function NotFound() {
         <h1 className="mt-4 text-[clamp(5rem,16vw,12rem)] font-extrabold leading-none tracking-[-0.06em] text-accent">404</h1>
         <Waveform className="mx-auto mt-2 h-20 w-full max-w-md text-ink" color="#1fc8f5" />
         <p className="mt-6 text-2xl font-extrabold text-ink">Página no encontrada · Página não encontrada · Page not found</p>
-        <Link href="/es" className="mt-8 inline-flex h-14 items-center gap-2 rounded-full bg-brand-600 px-7 text-lg font-bold text-white dark:bg-neon dark:text-[#0b1533]">
+        <Link href="/es" className="mt-8 inline-flex h-14 items-center gap-2 rounded-full bg-brand-600 px-7 text-lg font-bold text-white dark:bg-neon dark:text-[#071a2e]">
           <ArrowLeft weight="bold" className="size-5" /> Tech-Inspection
         </Link>
       </Container>
