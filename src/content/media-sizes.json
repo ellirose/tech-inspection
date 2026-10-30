@@ -1,4 +1,17 @@
 {
+  "/media/deck/bit-report.jpg": [476,528],
+  "/media/deck/bit-rig.jpg": [836,700],
+  "/media/deck/partner-caliper.jpg": [378,202],
+  "/media/deck/partner-field.jpg": [394,188],
+  "/media/deck/partner-meeting.jpg": [1536,500],
+  "/media/deck/partner-review.jpg": [352,188],
+  "/media/deck/partner-training.jpg": [380,188],
+  "/media/deck/pdc-bit.jpg": [1672,941],
+  "/media/deck/pt-inspector.jpg": [410,760],
+  "/media/deck/team.jpg": [1250,560],
+  "/media/deck/tiqms-tablet.jpg": [1536,1024],
+  "/media/deck/ut-inspector.jpg": [896,720],
+  "/media/deck/ut-scan.jpg": [688,506],
   "/media/hseq/data-protection.jpg": [580,300],
   "/media/hseq/integration-1.jpg": [1600,1200],
   "/media/hseq/integration-2.jpg": [1600,1200],
@@ -76,6 +89,9 @@
   "/media/photos/uv-inspector.jpg": [1280,720],
   "/media/photos/warehouse.jpg": [1280,720],
   "/media/photos/workshop-team.jpg": [2000,1500],
+  "/media/stock/pipe-yard.jpg": [2000,1500],
+  "/media/stock/plant-night.jpg": [2000,1332],
+  "/media/stock/rig-dusk.jpg": [2000,1125],
   "/media/team/julio.jpg": [960,1280],
   "/media/team/mariela.jpg": [960,1280]
 }

@@ -11,13 +11,15 @@ export type Method = {
   intro: L10n;
   body: L10n;
   advantages: L10nList;
+  /** What the method detects, as listed in the client deck (slide 6). */
+  detects: L10nList;
   steps: { title: L10n; text: L10n }[];
   cover: string;
   gallery: string[];
   video?: { src: string; poster: string };
 };
 
-export const methods: Method[] = [
+const all: Method[] = [
   {
     key: "mt",
     slug: "particulas-magneticas",
@@ -43,6 +45,7 @@ export const methods: Method[] = [
       pt: ["Inspeção rápida e de baixo custo", "Equipamento portátil para peças grandes e pequenas", "Detecta descontinuidades superficiais e subsuperficiais", "Indicações visíveis na própria peça", "Resultados imediatos", "Não afeta a integridade da peça"],
       en: ["Fast, low-cost inspection", "Portable kit for large and small parts", "Finds surface and subsurface discontinuities", "Indications form right on the part", "Immediate results", "No damage to part integrity"],
     },
+    detects: { es: ["Fisuras superficiales", "Discontinuidades cercanas a la superficie"], pt: ["Fissuras superficiais", "Descontinuidades próximas à superfície"], en: ["Surface cracks", "Near-surface discontinuities"] },
     steps: [
       { title: { es: "Magnetización", pt: "Magnetização", en: "Magnetize" }, text: { es: "Inducimos un campo magnético con yugo o equipo estacionario.", pt: "Induzimos um campo magnético com yoke ou equipamento estacionário.", en: "A magnetic field is induced with a yoke or bench unit." } },
       { title: { es: "Partículas", pt: "Partículas", en: "Particles" }, text: { es: "Aplicamos partículas fluorescentes o visibles sobre la superficie.", pt: "Aplicamos partículas fluorescentes ou visíveis sobre a superfície.", en: "Fluorescent or visible particles are applied to the surface." } },
@@ -78,6 +81,7 @@ export const methods: Method[] = [
       pt: ["Resultados logo ao final do ensaio", "Um dos ensaios END mais econômicos", "Aplicável a materiais ferrosos e não ferrosos", "Equipamento portátil", "Não afeta a integridade da peça"],
       en: ["Results as soon as the test ends", "One of the most cost-effective NDT methods", "Works on ferrous and non-ferrous materials", "Portable equipment", "No damage to part integrity"],
     },
+    detects: { es: ["Fisuras abiertas", "Poros", "Microgrietas"], pt: ["Fissuras abertas", "Poros", "Microtrincas"], en: ["Open cracks", "Porosity", "Micro-cracks"] },
     steps: [
       { title: { es: "Limpieza", pt: "Limpeza", en: "Clean" }, text: { es: "Preparamos la superficie libre de grasa y contaminantes.", pt: "Preparamos a superfície livre de graxa e contaminantes.", en: "The surface is cleaned of grease and contaminants." } },
       { title: { es: "Penetrante", pt: "Penetrante", en: "Penetrant" }, text: { es: "El líquido entra en las discontinuidades por capilaridad.", pt: "O líquido entra nas descontinuidades por capilaridade.", en: "The liquid enters discontinuities by capillarity." } },
@@ -113,6 +117,7 @@ export const methods: Method[] = [
       pt: ["Rápido, com resultados imediatos", "Localiza descontinuidades internas com exatidão", "Alta sensibilidade a descontinuidades pequenas", "Grande capacidade de penetração", "Mede espessuras de parede", "Não afeta a integridade da peça"],
       en: ["Fast, with immediate results", "Pinpoints internal discontinuities", "High sensitivity to small flaws", "Deep penetration into the material", "Measures wall thickness", "No damage to part integrity"],
     },
+    detects: { es: ["Defectos internos", "Pérdida de espesor", "Laminaciones"], pt: ["Defeitos internos", "Perda de espessura", "Laminações"], en: ["Internal defects", "Wall-thickness loss", "Laminations"] },
     steps: [
       { title: { es: "Calibración", pt: "Calibração", en: "Calibrate" }, text: { es: "Ajustamos el equipo con bloques patrón certificados.", pt: "Ajustamos o equipamento com blocos padrão certificados.", en: "The instrument is set up on certified reference blocks." } },
       { title: { es: "Acoplamiento", pt: "Acoplamento", en: "Couple" }, text: { es: "El acoplante transmite la onda del palpador a la pieza.", pt: "O acoplante transmite a onda do transdutor para a peça.", en: "Couplant carries the wave from probe to part." } },
@@ -126,7 +131,7 @@ export const methods: Method[] = [
     key: "vt",
     slug: "dimensional-visual",
     code: "VT",
-    name: { es: "Dimensional y visual", pt: "Dimensional e visual", en: "Visual & dimensional" },
+    name: { es: "Inspección visual y dimensional", pt: "Inspeção visual e dimensional", en: "Visual & dimensional inspection" },
     tagline: {
       es: "Instrumentos calibrados y ojo experto para verificar geometría, desgaste y conformidad con la norma.",
       pt: "Instrumentos calibrados e olhar especializado para verificar geometria, desgaste e conformidade com a norma.",
@@ -147,6 +152,7 @@ export const methods: Method[] = [
       pt: ["Dados quantitativos de forma simples", "Avalia perdas de material", "Avalia a integridade geral da peça", "Inspeção rápida e preventiva"],
       en: ["Quantitative data, simply", "Assesses material loss", "Evaluates overall part integrity", "Fast, preventive inspection"],
     },
+    detects: { es: ["Desgaste", "Golpes", "Corrosión", "Deformaciones"], pt: ["Desgaste", "Impactos", "Corrosão", "Deformações"], en: ["Wear", "Impact damage", "Corrosion", "Deformation"] },
     steps: [
       { title: { es: "Documentación", pt: "Documentação", en: "Review" }, text: { es: "Revisamos planos, especificaciones y tolerancias.", pt: "Revisamos desenhos, especificações e tolerâncias.", en: "Drawings, specifications and tolerances are reviewed." } },
       { title: { es: "Visual", pt: "Visual", en: "Visual" }, text: { es: "Examinamos la superficie en busca de daños.", pt: "Examinamos a superfície em busca de danos.", en: "The surface is examined for damage." } },
@@ -158,13 +164,8 @@ export const methods: Method[] = [
   },
 ];
 
+/** Deck order: the sequence in which the methods are applied (VT → MT → PT → UT). */
+export const methods: Method[] = (["vt", "mt", "pt", "ut"] as const).map((k) => all.find((m) => m.key === k)!);
+
 export const methodByKey = (key: MethodKey) => methods.find((m) => m.key === key)!;
 export const methodBySlug = (slug: string) => methods.find((m) => m.slug === slug);
-
-/** Tailwind class fragments per method, written out in full so Tailwind can see them. */
-export const methodTone: Record<MethodKey, { text: string; bg: string; soft: string; ring: string; border: string; hex: string }> = {
-  mt: { text: "text-mt", bg: "bg-mt", soft: "bg-mt-soft", ring: "ring-mt/40", border: "border-mt", hex: "#6fd11c" },
-  pt: { text: "text-pt", bg: "bg-pt", soft: "bg-pt-soft", ring: "ring-pt/40", border: "border-pt", hex: "#e3263f" },
-  ut: { text: "text-ut", bg: "bg-ut", soft: "bg-ut-soft", ring: "ring-ut/40", border: "border-ut", hex: "#0aa6e6" },
-  vt: { text: "text-vt", bg: "bg-vt", soft: "bg-vt-soft", ring: "ring-vt/40", border: "border-vt", hex: "#f29a0b" },
-};

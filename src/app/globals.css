@@ -1,72 +1,126 @@
 @import "tailwindcss";
 
-/* ───────────────────────── Design tokens ───────────────────────── */
+/* Dark mode follows data-theme on <html>, set before paint from the visitor's choice or system setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ───────────────────────── Static tokens ───────────────────────── */
 @theme {
-  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  /* Brand navy, anchored on the logo's #030A8C */
-  --color-brand-50: #eef0ff;
-  --color-brand-100: #dfe3ff;
-  --color-brand-200: #c2c8ff;
-  --color-brand-300: #969ffc;
-  --color-brand-400: #6470f2;
-  --color-brand-500: #3a44de;
-  --color-brand-600: #1b23bd;
-  --color-brand-700: #030a8c;
-  --color-brand-800: #060c6c;
-  --color-brand-900: #0b104c;
+  /* Brand cobalt, anchored on the logo's #030A8C */
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #dce4ff;
+  --color-brand-200: #bac8ff;
+  --color-brand-300: #8ea3ff;
+  --color-brand-400: #5f78fb;
+  --color-brand-500: #3a52f0;
+  --color-brand-600: #1f37d6;
+  --color-brand-700: #1426ad;
+  --color-brand-800: #0d1a86;
+  --color-brand-900: #0a1460;
 
-  /* Neutral surfaces: cool, bright, never black */
-  --color-ink: #0e1433;
-  --color-ink-soft: #3d4566;
-  --color-mute: #6b7393;
-  --color-line: #dde3ee;
-  --color-mist: #edf1f8;
-  --color-canvas: #f6f8fc;
+  /* Neon accents from the client deck */
+  --color-neon: #1fc8f5;
+  --color-neon-deep: #0592c4;
+  --color-lime: #86e33a;
+  --color-lime-deep: #4e9d12;
 
   /* Method signal colours, borrowed from the physics of each test */
-  --color-mt: #6fd11c; /* fluorescent magnetic particles under UV */
-  --color-mt-soft: #ecfbd9;
-  --color-pt: #e3263f; /* penetrant red dye */
-  --color-pt-soft: #fde7ea;
-  --color-ut: #0aa6e6; /* ultrasonic A-scan */
-  --color-ut-soft: #e0f5fd;
-  --color-vt: #f29a0b; /* calibrated measurement */
-  --color-vt-soft: #fff1d9;
+  --color-mt: #7ad62a;
+  --color-pt: #ef3e57;
+  --color-ut: #1fb3ee;
+  --color-vt: #f5a524;
   --color-whatsapp: #25d366;
 
-  --shadow-soft: 0 1px 2px rgb(14 20 51 / 0.04), 0 8px 24px -8px rgb(14 20 51 / 0.1);
-  --shadow-lift: 0 2px 6px rgb(14 20 51 / 0.05), 0 24px 48px -16px rgb(14 20 51 / 0.18);
-  --shadow-float: 0 30px 80px -20px rgb(3 10 140 / 0.28), 0 8px 24px -12px rgb(14 20 51 / 0.2);
-  --shadow-glow-mt: 0 0 0 1px rgb(111 209 28 / 0.35), 0 12px 40px -8px rgb(111 209 28 / 0.55);
+  --shadow-soft: 0 1px 2px rgb(20 38 120 / 0.06), 0 10px 30px -12px rgb(20 38 120 / 0.18);
+  --shadow-card: 0 2px 6px rgb(20 38 120 / 0.06), 0 24px 50px -24px rgb(20 38 120 / 0.28);
+  --shadow-float: 0 40px 80px -30px rgb(20 38 120 / 0.38), 0 12px 28px -14px rgb(20 38 120 / 0.2);
+  --shadow-neon: 0 0 0 1px rgb(31 200 245 / 0.35), 0 14px 36px -10px rgb(31 200 245 / 0.55);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --animate-marquee: marquee 38s linear infinite;
-  --animate-scan: scan 3.2s var(--ease-out-expo) infinite;
+  --animate-marquee: marquee 50s linear infinite;
+  --animate-scan: scan 4.2s var(--ease-out-expo) infinite;
   --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
-  --animate-spin-slow: spin 24s linear infinite;
+  --animate-orbit: spin 36s linear infinite;
+  --animate-orbit-rev: spin-rev 48s linear infinite;
   --animate-float: float 7s ease-in-out infinite;
+  --animate-dash: dash 1.6s linear infinite;
 
   @keyframes marquee {
     to { transform: translateX(-50%); }
   }
   @keyframes scan {
-    0% { transform: translateY(-10%); opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: translateY(110%); opacity: 0; }
+    0% { transform: translateY(-100%); opacity: 0; }
+    12% { opacity: 1; }
+    88% { opacity: 1; }
+    100% { transform: translateY(100%); opacity: 0; }
   }
   @keyframes pulse-ring {
     0% { transform: scale(0.8); opacity: 0.7; }
-    100% { transform: scale(2.2); opacity: 0; }
+    100% { transform: scale(2.3); opacity: 0; }
+  }
+  @keyframes spin-rev {
+    to { transform: rotate(-360deg); }
   }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+  @keyframes dash {
+    to { stroke-dashoffset: -24; }
+  }
+}
+
+/* ───────────────────────── Theme tokens (light / dark) ───────────────────────── */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-tint: var(--tint);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-mute: var(--mute);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-glass: var(--glass);
+}
+
+:root {
+  --canvas: #f3f6fb;
+  --surface: #ffffff;
+  --surface-2: #f7f9fd;
+  --tint: #e9f7fd;
+  --ink: #0b1533;
+  --ink-soft: #3b4766;
+  --mute: #66718f;
+  --line: #dde4f0;
+  --accent: #1426ad;
+  --accent-ink: #0592c4;
+  --glass: rgb(255 255 255 / 0.72);
+  --grid: rgb(20 38 173 / 0.07);
+  --dot: rgb(20 38 173 / 0.14);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --canvas: #0c1638;
+  --surface: #13204c;
+  --surface-2: #172759;
+  --tint: #11245a;
+  --ink: #eef3ff;
+  --ink-soft: #bcc7e6;
+  --mute: #8b97bd;
+  --line: #273a78;
+  --accent: #8ea3ff;
+  --accent-ink: #3fd6ff;
+  --glass: rgb(23 39 89 / 0.7);
+  --grid: rgb(142 163 255 / 0.08);
+  --dot: rgb(63 214 255 / 0.16);
+  color-scheme: dark;
 }
 
 /* ───────────────────────── Base ───────────────────────── */
@@ -74,100 +128,91 @@
   html {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    scroll-padding-top: 7rem;
+    scroll-padding-top: 8rem;
   }
   body {
     @apply bg-canvas font-sans text-ink;
-    font-feature-settings: "ss01", "cv11";
+    transition: background-color 0.3s, color 0.3s;
   }
   ::selection {
-    background: var(--color-brand-200);
-    color: var(--color-brand-900);
+    background: var(--color-neon);
+    color: #0b1533;
   }
   :focus-visible {
-    outline: 3px solid var(--color-brand-400);
+    outline: 2px solid var(--color-neon);
     outline-offset: 3px;
     border-radius: 0.5rem;
   }
 }
 
-/* ───────────────────────── Textures ───────────────────────── */
+/* ───────────────────────── Textures (the deck's blueprint grid, dots and network) ───────────────────────── */
 @utility bg-blueprint {
   background-image:
-    linear-gradient(to right, rgb(3 10 140 / 0.055) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(3 10 140 / 0.055) 1px, transparent 1px),
-    linear-gradient(to right, rgb(3 10 140 / 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(3 10 140 / 0.03) 1px, transparent 1px);
-  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px;
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 64px 64px;
 }
 @utility bg-dots {
-  background-image: radial-gradient(rgb(3 10 140 / 0.13) 1px, transparent 1.2px);
-  background-size: 22px 22px;
+  background-image: radial-gradient(var(--dot) 1.2px, transparent 1.4px);
+  background-size: 20px 20px;
 }
-@utility bg-noise {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.07 0 0 0 0 0.2 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-@utility bg-contours {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300' viewBox='0 0 600 300'%3E%3Cg fill='none' stroke='%23030a8c' stroke-opacity='.07' stroke-width='1.2'%3E%3Cpath d='M0 150 Q75 90 150 150 T300 150 T450 150 T600 150'/%3E%3Cpath d='M0 175 Q75 115 150 175 T300 175 T450 175 T600 175'/%3E%3Cpath d='M0 200 Q75 140 150 200 T300 200 T450 200 T600 200'/%3E%3Cpath d='M0 125 Q75 65 150 125 T300 125 T450 125 T600 125'/%3E%3Cpath d='M0 100 Q75 40 150 100 T300 100 T450 100 T600 100'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 600px 300px;
+@utility bg-network {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='220' viewBox='0 0 320 220'%3E%3Cg fill='none' stroke='%231fc8f5' stroke-opacity='.28' stroke-width='.8'%3E%3Cpath d='M10 40 L90 20 L170 70 L250 30 L310 80 M90 20 L120 110 L170 70 L210 150 L250 30 M120 110 L40 160 L10 40 M210 150 L300 190 L310 80 M40 160 L130 200 L210 150'/%3E%3C/g%3E%3Cg fill='%231fc8f5' fill-opacity='.55'%3E%3Ccircle cx='10' cy='40' r='2'/%3E%3Ccircle cx='90' cy='20' r='2'/%3E%3Ccircle cx='170' cy='70' r='2.4'/%3E%3Ccircle cx='250' cy='30' r='2'/%3E%3Ccircle cx='310' cy='80' r='2'/%3E%3Ccircle cx='120' cy='110' r='2.4'/%3E%3Ccircle cx='210' cy='150' r='2'/%3E%3Ccircle cx='40' cy='160' r='2'/%3E%3Ccircle cx='300' cy='190' r='2'/%3E%3Ccircle cx='130' cy='200' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 320px 220px;
 }
 
-/* Fade a textured layer out toward its edges */
 @utility mask-fade-y {
   mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
 }
 @utility mask-fade-x {
-  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+@utility mask-fade-b {
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+@utility mask-fade-l {
+  mask-image: linear-gradient(to left, #000 45%, transparent 95%);
 }
 @utility mask-radial {
   mask-image: radial-gradient(ellipse at center, #000 30%, transparent 72%);
 }
 
 /* ───────────────────────── Card shapes ───────────────────────── */
-/* Corner cut, like a machined plate */
-@utility shape-cut {
-  clip-path: polygon(0 0, calc(100% - 2.75rem) 0, 100% 2.75rem, 100% 100%, 0 100%);
+/* Angled corner, after the logo chip on the client deck. Pair with `drop` for a shadow. */
+@utility shape-chamfer {
+  clip-path: polygon(0 0, calc(100% - 2.25rem) 0, 100% 2.25rem, 100% 100%, 0 100%);
 }
-@utility shape-cut-bl {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 2.75rem 100%, 0 calc(100% - 2.75rem));
+@utility shape-chamfer-bl {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 2.25rem 100%, 0 calc(100% - 2.25rem));
 }
-/* Inspection ticket: semicircular notches on both sides */
-@utility shape-ticket {
-  mask: radial-gradient(circle 14px at 0 62%, #0000 98%, #000) left / 51% 100% no-repeat,
-    radial-gradient(circle 14px at 100% 62%, #0000 98%, #000) right / 51% 100% no-repeat;
+/* Pipeline step: arrow pointing right */
+@utility shape-chevron {
+  clip-path: polygon(0 0, calc(100% - 1.4rem) 0, 100% 50%, calc(100% - 1.4rem) 100%, 0 100%, 1.4rem 50%);
+}
+@utility shape-chevron-first {
+  clip-path: polygon(0 0, calc(100% - 1.4rem) 0, 100% 50%, calc(100% - 1.4rem) 100%, 0 100%);
 }
 @utility shape-hex {
-  clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%);
 }
-@utility shape-leaf {
-  border-radius: 2.75rem 0.75rem 2.75rem 0.75rem;
+/* Notched ticket */
+@utility shape-ticket {
+  mask: radial-gradient(circle 12px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 12px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
 }
-@utility shape-arch {
-  border-radius: 999px 999px 1.75rem 1.75rem;
+@utility drop {
+  filter: drop-shadow(0 18px 30px rgb(20 38 120 / 0.16)) drop-shadow(0 2px 4px rgb(20 38 120 / 0.06));
 }
 
-/* ───────────────────────── Components ───────────────────────── */
 @utility glass {
-  background: rgb(255 255 255 / 0.62);
-  backdrop-filter: blur(18px) saturate(1.6);
-  -webkit-backdrop-filter: blur(18px) saturate(1.6);
-  border: 1px solid rgb(255 255 255 / 0.7);
-}
-@utility glass-brand {
-  background: rgb(238 240 255 / 0.55);
-  backdrop-filter: blur(16px) saturate(1.5);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5);
-  border: 1px solid rgb(194 200 255 / 0.6);
-}
-/* Fluorescent "UV marker" highlight for key words */
-@utility uv-mark {
-  background-image: linear-gradient(transparent 62%, rgb(111 209 28 / 0.45) 62%, rgb(111 209 28 / 0.45) 92%, transparent 92%);
-  background-repeat: no-repeat;
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
 }
 @utility text-balance {
   text-wrap: balance;
 }
-@utility perspective-1600 {
+@utility perspective {
   perspective: 1600px;
 }
 @utility preserve-3d {

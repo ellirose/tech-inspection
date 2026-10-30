@@ -7,9 +7,10 @@ import type { L10n } from "@/i18n/config";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://www.tech-inspection.com");
-export const FOUNDED = 2017;
-/** Years of experience rendered on the server; the browser recomputes from FOUNDED. */
-export const YEARS_FALLBACK = 9;
+/** Founded as Tecninspection NDT S.A.S.; renamed Tech-Inspection S.A.S. in 2017 (client deck, slide 2). */
+export const FOUNDED = 2014;
+/** The deck states "+10 años de experiencia Oil & Gas"; shown as-is so the site and the deck agree. */
+export const YEARS = 10;
 export const PLATFORM_URL = "https://plataforma.tech-inspection.com/";
 
 export const company = {
@@ -18,10 +19,12 @@ export const company = {
   address: "Autopista Medellín Km 3.4, Lc. A-11, Vía Siberia",
   country: { es: "Colombia", pt: "Colômbia", en: "Colombia" } satisfies L10n,
   mapsUrl: "https://www.google.com/maps/search/?api=1&query=Autopista+Medell%C3%ADn+Km+3.4+V%C3%ADa+Siberia+Colombia",
-  // Main commercial line (published in the current site footer)
-  phone: "+57 321 828 4129",
-  phoneHref: "tel:+573218284129",
+  // Main contact line printed on the client deck ("Cel. 314 452 4817")
+  phone: "+57 314 452 4817",
+  phoneHref: "tel:+573144524817",
+  // WhatsApp stays on the management line published on the original site
   whatsapp: "573218284129",
+  whatsappDisplay: "+57 321 828 4129",
   email: "gerencia-operaciones@tech-inspection.com",
   emailHseq: "gestion.integral@tech-inspection.com",
   hours: {
@@ -50,9 +53,9 @@ export const certifications: Certification[] = [
     ring: "ISO 9001:2015 · QUALITY · ",
     title: { es: "Gestión de calidad", pt: "Gestão da qualidade", en: "Quality management" },
     body: {
-      es: "Procesos controlados y mejora continua en cada inspección e informe.",
-      pt: "Processos controlados e melhoria contínua em cada inspeção e relatório.",
-      en: "Controlled processes and continual improvement in every inspection and report.",
+      es: "Certificados desde 2018: procesos controlados y mejora continua en cada inspección e informe.",
+      pt: "Certificados desde 2018: processos controlados e melhoria contínua em cada inspeção e relatório.",
+      en: "Certified since 2018: controlled processes and continual improvement in every inspection and report.",
     },
   },
   {
@@ -61,9 +64,9 @@ export const certifications: Certification[] = [
     ring: "ISO 45001:2018 · OH&S · ",
     title: { es: "Seguridad y salud en el trabajo", pt: "Saúde e segurança ocupacional", en: "Occupational health & safety" },
     body: {
-      es: "Personal protegido en base y en campo, con riesgos identificados y controlados.",
-      pt: "Equipe protegida na base e em campo, com riscos identificados e controlados.",
-      en: "People protected at base and in the field, with risks identified and controlled.",
+      es: "Certificados desde 2018: personal protegido en base y en campo, con riesgos identificados y controlados.",
+      pt: "Certificados desde 2018: equipe protegida na base e em campo, com riscos identificados e controlados.",
+      en: "Certified since 2018: people protected at base and in the field, with risks identified and controlled.",
     },
   },
   {
@@ -81,11 +84,11 @@ export const certifications: Certification[] = [
     id: "ruc",
     code: "RUC",
     ring: "RUC · CONSEJO COLOMBIANO DE SEGURIDAD · ",
-    title: { es: "Calificación RUC", pt: "Qualificação RUC", en: "RUC rating" },
+    title: { es: "Certificación guía RUC", pt: "Certificação guia RUC", en: "RUC guide certification" },
     body: {
-      es: "Evaluados por el Consejo Colombiano de Seguridad para contratistas del sector.",
-      pt: "Avaliados pelo Conselho Colombiano de Segurança para contratadas do setor.",
-      en: "Rated by the Colombian Safety Council for industry contractors.",
+      es: "Desde 2020, avalados por el Consejo Colombiano de Seguridad bajo la guía RUC para contratistas.",
+      pt: "Desde 2020, avalizados pelo Conselho Colombiano de Segurança sob a guia RUC para contratadas.",
+      en: "Since 2020, endorsed by the Colombian Safety Council under the RUC guide for contractors.",
     },
   },
 ];
@@ -95,23 +98,26 @@ export const personnelCredentials = [
     code: "ASNT-TC-1A",
     title: { es: "Personal certificado", pt: "Equipe certificada", en: "Certified personnel" },
     body: {
-      es: "Inspectores calificados según la práctica recomendada ASNT SNT-TC-1A.",
-      pt: "Inspetores qualificados conforme a prática recomendada ASNT SNT-TC-1A.",
-      en: "Inspectors qualified under ASNT recommended practice SNT-TC-1A.",
+      es: "Inspectores Nivel II calificados según la práctica recomendada ASNT SNT-TC-1A.",
+      pt: "Inspetores Nível II qualificados conforme a prática recomendada ASNT SNT-TC-1A.",
+      en: "Level II inspectors qualified under ASNT recommended practice SNT-TC-1A.",
     },
   },
   {
     code: "DS-1",
     title: { es: "Lineamientos DS-1", pt: "Diretrizes DS-1", en: "DS-1 guidelines" },
     body: {
-      es: "Formación en inspección de sarta de perforación bajo lineamientos DS-1.",
-      pt: "Formação em inspeção de coluna de perfuração conforme diretrizes DS-1.",
-      en: "Trained in drill-stem inspection under DS-1 guidelines.",
+      es: "Inspección y criterios de aceptación de componentes de perforación de acuerdo al estándar DS-1.",
+      pt: "Inspeção e critérios de aceitação de componentes de perfuração de acordo com o padrão DS-1.",
+      en: "Inspection and acceptance criteria for drilling components to the DS-1 standard.",
     },
   },
 ];
 
-export const clients = [
+/** Named in the client deck: commercial alliance since 2015 (slide 2). */
+export const keyPartner = { name: "Ulterra Latin America", since: 2015 };
+
+export const clients: { name: string; logo: string; square?: boolean }[] = [
   { name: "SmartStar Oil & Gas Service Company", logo: "/media/clients/smartstar.png" },
   { name: "Petroexpress Supply", logo: "/media/clients/petroexpress.png" },
   { name: "Universal Machining & Engineering", logo: "/media/clients/universal.png" },

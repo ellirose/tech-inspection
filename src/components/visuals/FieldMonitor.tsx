@@ -19,17 +19,17 @@ export function FieldMonitor({ src, poster, label, className, tone = "#6fd11c" }
   }, []);
 
   return (
-    <figure className={cn("relative overflow-hidden rounded-[1.75rem] bg-brand-900 p-2 shadow-float ring-1 ring-white/20", className)}>
-      <div className="relative aspect-video overflow-hidden rounded-[1.3rem]">
+    <figure className={cn("relative overflow-hidden rounded-[2rem] bg-surface p-2.5 shadow-float ring-1 ring-line", className)}>
+      <div className="relative aspect-video overflow-hidden rounded-[1.5rem]">
         <video ref={ref} src={src} poster={poster} muted loop playsInline preload="none" className="absolute inset-0 size-full object-cover" />
         <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(to_bottom,transparent_0_2px,rgb(0_0_0/0.08)_2px_3px)]" />
-        <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/35 px-3 py-1 font-mono text-[0.7rem] font-bold tracking-widest text-white backdrop-blur">
+        <div className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/45 px-3 py-1 font-mono text-xs font-bold tracking-widest text-white backdrop-blur">
           <span className="size-2 animate-pulse rounded-full bg-pt" /> REC
         </div>
-        <span className="absolute right-3 top-3 rounded-full px-3 py-1 font-mono text-[0.7rem] font-bold tracking-widest text-brand-900" style={{ backgroundColor: tone }}>
+        <span className="absolute right-3 top-3 rounded-full px-3 py-1 font-mono text-xs font-bold tracking-widest text-[#0b1533]" style={{ backgroundColor: tone }}>
           {label}
         </span>
-        <div className="absolute inset-3 rounded-xl border border-white/25" />
+        <div className="absolute inset-3 rounded-2xl border border-white/25" />
       </div>
     </figure>
   );

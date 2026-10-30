@@ -17,10 +17,10 @@ export function FloatingActions({ assistant, whatsappLabel }: { assistant: Assis
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1.2, type: "spring", stiffness: 260, damping: 18 }}
         whileHover={{ scale: 1.08 }}
-        className="group relative flex h-12 items-center gap-2 rounded-full bg-whatsapp px-3 sm:h-14 sm:px-3.5 text-white shadow-[0_14px_36px_-10px_rgb(37_211_102/0.75)] ring-4 ring-white"
+        className="group relative flex h-14 items-center gap-2 rounded-full bg-whatsapp px-3.5 text-white shadow-float"
       >
         <WhatsappLogo weight="fill" className="size-7" />
-        <span className="max-w-0 overflow-hidden whitespace-nowrap font-display text-[0.95rem] font-bold transition-all duration-500 group-hover:max-w-56 group-hover:pr-1">
+        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[0.95rem] font-medium transition-all duration-500 group-hover:max-w-56 group-hover:pr-1">
           {whatsappLabel}
         </span>
       </motion.a>

@@ -23,7 +23,7 @@ export function Masonry({ items, alt, className }: { items: Photo[]; alt: string
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "0px 0px -8% 0px" }}
             transition={{ duration: 0.6, delay: (i % 4) * 0.05, ease: [0.16, 1, 0.3, 1] }}
-            className="group relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-[1.6rem] bg-mist shadow-soft ring-1 ring-line sm:mb-4"
+            className="group relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-[1.6rem] bg-surface-2 shadow-soft ring-1 ring-line sm:mb-4"
             aria-label={p.caption ?? `${alt} ${i + 1}`}
           >
             <Image
@@ -34,11 +34,11 @@ export function Masonry({ items, alt, className }: { items: Photo[]; alt: string
               sizes="(min-width:1280px) 25vw, (min-width:768px) 33vw, 50vw"
               className="h-auto w-full transition duration-700 group-hover:scale-[1.04]"
             />
-            <span className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-white/90 text-ink opacity-0 shadow-soft transition group-hover:opacity-100">
+            <span className="absolute right-3 top-3 grid size-10 place-items-center rounded-full bg-white/90 text-[#0b1533] opacity-0 transition group-hover:opacity-100">
               <MagnifyingGlassPlus weight="bold" className="size-5" />
             </span>
             {p.caption && (
-              <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 font-display text-sm font-bold text-ink shadow-soft backdrop-blur">{p.caption}</span>
+              <span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1 text-sm font-bold text-[#0b1533] backdrop-blur">{p.caption}</span>
             )}
           </motion.button>
         ))}

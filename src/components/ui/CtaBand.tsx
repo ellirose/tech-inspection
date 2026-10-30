@@ -1,38 +1,36 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, WhatsappLogo } from "@phosphor-icons/react/ssr";
+import { WhatsappLogo } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { whatsappLink } from "@/content/site";
-import { Container } from "./Section";
+import { company, whatsappLink } from "@/content/site";
+import { Container, Eyebrow, Swoosh } from "./Section";
 import { Reveal } from "./Reveal";
-import { Waveform } from "@/components/visuals/Waveform";
+import { ButtonLink } from "./Button";
+import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 
-/** Closing call to action used at the end of inner pages. */
+/** Closing call to action used at the end of inner pages: a cobalt card with a photo inset. */
 export function CtaBand({ lang, dict }: { lang: Locale; dict: Dictionary }) {
   return (
-    <section className="py-16 sm:py-20">
+    <section className="py-16 sm:py-24">
       <Container>
-        <Reveal className="relative isolate overflow-hidden rounded-[3rem] rounded-tl-[7rem] bg-brand-700 px-7 py-14 text-white sm:px-14 sm:py-16">
-          {/* Architectural texture from the original site, tinted into the brand blue */}
-          <Image src="/media/photos/abstract-arch.jpg" alt="" fill sizes="(min-width:1440px) 1300px, 100vw" className="-z-10 object-cover opacity-30 mix-blend-luminosity" />
-          <div className="absolute inset-0 -z-10 bg-blueprint opacity-25 [filter:invert(1)]" />
-          <div className="absolute -right-20 -top-24 -z-10 size-96 rounded-full bg-mt/25 blur-3xl" />
-          <Waveform className="absolute bottom-6 right-8 -z-10 hidden h-24 w-[28rem] text-white opacity-60 lg:block" color="#7ee52a" />
-          <div className="grid items-center gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-7">
-              <p className="font-mono text-sm font-bold uppercase tracking-[0.2em] text-mt">{dict.quote.eyebrow}</p>
-              <h2 className="mt-3 text-balance font-display text-[clamp(2.1rem,4vw,3.6rem)] font-bold leading-[1.03] tracking-[-0.03em]">{dict.contact.title}</h2>
-              <p className="mt-4 max-w-xl text-lg text-white/80">{dict.quote.lead}</p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row lg:col-span-5 lg:justify-end">
-              <Link href={`/${lang}/contacto#cotizar`} className="group inline-flex items-center justify-center gap-3 rounded-full bg-white py-4 pl-7 pr-5 font-display text-lg font-bold text-brand-700 transition hover:bg-mt hover:text-brand-900">
+        <Reveal className="relative isolate grid overflow-hidden rounded-[2.5rem] bg-brand-600 text-white shadow-float sm:rounded-[3.5rem] lg:grid-cols-12 dark:bg-brand-700">
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-50" />
+          <Swoosh className="absolute -bottom-10 -left-20 -z-10 w-[36rem] text-neon" />
+          <div className="p-8 sm:p-14 lg:col-span-7">
+            <Eyebrow tone="onImage">{dict.quote.eyebrow}</Eyebrow>
+            <h2 className="mt-6 text-balance text-[clamp(2.1rem,4vw,3.6rem)] font-extrabold leading-[1.04] tracking-[-0.035em]">{dict.contact.title}</h2>
+            <p className="mt-5 max-w-xl text-lg text-white/80 sm:text-xl">{dict.quote.lead}</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <ButtonLink href={`/${lang}/contacto#cotizar`} variant="light">
                 {dict.cta.quote}
-                <ArrowRight weight="bold" className="size-5 transition group-hover:translate-x-1" />
-              </Link>
-              <a href={whatsappLink(dict.quote.waIntro)} target="_blank" rel="noopener" className="inline-flex items-center justify-center gap-2.5 rounded-full bg-whatsapp px-6 py-4 font-display text-lg font-bold text-white">
-                <WhatsappLogo weight="fill" className="size-6" /> WhatsApp
-              </a>
+              </ButtonLink>
+              <ButtonLink href={whatsappLink(dict.quote.waIntro)} variant="whatsapp" icon={<WhatsappLogo weight="fill" className="size-6" />}>
+                {company.whatsappDisplay}
+              </ButtonLink>
+            </div>
+          </div>
+          <div className="relative min-h-64 lg:col-span-5">
+            <div className="absolute inset-4 overflow-hidden rounded-[2rem] sm:inset-6 lg:left-0 lg:rounded-[2.5rem] lg:rounded-tl-[6rem]">
+              <BackgroundVideo src="/media/video/pipe-detail.mp4" poster="/media/video/pipe-detail.jpg" className="absolute inset-0 size-full" />
             </div>
           </div>
         </Reveal>

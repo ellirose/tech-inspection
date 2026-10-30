@@ -24,20 +24,20 @@ export function Filmstrip({ items, alt, className, prev = "Previous", next = "Ne
             <button
               type="button"
               onClick={() => lb.open(i)}
-              className="group relative block h-[var(--strip-h)] w-full overflow-hidden rounded-[1.75rem] bg-mist shadow-soft ring-1 ring-line"
+              className="group relative block h-[var(--strip-h)] w-full overflow-hidden rounded-[1.75rem] bg-surface-2 shadow-soft ring-1 ring-line"
               aria-label={p.caption ?? `${alt} ${i + 1}`}
             >
               <Image src={p.src} alt={p.caption ?? `${alt} ${i + 1}`} fill sizes="(min-width:768px) 40vw, 80vw" className="object-cover transition duration-700 group-hover:scale-[1.03]" />
             </button>
-            {p.caption && <figcaption className="mt-3 px-1 font-display font-bold text-ink">{p.caption}</figcaption>}
+            {p.caption && <figcaption className="mt-3 px-1 text-lg font-bold text-ink">{p.caption}</figcaption>}
           </figure>
         ))}
       </div>
       <div className="mt-4 flex gap-2">
-        <button type="button" onClick={() => scroll(-1)} className="grid size-12 place-items-center rounded-full bg-white text-ink shadow-soft ring-1 ring-line transition hover:bg-brand-700 hover:text-white" aria-label={prev}>
+        <button type="button" onClick={() => scroll(-1)} className="grid size-14 place-items-center rounded-full bg-surface text-ink shadow-soft ring-1 ring-line transition hover:bg-brand-600 hover:text-white" aria-label={prev}>
           <ArrowLeft weight="bold" className="size-5" />
         </button>
-        <button type="button" onClick={() => scroll(1)} className="grid size-12 place-items-center rounded-full bg-white text-ink shadow-soft ring-1 ring-line transition hover:bg-brand-700 hover:text-white" aria-label={next}>
+        <button type="button" onClick={() => scroll(1)} className="grid size-14 place-items-center rounded-full bg-surface text-ink shadow-soft ring-1 ring-line transition hover:bg-brand-600 hover:text-white" aria-label={next}>
           <ArrowRight weight="bold" className="size-5" />
         </button>
       </div>

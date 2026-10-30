@@ -19,8 +19,8 @@ type Props = {
   policyHref: string;
 };
 
-const field = "w-full rounded-2xl bg-white px-4 py-3.5 text-[1.05rem] text-ink ring-1 ring-line outline-none transition placeholder:text-mute/70 focus:ring-2 focus:ring-brand-400";
-const label = "mb-2 block font-display text-[1.02rem] font-bold text-ink";
+const field = "w-full rounded-2xl bg-surface px-4 py-3.5 text-[1.05rem] font-medium text-ink ring-1 ring-inset ring-line outline-none transition placeholder:text-mute/70 focus:ring-2 focus:ring-neon";
+const label = "mb-2 block text-[1.02rem] font-bold text-ink";
 
 function Choice({ on, onClick, children, className }: { on: boolean; onClick: () => void; children: React.ReactNode; className?: string }) {
   return (
@@ -29,8 +29,8 @@ function Choice({ on, onClick, children, className }: { on: boolean; onClick: ()
       onClick={onClick}
       aria-pressed={on}
       className={cn(
-        "relative rounded-2xl px-4 py-3 text-left font-semibold transition",
-        on ? "bg-brand-700 text-white shadow-[0_12px_28px_-12px_rgb(3_10_140/0.7)]" : "bg-white text-ink ring-1 ring-line hover:ring-brand-300",
+        "relative rounded-2xl px-4 py-3 text-left text-[1rem] font-bold transition",
+        on ? "bg-brand-600 text-white ring-1 ring-brand-600 shadow-[0_12px_26px_-12px_rgb(31_55_214/0.7)] dark:bg-neon dark:text-[#0b1533] dark:ring-neon" : "bg-surface text-ink ring-1 ring-inset ring-line hover:ring-accent/40",
         className,
       )}
     >
@@ -102,14 +102,14 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
 
   if (status === "done") {
     return (
-      <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center rounded-[2.5rem] bg-white p-10 text-center shadow-lift ring-1 ring-line sm:p-14">
-        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }} className="grid size-24 place-items-center rounded-full bg-mt-soft text-[#3f8a07]">
-          <CheckCircle weight="duotone" className="size-14" />
+      <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center rounded-[2.5rem] bg-surface p-10 text-center shadow-card ring-1 ring-line sm:p-14">
+        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }} className="grid size-20 place-items-center rounded-full bg-lime/20 text-lime-deep dark:text-lime">
+          <CheckCircle weight="light" className="size-12" />
         </motion.span>
-        <h3 className="mt-6 font-display text-3xl font-bold text-ink">{t.successTitle}</h3>
+        <h3 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">{t.successTitle}</h3>
         <p className="mt-3 max-w-md text-lg text-ink-soft">{t.successText}</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <a href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(summary)}`} target="_blank" rel="noopener" className="inline-flex items-center justify-center gap-2 rounded-full bg-whatsapp px-6 py-4 font-display text-lg font-bold text-white">
+          <a href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(summary)}`} target="_blank" rel="noopener" className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-whatsapp px-6 font-bold text-white">
             <WhatsappLogo weight="fill" className="size-6" /> {t.continueWa}
           </a>
           <button
@@ -119,7 +119,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
               setStep(0);
               setForm((f) => ({ ...f, services: [], methods: [], notes: "" }));
             }}
-            className="rounded-full px-6 py-4 font-display text-lg font-bold text-brand-700 ring-2 ring-brand-200"
+            className="h-14 rounded-full px-6 font-bold text-ink ring-1 ring-inset ring-line"
           >
             {t.newRequest}
           </button>
@@ -129,7 +129,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
   }
 
   return (
-    <form onSubmit={submit} className="relative overflow-hidden rounded-[2.5rem] bg-canvas p-6 shadow-lift ring-1 ring-line sm:p-10" noValidate>
+    <form onSubmit={submit} className="relative overflow-hidden rounded-[2.5rem] rounded-tr-[5rem] bg-surface p-6 shadow-card ring-1 ring-line sm:p-10" noValidate>
       {/* Stepper */}
       <ol className="flex items-center gap-2">
         {t.steps.map((s, i) => (
@@ -139,16 +139,16 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
               onClick={() => i < step && go(i)}
               className={cn(
                 "grid size-11 shrink-0 place-items-center rounded-full font-mono text-sm font-bold transition",
-                i < step ? "bg-mt text-brand-900" : i === step ? "bg-brand-700 text-white ring-4 ring-brand-100" : "bg-white text-mute ring-1 ring-line",
+                i < step ? "bg-lime text-[#0b1533]" : i === step ? "bg-brand-600 text-white ring-4 ring-neon/30 dark:bg-neon dark:text-[#0b1533]" : "bg-surface text-mute ring-1 ring-line",
               )}
               aria-current={i === step ? "step" : undefined}
             >
-              {i < step ? <Check weight="bold" className="size-5" /> : i + 1}
+              {i < step ? <Check weight="bold" className="size-4" /> : i + 1}
             </button>
-            <span className={cn("hidden font-display font-bold sm:block", i === step ? "text-ink" : "text-mute")}>{s}</span>
+            <span className={cn("hidden text-sm font-medium sm:block", i === step ? "text-ink" : "text-mute")}>{s}</span>
             {i < t.steps.length - 1 && (
               <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
-                <motion.span className="block h-full bg-brand-700" animate={{ width: i < step ? "100%" : "0%" }} transition={{ duration: 0.5 }} />
+                <motion.span className="block h-full rounded-full bg-neon" animate={{ width: i < step ? "100%" : "0%" }} transition={{ duration: 0.5 }} />
               </span>
             )}
           </li>
@@ -167,18 +167,18 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
           >
             {step === 0 && (
               <fieldset>
-                <legend className="font-display text-2xl font-bold text-ink sm:text-3xl">{t.q1}</legend>
+                <legend className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{t.q1}</legend>
                 <p className="mt-1 text-mute">{t.q1hint}</p>
                 <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
                   {services.map((s) => {
                     const on = form.services.includes(s.name);
                     return (
                       <Choice key={s.slug} on={on} onClick={() => toggle("services", s.name)} className="flex items-center gap-3 py-3.5">
-                        <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", on ? "bg-white/15" : "bg-brand-50 text-brand-700")}>
+                        <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", on ? "bg-white/15 text-white dark:bg-[#0b1533]/10 dark:text-[#0b1533]" : "bg-tint text-accent")}>
                           <ServiceGlyph name={s.icon} className="size-6" />
                         </span>
-                        <span className="text-[1.02rem]">{s.name}</span>
-                        {on && <Check weight="bold" className="ml-auto size-5 text-mt" />}
+                        <span>{s.name}</span>
+                        {on && <Check weight="bold" className="ml-auto size-5 text-lime" />}
                       </Choice>
                     );
                   })}
@@ -186,11 +186,11 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                 <p className={cn(label, "mt-7")}>{t.methodsQ}</p>
                 <div className="flex flex-wrap gap-2">
                   {methods.map((m) => (
-                    <Choice key={m.key} on={form.methods.includes(m.code)} onClick={() => toggle("methods", m.code)} className="flex items-center gap-2 rounded-full py-2.5">
+                    <Choice key={m.key} on={form.methods.includes(m.code)} onClick={() => toggle("methods", m.code)} className="flex items-center gap-2 py-2.5">
                       <MethodGlyph name={m.key} className="size-5" /> {m.name}
                     </Choice>
                   ))}
-                  <Choice on={form.methods.includes("?")} onClick={() => toggle("methods", "?")} className="rounded-full py-2.5">
+                  <Choice on={form.methods.includes("?")} onClick={() => toggle("methods", "?")} className="py-2.5">
                     {t.unsure}
                   </Choice>
                 </div>
@@ -199,7 +199,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
 
             {step === 1 && (
               <fieldset className="space-y-6">
-                <legend className="font-display text-2xl font-bold text-ink sm:text-3xl">{t.q2}</legend>
+                <legend className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{t.q2}</legend>
                 <div>
                   <p className={label}>{t.quantity} *</p>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -227,7 +227,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                   </label>
                   <div>
                     <p className={label}>{t.urgency}</p>
-                    <div className="flex gap-1.5 rounded-2xl bg-white p-1.5 ring-1 ring-line">
+                    <div className="flex gap-1 rounded-2xl bg-surface-2 p-1 ring-1 ring-inset ring-line">
                       {t.urgencies.map((u, i) => (
                         <button
                           key={u}
@@ -235,7 +235,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                           onClick={() => set("urgency", u)}
                           className={cn(
                             "flex-1 rounded-xl py-2.5 text-sm font-bold transition",
-                            form.urgency === u ? ["bg-brand-700 text-white", "bg-vt text-white", "bg-pt text-white"][i] : "text-ink-soft hover:bg-mist",
+                            form.urgency === u ? ["bg-brand-600 text-white", "bg-vt text-[#0b1533]", "bg-pt text-white"][i] : "text-ink-soft hover:bg-surface",
                           )}
                         >
                           {u}
@@ -253,7 +253,7 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
 
             {step === 2 && (
               <fieldset className="space-y-5">
-                <legend className="font-display text-2xl font-bold text-ink sm:text-3xl">{t.q3}</legend>
+                <legend className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{t.q3}</legend>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label>
                     <span className={label}>{t.name} *</span>
@@ -272,11 +272,11 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                     <input className={field} type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} autoComplete="tel" />
                   </label>
                 </div>
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-line">
-                  <input type="checkbox" checked={form.consent} onChange={(e) => set("consent", e.target.checked)} className="mt-1 size-5 accent-brand-700" />
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-surface-2 p-4 ring-1 ring-inset ring-line">
+                  <input type="checkbox" checked={form.consent} onChange={(e) => set("consent", e.target.checked)} className="mt-1 size-5 accent-brand-600" />
                   <span className="text-[0.98rem] text-ink-soft">
                     {t.consent}{" "}
-                    <a href={policyHref} target="_blank" rel="noopener" className="font-semibold text-brand-700 underline underline-offset-4">
+                    <a href={policyHref} target="_blank" rel="noopener" className="font-bold text-accent underline underline-offset-4">
                       {t.consentLink}
                     </a>
                     . *
@@ -289,22 +289,22 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
       </div>
 
       {error && (
-        <p role="alert" className="mt-4 rounded-2xl bg-pt-soft px-4 py-3 font-semibold text-pt">
+        <p role="alert" className="mt-4 rounded-2xl bg-pt/10 px-4 py-3 font-bold text-pt">
           {error}
         </p>
       )}
 
       <div className="mt-7 flex items-center justify-between gap-3">
-        <button type="button" onClick={() => go(step - 1)} className={cn("inline-flex items-center gap-2 rounded-full px-5 py-3.5 font-display font-bold text-ink-soft transition hover:bg-white", step === 0 && "invisible")}>
+        <button type="button" onClick={() => go(step - 1)} className={cn("inline-flex h-14 items-center gap-2 rounded-full px-5 font-bold text-ink-soft transition hover:bg-surface-2", step === 0 && "invisible")}>
           <ArrowLeft weight="bold" className="size-5" /> {t.prev}
         </button>
         {step < 2 ? (
-          <button type="button" onClick={() => go(step + 1)} className="group inline-flex items-center gap-3 rounded-full bg-brand-700 py-4 pl-7 pr-5 font-display text-lg font-bold text-white transition hover:bg-brand-600">
+          <button type="button" onClick={() => go(step + 1)} className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand-600 pl-6 pr-5 font-bold text-white transition hover:bg-brand-500 dark:bg-neon dark:text-[#0b1533]">
             {t.next}
-            <ArrowRight weight="bold" className="size-5 transition group-hover:translate-x-1" />
+            <ArrowRight weight="bold" className="size-4 transition group-hover:translate-x-0.5" />
           </button>
         ) : (
-          <button type="submit" disabled={status === "sending"} className="inline-flex items-center gap-3 rounded-full bg-brand-700 py-4 pl-7 pr-5 font-display text-lg font-bold text-white transition hover:bg-brand-600 disabled:opacity-60">
+          <button type="submit" disabled={status === "sending"} className="inline-flex h-14 items-center gap-3 rounded-full bg-neon pl-6 pr-5 font-bold text-[#0b1533] shadow-neon transition hover:bg-lime disabled:opacity-60">
             {status === "sending" ? t.sending : t.send}
             <ArrowRight weight="bold" className="size-5" />
           </button>

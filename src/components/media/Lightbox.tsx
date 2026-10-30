@@ -47,7 +47,7 @@ export function Lightbox({ items, alt, index, close, step }: { items: Photo[]; a
           role="dialog"
           aria-modal="true"
           aria-label={alt}
-          className="fixed inset-0 z-[80] flex flex-col bg-ink/85 backdrop-blur-md"
+          className="fixed inset-0 z-[80] flex flex-col bg-[#0b1533]/90 backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -64,20 +64,20 @@ export function Lightbox({ items, alt, index, close, step }: { items: Photo[]; a
             <Image src={item.src} alt={item.caption ?? `${alt} ${index + 1}`} fill sizes="100vw" quality={90} className="object-contain" />
           </motion.div>
           <div className="flex items-center justify-center gap-3 px-4 pb-6" onClick={(e) => e.stopPropagation()}>
-            <span className="rounded-full bg-white px-4 py-1.5 font-mono text-sm font-bold text-ink">
+            <span className="rounded-full bg-white px-4 py-1.5 font-mono text-sm font-bold text-[#0b1533]">
               {index + 1} / {items.length}
             </span>
-            {item.caption && <span className="rounded-full bg-white/15 px-4 py-1.5 font-display font-bold text-white ring-1 ring-white/25">{item.caption}</span>}
+            {item.caption && <span className="rounded-full bg-white/15 px-4 py-1.5 font-semibold text-white ring-1 ring-white/25">{item.caption}</span>}
           </div>
-          <button type="button" onClick={close} className="absolute right-4 top-4 grid size-12 place-items-center rounded-full bg-white text-ink shadow-float" aria-label="Close">
+          <button type="button" onClick={close} className="absolute right-4 top-4 grid size-12 place-items-center rounded-full bg-white text-[#0b1533]" aria-label="Close">
             <X weight="bold" className="size-6" />
           </button>
           {items.length > 1 && (
             <>
-              <button type="button" onClick={(e) => { e.stopPropagation(); step(-1); }} className="absolute left-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white text-ink shadow-float sm:left-6 sm:size-14" aria-label="Previous">
+              <button type="button" onClick={(e) => { e.stopPropagation(); step(-1); }} className="absolute left-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white text-[#0b1533] sm:left-6 sm:size-14" aria-label="Previous">
                 <ArrowLeft weight="bold" className="size-6" />
               </button>
-              <button type="button" onClick={(e) => { e.stopPropagation(); step(1); }} className="absolute right-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white text-ink shadow-float sm:right-6 sm:size-14" aria-label="Next">
+              <button type="button" onClick={(e) => { e.stopPropagation(); step(1); }} className="absolute right-3 top-1/2 grid size-12 -translate-y-1/2 place-items-center rounded-full bg-white text-[#0b1533] sm:right-6 sm:size-14" aria-label="Next">
                 <ArrowRight weight="bold" className="size-6" />
               </button>
             </>

@@ -82,13 +82,13 @@ export function LangMenu({
         aria-controls={panelId}
         aria-label={`${label}: ${localeLabel[lang].name}`}
         className={cn(
-          "flex h-12 w-[6.75rem] shrink-0 items-center justify-between gap-2 rounded-full bg-white/90 pl-2 pr-3 font-mono text-[0.85rem] font-bold tracking-wider text-ink shadow-soft ring-1 ring-line transition hover:ring-brand-200",
-          open && "ring-brand-300",
+          "flex h-12 w-[5.5rem] shrink-0 items-center justify-between gap-2 rounded-2xl bg-surface pl-2 pr-2.5 text-[0.9rem] font-bold text-ink shadow-soft ring-1 ring-line transition hover:ring-accent/40",
+          open && "ring-accent/40",
         )}
       >
-        <Flag className="size-8 shrink-0" />
+        <Flag className="size-7 shrink-0" />
         <span>{localeLabel[lang].short}</span>
-        <CaretDown weight="bold" className={cn("size-4 text-mute transition-transform duration-300", open && "rotate-180")} />
+        <CaretDown weight="bold" className={cn("size-3.5 text-mute transition-transform duration-300", open && "rotate-180")} />
       </button>
 
       <AnimatePresence>
@@ -101,11 +101,11 @@ export function LangMenu({
             exit={{ opacity: 0, y: placement === "down" ? -6 : 6, scale: 0.98 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "absolute z-10 w-60 rounded-3xl bg-white p-1.5 shadow-[0_24px_60px_-20px_rgb(14_20_51/0.35)] ring-1 ring-line",
+              "absolute z-10 w-60 rounded-3xl bg-surface p-2 shadow-float ring-1 ring-line",
               placement === "down" ? "right-0 top-full mt-2 origin-top-right" : "bottom-full left-0 mb-2 origin-bottom-left",
             )}
           >
-            <p className="px-3.5 pb-1.5 pt-2 font-mono text-[0.7rem] font-bold uppercase tracking-[0.16em] text-mute">{label}</p>
+            <p className="px-3 pb-1.5 pt-2 font-mono text-[0.7rem] uppercase tracking-[0.16em] text-mute">{label}</p>
             {locales.map((l) => {
               const ItemFlag = flagFor[l];
               const active = l === lang;
@@ -119,16 +119,16 @@ export function LangMenu({
                   aria-current={active ? "true" : undefined}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-2xl px-2.5 py-2.5 outline-none transition-colors focus-visible:bg-brand-50",
-                    active ? "bg-brand-50 text-brand-800" : "text-ink hover:bg-mist",
+                    "flex items-center gap-3 rounded-2xl px-2.5 py-2.5 outline-none transition-colors focus-visible:bg-tint",
+                    active ? "bg-tint text-accent" : "text-ink hover:bg-surface-2",
                   )}
                 >
                   <ItemFlag className="size-8 shrink-0" />
-                  <span className="flex-1 whitespace-nowrap font-display text-[1.02rem] font-bold">{localeLabel[l].name}</span>
+                  <span className="flex-1 whitespace-nowrap text-[1.02rem] font-bold">{localeLabel[l].name}</span>
                   {active ? (
-                    <Check weight="bold" className="size-4 text-brand-700" />
+                    <Check weight="bold" className="size-4 text-accent-ink" />
                   ) : (
-                    <span className="font-mono text-xs font-bold text-mute">{localeLabel[l].short}</span>
+                    <span className="font-mono text-xs text-mute">{localeLabel[l].short}</span>
                   )}
                 </Link>
               );

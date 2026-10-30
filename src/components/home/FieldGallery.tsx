@@ -8,15 +8,16 @@ const rows: [string[], string[]] = [
   ["/media/methods/ut-5.jpg", "/media/methods/mt-12.jpg", "/media/photos/bit-inspection.jpg", "/media/methods/pt-13.jpg", "/media/photos/oil-field.jpg", "/media/photos/tool-measure.jpg", "/media/methods/mt-10.jpg", "/media/photos/pressure-wash.jpg"],
 ];
 
-/** Two drifting rows of real field photos between the video band and the platform. */
-export function FieldGallery({ dict }: { dict: Dictionary }) {
+/** Two crossing ribbons of real field photos. */
+export function FieldGallery({ dict, index }: { dict: Dictionary; index?: string }) {
   const g = dict.gallery;
   return (
-    <section className="relative overflow-hidden py-20 sm:py-24">
+    <section className="relative isolate overflow-hidden pb-4 pt-24 sm:pt-32">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-dots mask-radial" />
       <Container>
-        <SectionHeading eyebrow={g.eyebrow} title={g.title} lead={g.lead} align="center" />
+        <SectionHeading align="center" index={index} eyebrow={g.eyebrow} title={g.title} lead={g.lead} />
       </Container>
-      <PhotoRibbon className="mt-12" rows={[photos(rows[0]), photos(rows[1])]} />
+      <PhotoRibbon className="mt-6" rows={[photos(rows[0]), photos(rows[1])]} />
     </section>
   );
 }

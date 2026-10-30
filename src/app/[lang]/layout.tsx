@@ -1,27 +1,32 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import { Bricolage_Grotesque, JetBrains_Mono, Manrope } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../globals.css";
 import { hasLocale, htmlLang, locales, ogLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { methods } from "@/content/methods";
 import { services } from "@/content/services";
-import { company, PLATFORM_URL, SITE_URL } from "@/content/site";
+import { company, FOUNDED, PLATFORM_URL, SITE_URL } from "@/content/site";
 import { Header, type NavData } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 
-const display = Bricolage_Grotesque({ subsets: ["latin", "latin-ext"], variable: "--font-bricolage", display: "swap" });
-const sans = Manrope({ subsets: ["latin", "latin-ext"], variable: "--font-manrope", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains", display: "swap", weight: ["500", "700"] });
+const sans = Plus_Jakarta_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-jakarta", display: "swap" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
+
+// Runs before paint: the saved choice wins, otherwise the system setting decides.
+const themeScript = `try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}`;
 
 export async function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
 
 export const viewport: Viewport = {
-  themeColor: "#f6f8fc",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f3f6fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c1638" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
@@ -73,18 +78,19 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
     image: `${SITE_URL}/${lang}/opengraph-image`,
     telephone: company.phone,
     email: company.email,
-    foundingDate: "2017",
+    foundingDate: String(FOUNDED),
     address: { "@type": "PostalAddress", streetAddress: company.address, addressCountry: "CO" },
     areaServed: "CO",
     knowsAbout: methods.map((m) => m.name.en),
   };
 
   return (
-    <html lang={htmlLang[lang as Locale]} className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang={htmlLang[lang as Locale]} className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
       <body className="min-h-svh overflow-x-clip">
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <SmoothScroll>
-          <Header data={navData} />
+          <Header data={navData} theme={dict.ui.theme} />
           <main>{children}</main>
           <Footer lang={lang} dict={dict} />
           <FloatingActions

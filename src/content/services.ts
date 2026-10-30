@@ -1,7 +1,7 @@
 import type { L10n, L10nList } from "@/i18n/config";
 import type { MethodKey } from "./methods";
 
-export type ServiceIcon = "pipe" | "drill" | "gauge" | "wrench" | "cylinder" | "crane" | "tank" | "buildings";
+export type ServiceIcon = "bit" | "pipe" | "drill" | "gauge" | "wrench" | "cylinder" | "crane" | "tank" | "buildings";
 
 export type Service = {
   slug: string;
@@ -19,6 +19,33 @@ export type Service = {
 };
 
 export const services: Service[] = [
+  // Headline specialty in the client deck (slides 1 and 5).
+  {
+    slug: "brocas",
+    icon: "bit",
+    image: "/media/deck/pdc-bit.jpg",
+    gallery: ["/media/photos/pdc-bit.jpg", "/media/photos/bit-inspection.jpg", "/media/photos/drill-bit.jpg", "/media/deck/bit-report.jpg", "/media/methods/pt-4.jpg", "/media/methods/pt-5.jpg"],
+    name: { es: "Brocas y estructuras de corte", pt: "Brocas e estruturas de corte", en: "Drill bits & cutting structures" },
+    short: { es: "Inspección de brocas de acuerdo al estándar DS-1.", pt: "Inspeção de brocas de acordo com o padrão DS-1.", en: "Drill bit inspection to the DS-1 standard." },
+    body: [
+      {
+        es: "Una broca defectuosa puede generar preparaciones no productivas, fallas en el pozo, daño a equipos y componentes y altos costos operacionales.",
+        pt: "Uma broca defeituosa pode gerar preparações não produtivas, falhas no poço, danos a equipamentos e componentes e altos custos operacionais.",
+        en: "A defective bit can lead to non-productive trips, downhole failures, damage to equipment and components, and high operating costs.",
+      },
+      {
+        es: "Con personal certificado, métodos NDT aplicados y equipos calibrados verificamos el estado real de cada broca, detectamos defectos antes de su uso y evaluamos el cumplimiento de los criterios de aceptación de DS-1.",
+        pt: "Com pessoal certificado, métodos END aplicados e equipamentos calibrados verificamos o estado real de cada broca, detectamos defeitos antes do uso e avaliamos o cumprimento dos critérios de aceitação da DS-1.",
+        en: "With certified personnel, applied NDT methods and calibrated equipment we verify each bit's real condition, detect defects before it is run and evaluate it against DS-1 acceptance criteria.",
+      },
+    ],
+    scope: {
+      es: ["Brocas PDC", "Estructuras de corte", "Criterios de aceptación DS-1", "Reporte técnico con registro fotográfico"],
+      pt: ["Brocas PDC", "Estruturas de corte", "Critérios de aceitação DS-1", "Relatório técnico com registro fotográfico"],
+      en: ["PDC bits", "Cutting structures", "DS-1 acceptance criteria", "Technical report with photo record"],
+    },
+    methods: ["vt", "mt", "pt", "ut"],
+  },
   {
     slug: "tuberia",
     icon: "pipe",
@@ -40,18 +67,18 @@ export const services: Service[] = [
   {
     slug: "componentes-bha",
     icon: "drill",
-    image: "/media/photos/drill-bit.jpg",
-    gallery: ["/media/photos/pdc-bit.jpg", "/media/photos/bit-inspection.jpg", "/media/methods/pt-4.jpg", "/media/methods/pt-5.jpg", "/media/methods/mt-5.jpg", "/media/photos/drill-bit.jpg"],
+    image: "/media/photos/thread-closeup.jpg",
+    gallery: ["/media/methods/mt-5.jpg", "/media/methods/mt-8.jpg", "/media/methods/ut-3.jpg", "/media/photos/pipe-bore-2.jpg", "/media/methods/vt-1.jpg"],
     name: { es: "Componentes de BHA", pt: "Componentes de BHA", en: "BHA components" },
-    short: { es: "Brocas, estabilizadores y motores del Bottom Hole Assembly.", pt: "Brocas, estabilizadores e motores do Bottom Hole Assembly.", en: "Bits, stabilizers and motors in the bottom hole assembly." },
+    short: { es: "Estabilizadores, motores y demás componentes del Bottom Hole Assembly.", pt: "Estabilizadores, motores e demais componentes do Bottom Hole Assembly.", en: "Stabilizers, motors and other bottom hole assembly components." },
     body: [
       { es: "Revisamos los elementos más críticos de la sarta de perforación para garantizar la seguridad y eficiencia de sus operaciones.", pt: "Revisamos os elementos mais críticos da coluna de perfuração para garantir a segurança e a eficiência das suas operações.", en: "We inspect the most critical elements of the drill string to keep your operations safe and efficient." },
       { es: "Detectamos a tiempo defectos, desgaste o discontinuidades, previniendo fallas operativas, retrasos costosos y daños a los equipos.", pt: "Detectamos a tempo defeitos, desgaste ou descontinuidades, prevenindo falhas operacionais, atrasos custosos e danos aos equipamentos.", en: "We catch defects, wear or discontinuities early, preventing failures, costly delays and equipment damage." },
     ],
     scope: {
-      es: ["Brocas", "Estabilizadores", "Motores de perforación", "Otros componentes del BHA"],
-      pt: ["Brocas", "Estabilizadores", "Motores de perfuração", "Outros componentes do BHA"],
-      en: ["Drill bits", "Stabilizers", "Drilling motors", "Other BHA components"],
+      es: ["Estabilizadores", "Motores de perforación", "Otros componentes del BHA"],
+      pt: ["Estabilizadores", "Motores de perfuração", "Outros componentes do BHA"],
+      en: ["Stabilizers", "Drilling motors", "Other BHA components"],
     },
     methods: ["mt", "pt", "vt", "ut"],
   },

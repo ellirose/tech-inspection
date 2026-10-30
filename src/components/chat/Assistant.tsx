@@ -205,15 +205,15 @@ export function Assistant(props: AssistantProps) {
         aria-expanded={open}
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.95 }}
-        className="relative grid size-14 place-items-center rounded-[1.25rem] bg-brand-700 sm:size-16 sm:rounded-[1.4rem] text-white shadow-float ring-4 ring-white"
+        className="relative grid size-14 place-items-center rounded-full bg-brand-600 text-white shadow-float ring-4 ring-surface sm:size-16"
       >
-        <span className="absolute inset-0 -z-10 animate-pulse-ring rounded-[1.4rem] bg-brand-500/40" />
+        <span className="absolute inset-0 -z-10 animate-pulse-ring rounded-full bg-neon/35" />
         <AnimatePresence mode="wait" initial={false}>
           <motion.span key={open ? "x" : "chat"} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-            {open ? <X weight="bold" className="size-7" /> : <ChatCircleDots weight="duotone" className="size-8" />}
+            {open ? <X weight="bold" className="size-7" /> : <ChatCircleDots weight="light" className="size-7" />}
           </motion.span>
         </AnimatePresence>
-        {!open && <span className="absolute -right-1 -top-1 grid size-6 place-items-center rounded-full bg-mt text-brand-900 ring-2 ring-white"><Sparkle weight="fill" className="size-3.5" /></span>}
+        {!open && <span className="absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full bg-lime text-[#0b1533] ring-2 ring-surface"><Sparkle weight="fill" className="size-3" /></span>}
       </motion.button>
 
       <AnimatePresence>
@@ -227,31 +227,31 @@ export function Assistant(props: AssistantProps) {
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="fixed bottom-[8.5rem] right-4 z-[60] flex h-[min(38rem,calc(100svh-11rem))] sm:bottom-[10.5rem] w-[min(26rem,calc(100vw-2rem))] origin-bottom-right flex-col overflow-hidden rounded-[2rem] bg-canvas shadow-float ring-1 ring-line sm:right-6"
           >
-            <div className="relative overflow-hidden bg-brand-700 px-5 pb-5 pt-5 text-white">
-              <div className="absolute inset-0 bg-blueprint opacity-20 [filter:invert(1)]" />
+            <div className="relative overflow-hidden bg-brand-600 px-5 pb-5 pt-5 text-white">
+              <div className="absolute inset-0 bg-network opacity-50" />
               <div className="relative flex items-center gap-3">
-                <span className="grid size-12 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/30">
-                  <Sparkle weight="duotone" className="size-7 text-mt" />
+                <span className="grid size-11 place-items-center rounded-full ring-1 ring-white/20">
+                  <Sparkle weight="light" className="size-6 text-lime" />
                 </span>
                 <div className="min-w-0">
-                  <p className="font-display text-lg font-bold leading-tight">{t.title}</p>
+                  <p className="text-lg font-semibold leading-tight tracking-tight">{t.title}</p>
                   <p className="flex items-center gap-1.5 text-sm text-white/75">
                     <span className="size-2 rounded-full bg-mt" /> {t.subtitle}
                   </p>
                 </div>
-                <button type="button" onClick={() => setOpen(false)} className="ml-auto grid size-10 place-items-center rounded-xl bg-white/10 hover:bg-white/20" aria-label="✕">
+                <button type="button" onClick={() => setOpen(false)} className="ml-auto grid size-10 place-items-center rounded-full ring-1 ring-white/20 hover:bg-white/10" aria-label="✕">
                   <X weight="bold" className="size-5" />
                 </button>
               </div>
             </div>
 
-            <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-dots px-4 py-5" aria-live="polite">
+            <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-5" aria-live="polite">
               {msgs.map((m) => (
                 <motion.div key={m.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className={cn("flex flex-col", m.from === "user" ? "items-end" : "items-start")}>
                   <p
                     className={cn(
                       "max-w-[85%] whitespace-pre-line rounded-3xl px-4 py-3 text-[0.98rem] leading-snug",
-                      m.from === "user" ? "rounded-br-lg bg-brand-700 text-white" : "rounded-bl-lg bg-white text-ink shadow-soft ring-1 ring-line",
+                      m.from === "user" ? "bg-brand-600 text-white" : "bg-surface text-ink ring-1 ring-line",
                     )}
                   >
                     {m.text}
@@ -262,8 +262,8 @@ export function Assistant(props: AssistantProps) {
                       target={m.link.external ? "_blank" : undefined}
                       rel={m.link.external ? "noopener" : undefined}
                       className={cn(
-                        "mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2.5 font-display text-sm font-bold",
-                        m.link.whatsapp ? "bg-whatsapp text-white" : "bg-brand-50 text-brand-700 ring-1 ring-brand-100",
+                        "mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold",
+                        m.link.whatsapp ? "bg-whatsapp text-white" : "bg-neon text-[#0b1533]",
                       )}
                     >
                       {m.link.whatsapp && <WhatsappLogo weight="fill" className="size-5" />}
@@ -279,7 +279,7 @@ export function Assistant(props: AssistantProps) {
                           type="button"
                           onClick={() => choose(o)}
                           className={cn(
-                            "rounded-full bg-white px-3.5 py-2 text-[0.9rem] font-semibold text-brand-700 ring-1 ring-brand-200 transition hover:bg-brand-700 hover:text-white",
+                            "rounded-full bg-surface px-3.5 py-2 text-[0.92rem] font-bold text-accent ring-1 ring-inset ring-line transition hover:bg-brand-600 hover:text-white hover:ring-brand-600",
                             o.id === "restart" && "inline-flex items-center gap-1.5 text-mute ring-line",
                           )}
                         >
@@ -292,20 +292,20 @@ export function Assistant(props: AssistantProps) {
                 </motion.div>
               ))}
               {typing && (
-                <div className="flex w-fit gap-1.5 rounded-3xl rounded-bl-lg bg-white px-4 py-4 shadow-soft ring-1 ring-line">
+                <div className="flex w-fit gap-1.5 rounded-3xl bg-surface px-4 py-4 ring-1 ring-line">
                   {[0, 1, 2].map((i) => (
-                    <motion.span key={i} className="size-2 rounded-full bg-brand-400" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.9, delay: i * 0.15 }} />
+                    <motion.span key={i} className="size-2 rounded-full bg-neon" animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.9, delay: i * 0.15 }} />
                   ))}
                 </div>
               )}
             </div>
 
-            <form onSubmit={send} className="flex items-center gap-2 border-t border-line bg-white p-3">
+            <form onSubmit={send} className="flex items-center gap-2 border-t border-line bg-surface p-3">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={t.placeholder}
-                className="min-w-0 flex-1 rounded-full bg-mist px-4 py-3 text-base outline-none ring-brand-300 focus:ring-2"
+                className="min-w-0 flex-1 rounded-full bg-surface-2 px-4 py-3 text-base outline-none ring-brand-300 focus:ring-2"
               />
               <button type="submit" className="grid size-12 place-items-center rounded-full bg-brand-700 text-white transition hover:bg-brand-600" aria-label={t.send}>
                 <PaperPlaneRight weight="fill" className="size-5" />

@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { Photo } from "@/lib/media";
 import { cn } from "@/lib/cn";
 
-const tilt = ["-rotate-3", "rotate-2", "-rotate-1", "rotate-3", "-rotate-2", "rotate-1"];
+const tilt = ["-rotate-2", "rotate-1", "-rotate-1", "rotate-2", "-rotate-1", "rotate-1"];
 const lift = ["sm:translate-y-6", "", "sm:translate-y-10", "sm:-translate-y-2", "sm:translate-y-4", ""];
 
 /** Scattered instant-photo prints with captions; the full frame of every photo stays visible. */
@@ -20,7 +20,7 @@ export function Polaroids({ items, className }: { items: Photo[]; className?: st
           )}
         >
           <Image src={p.src} alt={p.caption ?? ""} width={p.w} height={p.h} sizes="(min-width:640px) 20rem, 45vw" className="h-auto w-full" />
-          {p.caption && <p className="mt-3 text-center font-display text-lg font-bold text-ink">{p.caption}</p>}
+          {p.caption && <p className="mt-3 text-center text-lg font-bold text-[#0b1533]">{p.caption}</p>}
         </li>
       ))}
     </ul>

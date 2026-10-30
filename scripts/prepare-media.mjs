@@ -112,7 +112,56 @@ const VIDEOS = {
   "video/pt-field.mp4": "0b1bae_5a6ef19dfafa4d3aa695b272e5ccd716_360p.mp4",
 };
 
+// Images lifted from the client deck (presentacion cliente ulterra.pdf), cropped clear of slide text.
+// Source PNGs live in ../scrape/deck; crop = [left, top, width, height] in source pixels.
+const DECK_SRC = path.resolve(SRC, "../deck");
+const DECK = {
+  "deck/pdc-bit.jpg": { src: "p01-1-1672x941.png" },
+  "deck/team.jpg": { src: "p03-0-1536x1024.png", crop: [0, 0, 1250, 560] },
+  "deck/ut-inspector.jpg": { src: "p04-1-1536x1024.png", crop: [640, 0, 896, 720] },
+  "deck/ut-scan.jpg": { src: "p04-4-688x506.png" },
+  "deck/bit-report.jpg": { src: "p04-5-476x528.png" },
+  "deck/pt-inspector.jpg": { src: "p07-0-1536x1024.png", crop: [0, 60, 410, 760] },
+  "deck/partner-meeting.jpg": { src: "p09-7-1536x1024.png", crop: [0, 0, 1536, 500] },
+  "deck/partner-field.jpg": { src: "p09-7-1536x1024.png", crop: [0, 626, 394, 188] },
+  "deck/partner-training.jpg": { src: "p09-7-1536x1024.png", crop: [400, 626, 380, 188] },
+  "deck/partner-review.jpg": { src: "p09-7-1536x1024.png", crop: [786, 626, 352, 188] },
+  "deck/partner-caliper.jpg": { src: "p09-7-1536x1024.png", crop: [400, 822, 378, 202] },
+  "deck/tiqms-tablet.jpg": { src: "p10-0-1536x1024.png" },
+  "deck/bit-rig.jpg": { src: "p11-0-1536x1024.png", crop: [700, 0, 836, 700] },
+};
+
+// Stock media from Pexels (Pexels License: free commercial use, no attribution required). Source files in ../scrape/stock.
+//   rig-dusk.jpg    pexels.com/photo/15973758  (GANESH RAMSUMAIR)
+//   pipe-yard.jpg   pexels.com/photo/33791802  (Shuaizhi Tian)
+//   plant-night.jpg pexels.com/photo/10407689  (Tom Fisk)
+//   rig-hero.mp4    pexels.com/video/34294261  (Dio Hasbi Saniskoro)
+//   pipe-detail.mp4 pexels.com/video/32063227  (TimePRO TV)
+// Video posters (public/media/video/*.jpg) are frames grabbed from these clips in a browser.
+const STOCK_SRC = path.resolve(SRC, "../stock");
+const STOCK = ["stock/rig-dusk.jpg", "stock/pipe-yard.jpg", "stock/plant-night.jpg"];
+const STOCK_VIDEOS = ["video/rig-hero.mp4", "video/pipe-detail.mp4"];
+
 const ensure = (p) => fs.mkdirSync(path.dirname(p), { recursive: true });
+
+for (const dest of STOCK) {
+  const out = path.join(OUT, dest);
+  ensure(out);
+  await sharp(path.join(STOCK_SRC, path.basename(dest))).resize(2000, 2000, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 82, mozjpeg: true }).toFile(out);
+}
+for (const dest of STOCK_VIDEOS) {
+  const out = path.join(OUT, dest);
+  ensure(out);
+  fs.copyFileSync(path.join(STOCK_SRC, path.basename(dest)), out);
+}
+
+for (const [dest, { src, crop }] of Object.entries(DECK)) {
+  const out = path.join(OUT, dest);
+  ensure(out);
+  let pipe = sharp(path.join(DECK_SRC, src)).flatten({ background: "#0b1230" });
+  if (crop) pipe = pipe.extract({ left: crop[0], top: crop[1], width: crop[2], height: crop[3] });
+  await pipe.jpeg({ quality: 86, mozjpeg: true }).toFile(out);
+}
 
 for (const [dest, src] of Object.entries(MAP)) {
   const out = path.join(OUT, dest);
@@ -124,6 +173,16 @@ for (const [dest, src] of Object.entries(LOGOS)) {
   ensure(out);
   await sharp(img(src)).trim({ threshold: 12 }).resize(900, 900, { fit: "inside", withoutEnlargement: true }).png().toFile(out);
 }
+// Light variant of the logo for dark surfaces: charcoal lettering turns white, the navy gear lifts to a readable blue.
+{
+  const { data, info } = await sharp(path.join(OUT, "brand/logo.png")).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  for (let i = 0; i < data.length; i += 4) {
+    const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+    if (b > r + 40) [data[i], data[i + 1], data[i + 2]] = [118, 140, 255];
+    else if (Math.max(r, g, b) < 150) [data[i], data[i + 1], data[i + 2]] = [255, 255, 255];
+  }
+  await sharp(data, { raw: info }).png().toFile(path.join(OUT, "brand/logo-light.png"));
+}
 for (const [dest, src] of Object.entries(VIDEOS)) {
   const out = path.join(OUT, dest);
   ensure(out);
@@ -133,7 +192,7 @@ console.log(`images ${Object.keys(MAP).length}, logos ${Object.keys(LOGOS).lengt
 
 // Intrinsic sizes let galleries render photos at their natural aspect ratio (no cropping).
 const sizes = {};
-for (const dest of Object.keys(MAP).sort()) {
+for (const dest of [...Object.keys(MAP), ...Object.keys(DECK), ...STOCK].sort()) {
   const { width, height } = await sharp(path.join(OUT, dest)).metadata();
   sizes[`/media/${dest}`] = [width, height];
 }

@@ -3,6 +3,7 @@ import {
   Crane,
   Cylinder,
   Database,
+  Diamond,
   Drop,
   Gauge,
   Gear,
@@ -17,6 +18,7 @@ import type { MethodKey } from "@/content/methods";
 import type { ServiceIcon } from "@/content/services";
 
 const serviceIcons: Record<ServiceIcon, React.ComponentType<IconProps>> = {
+  bit: Diamond,
   pipe: Pipe,
   drill: Gear,
   gauge: Gauge,
@@ -36,10 +38,10 @@ const methodIcons: Record<MethodKey, React.ComponentType<IconProps>> = {
 
 export function ServiceGlyph({ name, ...props }: IconProps & { name: ServiceIcon }) {
   const Icon = serviceIcons[name];
-  return <Icon weight="duotone" {...props} />;
+  return <Icon weight="light" {...props} />;
 }
 
 export function MethodGlyph({ name, ...props }: IconProps & { name: MethodKey }) {
   const Icon = methodIcons[name];
-  return <Icon weight="duotone" {...props} />;
+  return <Icon weight="light" {...props} />;
 }
