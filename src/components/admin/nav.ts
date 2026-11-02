@@ -7,6 +7,7 @@ export const panelSections: { href: string; label: string; permission?: Permissi
   { href: "/admin/contenido", label: "Contenido", permission: "content:read" },
   { href: "/admin/usuarios", label: "Usuarios", permission: "users:manage" },
   { href: "/admin/configuracion", label: "Configuración", permission: "settings:manage" },
+  { href: "/admin/redirecciones", label: "Redirecciones", permission: "settings:manage" },
   { href: "/admin/historial", label: "Historial", permission: "audit:read" },
   { href: "/admin/seguridad", label: "Seguridad" },
 ];

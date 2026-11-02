@@ -14,13 +14,16 @@ export async function notifyLead(lead: Lead) {
     company: site.company,
   };
 
-  const team = (process.env.LEAD_NOTIFY_TO ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  // Recipients set in the admin (Configuración) win over the environment default.
+  const team = site.notifyTo?.length
+    ? site.notifyTo
+    : (process.env.LEAD_NOTIFY_TO ?? "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
   const jobs: [type: string, run: () => ReturnType<typeof sendEmail>][] = [];
   if (team.length) jobs.push(["team", () => sendEmail(teamEmail(lead, ctx, team))]);
-  else console.warn("[leads] LEAD_NOTIFY_TO is empty; no team notification for", lead.reference);
+  else console.warn("[leads] no notification recipients (Configuración or LEAD_NOTIFY_TO); none sent for", lead.reference);
   const { email } = lead;
   if (email) jobs.push(["confirmation", () => sendEmail(confirmationEmail({ ...lead, email }, ctx))]);
 

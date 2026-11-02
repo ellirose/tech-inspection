@@ -55,7 +55,7 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `public/media/` | Curated photos and videos (see `scripts/prepare-media.mjs`) |
 | `public/docs/` | HSEQ PDFs migrated from Wix |
 
-`next.config.ts` permanently redirects every old Wix URL to its new route.
+Old Wix URLs are redirected from the `redirect` table (seeded from `src/db/seed/redirects.ts`, editable under Redirecciones).
 
 ## Admin panel
 
@@ -67,11 +67,19 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 - **History:** sign-ins, failures, lockouts, sign-outs and security changes go to `audit_log`, shown under *Historial*.
 - **Deployment:** set `AUTH_SECRET` (`openssl rand -base64 32`) and `AUTH_URL` to the public origin. Nginx must set `X-Real-IP` to the client address, since sign-in limits and the history read it.
 
-Inviting, role changes and deactivation from the panel, and the editing modules, arrive in stage 4.
+Sections so far:
+
+- **Leads:** the inbox with search and filters (status, source, service, priority, assignee, dates); each lead shows the full request, its origin and a history; status changes, internal notes, assignment; CSV export of the filtered list (every export is logged).
+- **Usuarios:** invite, change name and role (applies at once), deactivate (ends open sessions), unlock, reset two-step verification, resend the access link. Nobody manages their own account there, and the last active super-admin cannot be demoted or deactivated.
+- **Configuración:** company data, contact lines, hours, TI-QMS URL and lead-notification recipients; saving updates the public site at once.
+- **Redirecciones:** the old Wix URLs (seeded) and any added later, applied by `src/proxy.ts` within a minute of a change.
+- **Historial:** every sign-in, account change, lead change, export and settings change.
+
+Content editing (services, methods, clients, figures, certifications, policies, page sections) with drafts and preview is next.
 
 ## Leads
 
-Every request is stored in the `lead` table first, then emailed: a notification to `LEAD_NOTIFY_TO` (in Spanish, reply-to set to the requester) and a confirmation to the requester in their language. Each email outcome is recorded in `lead_event`. In development, set `EMAIL_OUTBOX_DIR` to get the emails as `.html` files instead of sending them. Server logs carry the lead reference only, never personal data.
+Every request is stored in the `lead` table first, then emailed: a notification to the recipients set under Configuración (or `LEAD_NOTIFY_TO` while that is empty; in Spanish, reply-to set to the requester) and a confirmation to the requester in their language. Each email outcome is recorded in `lead_event`. In development, set `EMAIL_OUTBOX_DIR` to get the emails as `.html` files instead of sending them. Server logs carry the lead reference only, never personal data.
 
 Before launch: a Resend account with `send.tech-inspection.com` verified (DNS records added by the domain owner), the real Turnstile keys, and the mailbox list for `LEAD_NOTIFY_TO`.
 
