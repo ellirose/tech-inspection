@@ -1,6 +1,6 @@
 // Content model (project design document §13.5). Translatable text is stored as { es, pt, en } JSON
 // with Spanish required, matching the L10n type the front end already uses.
-// User accounts are added in stage 3 by the auth library's own schema.
+// Admin accounts (user, session, account, verification, two_factor) follow Better Auth's model.
 import {
   boolean,
   date,
@@ -361,8 +361,101 @@ export const leadEvent = pgTable(
   (t) => [index("lead_event_lead_idx").on(t.leadId)],
 );
 
+// --- Admin accounts ----------------------------------------------------------------------------
+// Tables and field names are the ones Better Auth expects (src/lib/auth); the password hash lives in
+// `account`, the TOTP secret and backup codes (encrypted by Better Auth) in `two_factor`.
+
+export const user = pgTable("user", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
+  /** super_admin | editor | sales (src/lib/auth/roles.ts). */
+  role: text("role").notNull().default("editor"),
+  /** Deactivated users cannot sign in and lose their sessions. */
+  active: boolean("active").notNull().default(true),
+  twoFactorEnabled: boolean("two_factor_enabled").default(false),
+  /** Consecutive wrong passwords; reaching the limit sets lockedUntil. */
+  failedLoginCount: integer("failed_login_count").notNull().default(0),
+  lockedUntil: timestamp("locked_until", { withTimezone: true }),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const session = pgTable(
+  "session",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    token: text("token").notNull().unique(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("session_user_idx").on(t.userId)],
+);
+
+export const account = pgTable(
+  "account",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    password: text("password"),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+    scope: text("scope"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("account_user_idx").on(t.userId)],
+);
+
+/** One-time tokens: setup and reset links (stored hashed), pending two-factor challenges. */
+export const verification = pgTable(
+  "verification",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("verification_identifier_idx").on(t.identifier)],
+);
+
+export const twoFactor = pgTable(
+  "two_factor",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    secret: text("secret").notNull(),
+    backupCodes: text("backup_codes").notNull(),
+    verified: boolean("verified").default(true),
+    failedVerificationCount: integer("failed_verification_count").default(0),
+    lockedUntil: timestamp("locked_until", { withTimezone: true }),
+  },
+  (t) => [index("two_factor_user_idx").on(t.userId), index("two_factor_secret_idx").on(t.secret)],
+);
+
 // --- Audit ---------------------------------------------------------------------------------
 
+/** Who did what (design document §14.4): sign-ins, account changes and, from stage 4, every edit. */
 export const auditLog = pgTable(
   "audit_log",
   {
@@ -375,7 +468,7 @@ export const auditLog = pgTable(
     ip: text("ip"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("audit_log_entity_idx").on(t.entity, t.entityId)],
+  (t) => [index("audit_log_entity_idx").on(t.entity, t.entityId), index("audit_log_created_at_idx").on(t.createdAt)],
 );
 
 // --- Rate limiting ---------------------------------------------------------------------------

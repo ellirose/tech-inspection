@@ -27,6 +27,8 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `npm run db:seed` | Load `src/content/*.ts` into an empty database; `-- --force` wipes content tables and reloads |
 | `npm run db:studio` | Browse the database in Drizzle Studio |
 | `npm run leads:export -- [--since YYYY-MM-DD] [--out file.csv]` | Leads as CSV for Excel, until the admin inbox exists. The file holds personal data: keep it out of the repository |
+| `npm run admin:invite -- --bootstrap` | Create the first super-admin from `ADMIN_BOOTSTRAP_EMAIL` and print its one-time setup link |
+| `npm run admin:invite -- --email … --name "…" --role editor|sales|super_admin` | Create another account (or resend a link to an existing one) |
 | `npm test` | Unit tests, plus database checks when `DATABASE_URL` is set |
 | `npm run lint` / `npm run typecheck` | Static checks (CI runs all of these and a full build) |
 | `GET /api/health` | Status and database round-trip, for monitoring and deploys |
@@ -42,6 +44,9 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `src/lib/leads/` | Lead validation, storage, notification emails and CSV export, shared by every channel |
 | `src/app/[lang]/gracias/` | Thank-you page after a quote request (not indexed; the conversion URL for analytics) |
 | `src/app/api/health/route.ts` | Health check |
+| `src/app/admin/` | Admin panel (Spanish, not indexed): sign-in, account setup and recovery, and the signed-in sections under `(panel)/` |
+| `src/lib/auth/` | Better Auth configuration, roles and permissions (`roles.ts`), and the session checks every admin page and action calls |
+| `src/proxy.ts` | Sends visitors without a session to the admin login and marks admin responses `noindex` |
 | `src/db/schema.ts`, `src/db/migrations/` | Database tables and their versioned SQL migrations |
 | `src/lib/data/content.ts` | The only way pages read content: cached, tagged queries returning the types the components use |
 | `src/i18n/dictionaries.ts` | All interface copy in the three languages, type-checked against Spanish |
@@ -51,6 +56,18 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `public/docs/` | HSEQ PDFs migrated from Wix |
 
 `next.config.ts` permanently redirects every old Wix URL to its new route.
+
+## Admin panel
+
+`/admin`, in Spanish, for three roles: **super-admin** (everything), **editor** (content and media) and **comercial** (leads; content read-only). The server checks the role on every page and action; the menu only hides what a role cannot open, and a section outside the role answers with the not-found page.
+
+- **Accounts:** there is no public sign-up and no default password. `npm run admin:invite` creates an account and emails a one-time link (valid 24 hours) to set the password; the first super-admin comes from `ADMIN_BOOTSTRAP_EMAIL` with `--bootstrap`, and the link is also printed for when email is not set up yet.
+- **Sign-in:** passwords of at least 12 characters, hashed with argon2id. Five wrong passwords lock the account for 15 minutes (codes have the same limit), and sign-in requests are rate-limited per IP.
+- **Two-step verification:** an authenticator-app code plus backup codes, set up under *Seguridad*. Super-admins must turn it on before using anything else.
+- **History:** sign-ins, failures, lockouts, sign-outs and security changes go to `audit_log`, shown under *Historial*.
+- **Deployment:** set `AUTH_SECRET` (`openssl rand -base64 32`) and `AUTH_URL` to the public origin. Nginx must set `X-Real-IP` to the client address, since sign-in limits and the history read it.
+
+Inviting, role changes and deactivation from the panel, and the editing modules, arrive in stage 4.
 
 ## Leads
 

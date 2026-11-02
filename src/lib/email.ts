@@ -1,7 +1,7 @@
 // Outgoing email. Sends through Resend when RESEND_API_KEY is set; otherwise, when EMAIL_OUTBOX_DIR
 // is set (development), writes each message to that folder as an .html file to open in a browser.
 // With neither, sending is switched off and only the subject is logged.
-import "server-only";
+// Not marked server-only: the admin scripts use it too. Its Node imports keep it out of client bundles.
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 

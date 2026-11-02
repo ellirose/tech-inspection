@@ -1,7 +1,7 @@
 // Fixed-window rate limiting stored in PostgreSQL, so every app instance shares the counters without
 // another service to run. At this site's volume (tens of submissions a month) one upsert per request
 // is negligible; move it to Redis only if public endpoints start taking real traffic.
-import "server-only";
+// Not marked server-only: the admin scripts use it too. Its Node imports keep it out of client bundles.
 import { createHash } from "node:crypto";
 import { lt, sql } from "drizzle-orm";
 import { db as defaultDb, schema, type Db } from "@/db";
