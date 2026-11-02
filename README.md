@@ -26,6 +26,7 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `npm run db:migrate` | Apply pending migrations (also run by the deploy job) |
 | `npm run db:seed` | Load `src/content/*.ts` into an empty database; `-- --force` wipes content tables and reloads |
 | `npm run db:studio` | Browse the database in Drizzle Studio |
+| `npm run leads:export -- [--since YYYY-MM-DD] [--out file.csv]` | Leads as CSV for Excel, until the admin inbox exists. The file holds personal data: keep it out of the repository |
 | `npm test` | Unit tests, plus database checks when `DATABASE_URL` is set |
 | `npm run lint` / `npm run typecheck` | Static checks (CI runs all of these and a full build) |
 | `GET /api/health` | Status and database round-trip, for monitoring and deploys |
@@ -37,7 +38,9 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `src/app/[lang]/` | Every page, prerendered for `es`, `pt` and `en` |
 | `src/app/[lang]/opengraph-image.tsx` | Open Graph image generated for each language |
 | `src/app/icon.svg`, `apple-icon.png` | Favicon and touch icon |
-| `src/app/api/quote/route.ts` | Lead intake for the quote wizard and the assistant (**connect it to email or a CRM before launch**) |
+| `src/app/api/leads/route.ts` | Lead intake for the quote wizard and the assistant: validation, honeypot, rate limit, Turnstile, then storage and email |
+| `src/lib/leads/` | Lead validation, storage, notification emails and CSV export, shared by every channel |
+| `src/app/[lang]/gracias/` | Thank-you page after a quote request (not indexed; the conversion URL for analytics) |
 | `src/app/api/health/route.ts` | Health check |
 | `src/db/schema.ts`, `src/db/migrations/` | Database tables and their versioned SQL migrations |
 | `src/lib/data/content.ts` | The only way pages read content: cached, tagged queries returning the types the components use |
@@ -49,6 +52,12 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 
 `next.config.ts` permanently redirects every old Wix URL to its new route.
 
+## Leads
+
+Every request is stored in the `lead` table first, then emailed: a notification to `LEAD_NOTIFY_TO` (in Spanish, reply-to set to the requester) and a confirmation to the requester in their language. Each email outcome is recorded in `lead_event`. In development, set `EMAIL_OUTBOX_DIR` to get the emails as `.html` files instead of sending them. Server logs carry the lead reference only, never personal data.
+
+Before launch: a Resend account with `send.tech-inspection.com` verified (DNS records added by the domain owner), the real Turnstile keys, and the mailbox list for `LEAD_NOTIFY_TO`.
+
 ## Pending client input
 
 - **Certification seals:** the site uses text badges (`components/visuals/Seal.tsx`) until the client sends the brand-usage manual for each mark.
@@ -57,7 +66,7 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 - **TI-QMS features:** the platform section's feature list and dashboard mock are illustrative and need confirming against the real system.
 - **Contact directory:** confirm the emails flagged in `../../doc/03-diagnostic/SITE-AUDIT.md` §6 (`gerenciaoperaciones@` vs `gerencia-operaciones@`, and `dadministracion@`).
 - **WhatsApp number:** `company.whatsapp` in the `site_settings` table (currently the main commercial line, 321 828 4129).
-- **Assistant:** a guided, rule-based flow (intent detection, method recommendation, lead capture, WhatsApp hand-off). It can be connected to an LLM later through `/api/quote` or a new endpoint.
+- **Assistant:** a guided, rule-based flow (intent detection, method recommendation, lead capture, WhatsApp hand-off). Its leads go through `/api/leads` with the same checks as the form, after the visitor consents in the chat. The LLM chatbot (stage 6) will use the same lead service.
 
 ## Credits
 

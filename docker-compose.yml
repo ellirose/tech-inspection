@@ -14,11 +14,6 @@ services:
       interval: 5s
       retries: 10
 
-  # Rate limiting for /api/quote and /api/chat (stage 2).
-  redis:
-    image: redis:7-alpine
-    ports: ["6380:6379"]
-
   # S3-compatible stand-in for DigitalOcean Spaces (stage 5). Console: http://localhost:9001
   minio:
     image: minio/minio:latest
@@ -28,11 +23,6 @@ services:
       MINIO_ROOT_PASSWORD: minio12345
     ports: ["9000:9000", "9001:9001"]
     volumes: [miniodata:/data]
-
-  # Catches every outgoing email (stage 2). Inbox: http://localhost:8025
-  mailpit:
-    image: axllent/mailpit:latest
-    ports: ["1025:1025", "8025:8025"]
 
 volumes:
   pgdata:

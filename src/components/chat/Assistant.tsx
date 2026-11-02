@@ -7,6 +7,9 @@ import { ArrowRight, ArrowsClockwise, ChatCircleDots, PaperPlaneRight, Sparkle, 
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
+import { Turnstile } from "@/components/leads/Turnstile";
+import { submitLead } from "@/lib/leads/client";
+import { quantityKeys, splitContact, type QuantityKey } from "@/lib/leads/options";
 import { cn } from "@/lib/cn";
 
 type Option = { id: string; label: string };
@@ -19,7 +22,15 @@ type Msg = {
 };
 type Flow =
   | { kind: "idle" }
-  | { kind: "quote"; step: "service" | "qty" | "name" | "contact"; service?: string; qty?: string; name?: string }
+  | {
+      kind: "quote";
+      step: "service" | "qty" | "name" | "contact" | "consent";
+      /** What to inspect: a service picked from the list, a recommended method, or the visitor's own words. */
+      service?: { label: string; slug?: string; method?: MethodKey };
+      qty?: { key: QuantityKey; label: string };
+      name?: string;
+      contact?: string;
+    }
   | { kind: "advise"; step: "ferro" | "where"; ferro?: string };
 
 export type AssistantProps = {
@@ -29,6 +40,7 @@ export type AssistantProps = {
   waIntro: string;
   whatsapp: string;
   platformUrl: string;
+  policyHref: string;
   services: { slug: string; name: string }[];
   methods: { key: MethodKey; slug: string; name: string }[];
 };
@@ -43,6 +55,7 @@ export function Assistant(props: AssistantProps) {
   const [input, setInput] = useState("");
   const [flow, setFlow] = useState<Flow>({ kind: "idle" });
   const [msgs, setMsgs] = useState<Msg[]>([]);
+  const [token, setToken] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const menu: Option[] = [
@@ -75,10 +88,13 @@ export function Assistant(props: AssistantProps) {
     // Options are answered once: strip them from earlier bot bubbles.
     setMsgs((prev) => [...prev.map((m) => ({ ...m, options: undefined })), { id: nextId(), from: "user", text }]);
 
-  const startQuote = (preset?: string) => {
-    if (preset) {
-      setFlow({ kind: "quote", step: "qty", service: preset });
-      say({ text: t.askQty, options: props.quantities.map((q) => ({ id: q, label: q })) });
+  const qtyOptions = () => props.quantities.map((q, i) => ({ id: quantityKeys[i], label: q }));
+
+  const startQuote = (preset?: MethodKey) => {
+    const m = preset && methods.find((x) => x.key === preset);
+    if (m) {
+      setFlow({ kind: "quote", step: "qty", service: { label: m.name, method: m.key } });
+      say({ text: t.askQty, options: qtyOptions() });
     } else {
       setFlow({ kind: "quote", step: "service" });
       say({ text: t.askService, options: services.map((s) => ({ id: s.slug, label: s.name })) });
@@ -96,25 +112,39 @@ export function Assistant(props: AssistantProps) {
       text: `${t.recommend} ${m.name}. ${t.recommendAfter}`,
       link: { href: `/${lang}/metodos/${m.slug}`, label: m.name },
       options: [
-        { id: `quote-method:${m.name}`, label: t.options.quote },
+        { id: `quote-method:${m.key}`, label: t.options.quote },
         { id: "restart", label: t.restart },
       ],
     });
   };
 
-  const submitLead = async (contact: string, f: Extract<Flow, { kind: "quote" }>) => {
-    const summary = [props.waIntro, `• ${f.service}`, `• ${f.qty}`, `• ${f.name}`, `• ${contact}`].join("\n");
-    try {
-      await fetch("/api/quote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source: "assistant", lang, services: [f.service], quantity: f.qty, name: f.name, contact }),
-      });
-    } catch {
-      // The WhatsApp hand-off below still carries the full summary.
-    }
+  const sendLead = async (f: Extract<Flow, { kind: "quote" }>) => {
+    const summary = (reference?: string) =>
+      [reference ? `${props.waIntro} ${reference}` : props.waIntro, `• ${f.service?.label}`, `• ${f.qty?.label}`, `• ${f.name}`, `• ${f.contact}`].join("\n");
+    // Tokens are single-use; the widget unmounts with the quote flow and fetches a new one next time.
+    const used = token;
+    setToken(null);
     setFlow({ kind: "idle" });
-    say({ text: t.thanks, link: { href: wa(summary), label: t.options.human, external: true, whatsapp: true }, options: [{ id: "restart", label: t.restart }] });
+    setTyping(true);
+    const res = await submitLead({
+      source: "chatbot",
+      lang,
+      services: f.service?.slug ? [f.service.slug] : [],
+      methods: f.service?.method ? [f.service.method] : [],
+      description: f.service && !f.service.slug && !f.service.method ? f.service.label : undefined,
+      quantity: f.qty?.key,
+      name: f.name,
+      contact: f.contact,
+      consent: true,
+      turnstileToken: used ?? undefined,
+    });
+    // Only claim the request is logged when the server stored it; otherwise hand off to WhatsApp.
+    const text = res.ok ? t.thanks.replace("{ref}", res.reference) : res.error === "rate_limited" ? t.rateLimited : t.error;
+    say({
+      text,
+      link: { href: wa(summary(res.ok ? res.reference : undefined)), label: t.options.human, external: true, whatsapp: true },
+      options: [{ id: "restart", label: t.restart }],
+    }, 0);
   };
 
   const choose = (opt: Option) => {
@@ -123,16 +153,21 @@ export function Assistant(props: AssistantProps) {
       setFlow({ kind: "idle" });
       return say({ text: t.hello, options: menu });
     }
-    if (opt.id.startsWith("quote-method:")) return startQuote(opt.id.split(":")[1]);
+    if (opt.id.startsWith("quote-method:")) return startQuote(opt.id.split(":")[1] as MethodKey);
 
     if (flow.kind === "quote") {
       if (flow.step === "service") {
-        setFlow({ ...flow, step: "qty", service: opt.label });
-        return say({ text: t.askQty, options: props.quantities.map((q) => ({ id: q, label: q })) });
+        setFlow({ ...flow, step: "qty", service: { label: opt.label, slug: opt.id } });
+        return say({ text: t.askQty, options: qtyOptions() });
       }
       if (flow.step === "qty") {
-        setFlow({ ...flow, step: "name", qty: opt.label });
+        setFlow({ ...flow, step: "name", qty: { key: opt.id as QuantityKey, label: opt.label } });
         return say({ text: t.askName });
+      }
+      if (flow.step === "consent") {
+        if (opt.id === "consent-yes") return sendLead(flow);
+        setFlow({ kind: "idle" });
+        return say({ text: t.noConsent, link: { href: wa(props.waIntro), label: "WhatsApp", external: true, whatsapp: true }, options: [{ id: "restart", label: t.restart }] });
       }
     }
     if (flow.kind === "advise") {
@@ -181,10 +216,21 @@ export function Assistant(props: AssistantProps) {
       setFlow({ ...flow, step: "contact", name: text });
       return say({ text: t.askContact });
     }
-    if (flow.kind === "quote" && flow.step === "contact") return submitLead(text, flow);
+    if (flow.kind === "quote" && flow.step === "contact") {
+      if (!Object.keys(splitContact(text)).length) return say({ text: t.badContact });
+      setFlow({ ...flow, step: "consent", contact: text });
+      return say({
+        text: t.askConsent,
+        link: { href: props.policyHref, label: t.policy, external: true },
+        options: [
+          { id: "consent-yes", label: t.consentYes },
+          { id: "consent-no", label: t.consentNo },
+        ],
+      });
+    }
     if (flow.kind === "quote" && flow.step === "service") {
-      setFlow({ ...flow, step: "qty", service: text });
-      return say({ text: t.askQty, options: props.quantities.map((q) => ({ id: q, label: q })) });
+      setFlow({ ...flow, step: "qty", service: { label: text } });
+      return say({ text: t.askQty, options: qtyOptions() });
     }
 
     // Lightweight intent detection across the three languages.
@@ -300,6 +346,8 @@ export function Assistant(props: AssistantProps) {
               )}
             </div>
 
+            {/* Fetched while the visitor fills in the quote, so a token is ready when they consent. */}
+            {flow.kind === "quote" && <Turnstile lang={lang} onToken={setToken} className="flex justify-center px-4 empty:hidden" />}
             <form onSubmit={send} className="flex items-center gap-2 border-t border-line bg-surface p-3">
               <input
                 value={input}
