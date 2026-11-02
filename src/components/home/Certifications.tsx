@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { certifications, personnelCredentials } from "@/content/site";
+import { getCertifications } from "@/lib/data/content";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -8,7 +8,8 @@ import { cn } from "@/lib/cn";
 const seal = ["bg-brand-600 text-white dark:bg-brand-500", "bg-lime text-[#071a2e]", "bg-surface text-ink ring-2 ring-line", "bg-neon text-[#071a2e]", "bg-pt text-white", "bg-vt text-[#071a2e]"];
 
 /** Company certifications and personnel credentials, each with a seal-like badge. */
-export function Certifications({ lang, dict, index }: { lang: Locale; dict: Dictionary; index?: string }) {
+export async function Certifications({ lang, dict, index }: { lang: Locale; dict: Dictionary; index?: string }) {
+  const { system: certifications, personnel: personnelCredentials } = await getCertifications();
   const c = dict.certs;
   const rows = [
     ...certifications.map((x) => ({ code: x.code === "1072" ? "1072" : x.code, title: x.title[lang], body: x.body[lang] })),

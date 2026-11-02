@@ -2,15 +2,20 @@ import Link from "next/link";
 import { ArrowUpRight, EnvelopeSimple, FilePdf, MapPin, Phone, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { company, policyDocs, whatsappLink } from "@/content/site";
-import { methods } from "@/content/methods";
-import { services } from "@/content/services";
-import { cover } from "@/content/deck";
+import { getBlock, getDocuments, getMethods, getServices, getSite } from "@/lib/data/content";
+import { whatsappLink } from "@/lib/site";
 import { Logo } from "@/components/ui/Logo";
 import { Container, Swoosh } from "@/components/ui/Section";
 import { Email } from "@/components/ui/Email";
 
-export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+  const [{ company }, policyDocs, methods, services, cover] = await Promise.all([
+    getSite(),
+    getDocuments("policy"),
+    getMethods(),
+    getServices(),
+    getBlock("cover"),
+  ]);
   const base = `/${lang}`;
   const col = "text-sm font-extrabold uppercase tracking-[0.12em] text-ink";
   const link = "text-[1.02rem] font-semibold text-ink-soft transition hover:text-accent";
@@ -27,7 +32,7 @@ export function Footer({ lang, dict }: { lang: Locale; dict: Dictionary }) {
               <p className="mt-6 max-w-sm text-lg font-semibold leading-relaxed text-ink-soft">{cover.lead[lang]}</p>
               <p className="mt-3 max-w-sm font-bold text-accent-ink">{cover.motto[lang]}</p>
               <div className="mt-7 flex flex-wrap gap-2">
-                <a href={whatsappLink(dict.quote.waIntro)} target="_blank" rel="noopener" className="inline-flex h-12 items-center gap-2 rounded-full bg-whatsapp px-5 font-bold text-white">
+                <a href={whatsappLink(company.whatsapp, dict.quote.waIntro)} target="_blank" rel="noopener" className="inline-flex h-12 items-center gap-2 rounded-full bg-whatsapp px-5 font-bold text-white">
                   <WhatsappLogo weight="fill" className="size-6" /> WhatsApp
                 </a>
                 <a href={company.phoneHref} className="inline-flex h-12 items-center gap-2 rounded-full bg-tint px-5 font-bold text-ink ring-1 ring-neon/25">

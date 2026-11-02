@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { hasLocale, type Locale } from "@/i18n/config";
-import { home } from "@/content/home";
+import { getBlock } from "@/lib/data/content";
 
 export const alt = "Tech-Inspection S.A.S. — NDT";
 export const size = { width: 1200, height: 630 };
@@ -21,7 +21,7 @@ export default async function Image({ params }: { params: Promise<{ lang: string
     readFile(join(process.cwd(), "src/assets/fonts/jakarta-800.ttf")),
     readFile(join(process.cwd(), "src/assets/fonts/geist-mono-500.ttf")),
   ]);
-  const h = home.hero;
+  const h = (await getBlock("home")).hero;
   const tail = h.titleB[lang].replace(/[.]$/, "").split(" ");
   const last = tail.pop();
   const chips = ["ISO 9001", "ISO 45001", "RUC", { es: "ASNT Nivel II", pt: "ASNT Nível II", en: "ASNT Level II" }[lang], "DS-1"];

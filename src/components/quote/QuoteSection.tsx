@@ -2,16 +2,16 @@ import Image from "next/image";
 import { Clock, EnvelopeSimple, MapPin, Phone, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { company, policyDocs, whatsappLink } from "@/content/site";
-import { methods } from "@/content/methods";
-import { services } from "@/content/services";
+import { getDocuments, getMethods, getServices, getSite } from "@/lib/data/content";
+import { whatsappLink } from "@/lib/site";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 import { Email } from "@/components/ui/Email";
 import { QuoteWizard } from "./QuoteWizard";
 
-export function QuoteSection({ lang, dict, heading = true, index, className }: { lang: Locale; dict: Dictionary; heading?: boolean; index?: string; className?: string }) {
+export async function QuoteSection({ lang, dict, heading = true, index, className }: { lang: Locale; dict: Dictionary; heading?: boolean; index?: string; className?: string }) {
+  const [{ company }, policyDocs, methods, services] = await Promise.all([getSite(), getDocuments("policy"), getMethods(), getServices()]);
   const q = dict.quote;
   const c = dict.contact;
   const contactRows = [
@@ -43,7 +43,7 @@ export function QuoteSection({ lang, dict, heading = true, index, className }: {
             <div className="relative min-h-56 flex-1 overflow-hidden rounded-[2.5rem] rounded-tl-[5rem] shadow-card">
               <Image src="/media/photos/inspector-logo.jpg" alt="" fill sizes="(min-width:1024px) 30vw, 100vw" className="object-cover object-[50%_25%]" />
             </div>
-            <a href={whatsappLink(q.waIntro)} target="_blank" rel="noopener" className="group flex items-center gap-4 rounded-[1.75rem] bg-whatsapp p-4 text-white shadow-[0_18px_36px_-16px_rgb(37_211_102/0.8)] transition hover:-translate-y-0.5">
+            <a href={whatsappLink(company.whatsapp, q.waIntro)} target="_blank" rel="noopener" className="group flex items-center gap-4 rounded-[1.75rem] bg-whatsapp p-4 text-white shadow-[0_18px_36px_-16px_rgb(37_211_102/0.8)] transition hover:-translate-y-0.5">
               <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-white/20">
                 <WhatsappLogo weight="fill" className="size-8" />
               </span>

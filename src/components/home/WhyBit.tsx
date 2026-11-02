@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Certificate, ChartLineUp, CheckCircle, CurrencyDollar, FileText, Gear, HardHat, Ruler, ShieldCheck, TrendDown, Warning, Waveform, Wrench } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { cover, whyBit } from "@/content/deck";
+import { getBlock } from "@/lib/data/content";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
@@ -12,7 +12,8 @@ const withIcons = [HardHat, Waveform, Ruler, FileText];
 const valueIcons = [Gear, Certificate, ShieldCheck, ChartLineUp];
 
 /** Slide 5: why inspect a drill bit. The bit photo sits in the background, behind glass cards. */
-export function WhyBit({ lang, dict, index = "03", link = true }: { lang: Locale; dict: Dictionary; index?: string; link?: boolean }) {
+export async function WhyBit({ lang, dict, index = "03", link = true }: { lang: Locale; dict: Dictionary; index?: string; link?: boolean }) {
+  const [cover, whyBit] = await Promise.all([getBlock("cover"), getBlock("whyBit")]);
   return (
     <section className="relative isolate overflow-hidden py-24 sm:py-32">
       {/* Background image, fading in from the right */}

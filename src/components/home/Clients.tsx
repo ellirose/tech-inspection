@@ -2,13 +2,14 @@ import Image from "next/image";
 import { Handshake } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { clients, keyPartner } from "@/content/site";
+import { getClients, getSite } from "@/lib/data/content";
 import { Container, Eyebrow, IconBadge } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 
 /** Ulterra (named in the deck, no logo supplied) as a featured tile, then a drifting row of client logos. */
-export function Clients({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
+export async function Clients({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
+  const [clients, { keyPartner }] = await Promise.all([getClients(), getSite()]);
   const since = { es: "Aliado desde", pt: "Aliado desde", en: "Partner since" }[lang];
   return (
     <section className={cn("relative bg-surface py-16 sm:py-20", className)}>

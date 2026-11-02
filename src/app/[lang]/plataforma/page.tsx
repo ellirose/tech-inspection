@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import { UserCircle, UsersThree } from "@phosphor-icons/react/ssr";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { PLATFORM_URL } from "@/content/site";
-import { timeline } from "@/content/deck";
+import { getBlock, getSite } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, IconBadge } from "@/components/ui/Section";
@@ -25,6 +24,7 @@ export default async function PlatformPage({ params }: PageProps<"/[lang]/plataf
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
   const p = d.pages.platform;
+  const [timeline, { platformUrl: PLATFORM_URL }] = await Promise.all([getBlock("timeline"), getSite()]);
   const digital = timeline.find((m) => m.icon === "digital")!;
 
   const access = [

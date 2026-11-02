@@ -4,9 +4,8 @@ import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../globals.css";
 import { hasLocale, htmlLang, locales, ogLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { methods } from "@/content/methods";
-import { services } from "@/content/services";
-import { company, FOUNDED, PLATFORM_URL, SITE_URL } from "@/content/site";
+import { getMethods, getServices, getSite } from "@/lib/data/content";
+import { SITE_URL } from "@/lib/site";
 import { Header, type NavData } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
@@ -61,6 +60,8 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = getDictionary(lang);
+  const [site, methods, services] = await Promise.all([getSite(), getMethods(), getServices()]);
+  const { company } = site;
 
   const navData: NavData = {
     lang,
@@ -78,7 +79,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
     image: `${SITE_URL}/${lang}/opengraph-image`,
     telephone: company.phone,
     email: company.email,
-    foundingDate: String(FOUNDED),
+    foundingDate: String(site.founded),
     address: { "@type": "PostalAddress", streetAddress: company.address, addressCountry: "CO" },
     areaServed: "CO",
     knowsAbout: methods.map((m) => m.name.en),
@@ -101,7 +102,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
               quantities: dict.quote.quantities,
               waIntro: dict.quote.waIntro,
               whatsapp: company.whatsapp,
-              platformUrl: PLATFORM_URL,
+              platformUrl: site.platformUrl,
               services: navData.services.map((s) => ({ slug: s.slug, name: s.name })),
               methods: navData.methods.map((m) => ({ key: m.key, slug: m.slug, name: m.name })),
             }}

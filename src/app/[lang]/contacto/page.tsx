@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Briefcase, Calculator, ClipboardText, EnvelopeSimple, Gear, Phone, ShieldCheck, Wallet, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { channels, company } from "@/content/site";
+import { getChannels, getSite } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
@@ -27,6 +27,7 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
+  const [{ company }, channels] = await Promise.all([getSite(), getChannels()]);
 
   return (
     <>
