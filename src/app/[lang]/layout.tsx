@@ -4,12 +4,13 @@ import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../globals.css";
 import { hasLocale, htmlLang, locales, ogLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { getMethods, getServices, getSite } from "@/lib/data/content";
+import { getDocuments, getMethods, getServices, getSite } from "@/lib/data/content";
 import { SITE_URL } from "@/lib/site";
 import { Header, type NavData } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
+import { LandingRecorder } from "@/components/leads/LandingRecorder";
 
 const sans = Plus_Jakarta_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-jakarta", display: "swap" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
@@ -60,7 +61,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = getDictionary(lang);
-  const [site, methods, services] = await Promise.all([getSite(), getMethods(), getServices()]);
+  const [site, methods, services, policyDocs] = await Promise.all([getSite(), getMethods(), getServices(), getDocuments("policy")]);
   const { company } = site;
 
   const navData: NavData = {
@@ -103,11 +104,13 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
               waIntro: dict.quote.waIntro,
               whatsapp: company.whatsapp,
               platformUrl: site.platformUrl,
+              policyHref: policyDocs.find((d) => d.code === "PL-09-1")!.file,
               services: navData.services.map((s) => ({ slug: s.slug, name: s.name })),
               methods: navData.methods.map((m) => ({ key: m.key, slug: m.slug, name: m.name })),
             }}
           />
         </SmoothScroll>
+        <LandingRecorder />
       </body>
     </html>
   );

@@ -31,7 +31,6 @@ export async function QuoteSection({ lang, dict, heading = true, index, classNam
             <QuoteWizard
               lang={lang}
               t={q}
-              whatsapp={company.whatsapp}
               policyHref={policyDocs.find((d) => d.code === "PL-09-1")!.file}
               services={services.map((s) => ({ slug: s.slug, icon: s.icon, name: s.name[lang] }))}
               methods={methods.map((m) => ({ key: m.key, code: m.code, name: m.name[lang] }))}

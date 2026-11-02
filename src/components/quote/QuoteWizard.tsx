@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check, CheckCircle, WhatsappLogo } from "@phosphor-icons/react/ssr";
+import { ArrowLeft, ArrowRight, Check } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
 import type { ServiceIcon } from "@/content/services";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
+import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/leads/Turnstile";
+import { saveThanks, submitLead } from "@/lib/leads/client";
+import { labelFor, locationKeys, quantityKeys, urgencyKeys, type LeadMethod, type LocationKey, type QuantityKey, type UrgencyKey } from "@/lib/leads/options";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -15,7 +19,6 @@ type Props = {
   t: Dictionary["quote"];
   services: { slug: string; icon: ServiceIcon; name: string }[];
   methods: { key: MethodKey; code: string; name: string }[];
-  whatsapp: string;
   policyHref: string;
 };
 
@@ -39,27 +42,35 @@ function Choice({ on, onClick, children, className }: { on: boolean; onClick: ()
   );
 }
 
-export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }: Props) {
+export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
   const [error, setError] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
+  const [sending, setSending] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  // Answers are stored as keys; labels come from the dictionary (see lib/leads/options.ts).
   const [form, setForm] = useState({
     services: [] as string[],
-    methods: [] as string[],
-    quantity: "",
-    location: "",
+    methods: [] as LeadMethod[],
+    quantity: "" as QuantityKey | "",
+    location: "" as LocationKey | "",
     city: "",
-    urgency: t.urgencies[0],
+    urgency: "scheduled" as UrgencyKey,
     notes: "",
     name: "",
     company: "",
     email: "",
     phone: "",
     consent: false,
+    website: "",
   });
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
-  const toggle = (k: "services" | "methods", v: string) => set(k, form[k].includes(v) ? form[k].filter((x) => x !== v) : [...form[k], v]);
+  const toggle = <K extends "services" | "methods">(k: K, v: (typeof form)[K][number]) => {
+    const list = form[k] as string[];
+    set(k, (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]) as (typeof form)[K]);
+  };
 
   const valid = [form.services.length > 0, !!form.quantity && !!form.location, !!form.name && (!!form.email || !!form.phone) && form.consent];
 
@@ -70,63 +81,42 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
     setStep(to);
   };
 
-  const summary = [
-    t.waIntro,
-    `• ${form.services.join(", ")}`,
-    form.methods.length ? `• ${form.methods.join(", ")}` : "",
-    `• ${form.quantity} · ${form.location}${form.city ? ` (${form.city})` : ""} · ${form.urgency}`,
-    form.notes ? `• ${form.notes}` : "",
-    `• ${form.name}${form.company ? ` — ${form.company}` : ""}`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const summary = (reference: string) =>
+    [
+      `${t.waIntro} ${reference}`,
+      `• ${form.services.map((slug) => services.find((s) => s.slug === slug)?.name ?? slug).join(", ")}`,
+      form.methods.length ? `• ${form.methods.map((k) => (k === "unsure" ? t.unsure : methods.find((m) => m.key === k)?.code)).join(", ")}` : "",
+      `• ${labelFor(quantityKeys, t.quantities, form.quantity || undefined)} · ${labelFor(locationKeys, t.locations, form.location || undefined)}${form.city ? ` (${form.city})` : ""} · ${labelFor(urgencyKeys, t.urgencies, form.urgency)}`,
+      form.notes ? `• ${form.notes}` : "",
+      `• ${form.name}${form.company ? ` — ${form.company}` : ""}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid[2]) return setError(t.required);
-    setStatus("sending");
+    if (TURNSTILE_SITE_KEY && !token) return setError(t.captcha);
+    setSending(true);
     setError("");
-    try {
-      const res = await fetch("/api/quote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source: "wizard", lang, ...form }),
-      });
-      if (!res.ok) throw new Error();
-      setStatus("done");
-    } catch {
-      setStatus("idle");
-      setError(t.error);
+    const { notes, quantity, location, ...rest } = form;
+    const res = await submitLead({
+      ...rest,
+      source: "form_quote",
+      lang,
+      description: notes,
+      quantity: quantity || undefined,
+      location: location || undefined,
+      turnstileToken: token ?? undefined,
+    });
+    if (res.ok) {
+      saveThanks({ reference: res.reference, whatsappText: summary(res.reference), emailed: !!form.email });
+      return router.push(`/${lang}/gracias`);
     }
+    setSending(false);
+    setAttempt((n) => n + 1);
+    setError({ invalid: t.invalid, rate_limited: t.rateLimited, captcha: t.captcha, server: t.error }[res.error]);
   };
-
-  if (status === "done") {
-    return (
-      <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center rounded-[2.5rem] bg-surface p-10 text-center shadow-card ring-1 ring-line sm:p-14">
-        <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 14, delay: 0.1 }} className="grid size-20 place-items-center rounded-full bg-lime/20 text-lime-deep dark:text-lime">
-          <CheckCircle weight="light" className="size-12" />
-        </motion.span>
-        <h3 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">{t.successTitle}</h3>
-        <p className="mt-3 max-w-md text-lg text-ink-soft">{t.successText}</p>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <a href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(summary)}`} target="_blank" rel="noopener" className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-whatsapp px-6 font-bold text-white">
-            <WhatsappLogo weight="fill" className="size-6" /> {t.continueWa}
-          </a>
-          <button
-            type="button"
-            onClick={() => {
-              setStatus("idle");
-              setStep(0);
-              setForm((f) => ({ ...f, services: [], methods: [], notes: "" }));
-            }}
-            className="h-14 rounded-full px-6 font-bold text-ink ring-1 ring-inset ring-line"
-          >
-            {t.newRequest}
-          </button>
-        </div>
-      </motion.div>
-    );
-  }
 
   return (
     <form onSubmit={submit} className="relative overflow-hidden rounded-[2.5rem] rounded-tr-[5rem] bg-surface p-6 shadow-card ring-1 ring-line sm:p-10" noValidate>
@@ -171,9 +161,9 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                 <p className="mt-1 text-mute">{t.q1hint}</p>
                 <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
                   {services.map((s) => {
-                    const on = form.services.includes(s.name);
+                    const on = form.services.includes(s.slug);
                     return (
-                      <Choice key={s.slug} on={on} onClick={() => toggle("services", s.name)} className="flex items-center gap-3 py-3.5">
+                      <Choice key={s.slug} on={on} onClick={() => toggle("services", s.slug)} className="flex items-center gap-3 py-3.5">
                         <span className={cn("grid size-11 shrink-0 place-items-center rounded-xl", on ? "bg-white/15 text-white dark:bg-[#071a2e]/10 dark:text-[#071a2e]" : "bg-tint text-accent")}>
                           <ServiceGlyph name={s.icon} className="size-6" />
                         </span>
@@ -186,11 +176,11 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                 <p className={cn(label, "mt-7")}>{t.methodsQ}</p>
                 <div className="flex flex-wrap gap-2">
                   {methods.map((m) => (
-                    <Choice key={m.key} on={form.methods.includes(m.code)} onClick={() => toggle("methods", m.code)} className="flex items-center gap-2 py-2.5">
+                    <Choice key={m.key} on={form.methods.includes(m.key)} onClick={() => toggle("methods", m.key)} className="flex items-center gap-2 py-2.5">
                       <MethodGlyph name={m.key} className="size-5" /> {m.name}
                     </Choice>
                   ))}
-                  <Choice on={form.methods.includes("?")} onClick={() => toggle("methods", "?")} className="py-2.5">
+                  <Choice on={form.methods.includes("unsure")} onClick={() => toggle("methods", "unsure")} className="py-2.5">
                     {t.unsure}
                   </Choice>
                 </div>
@@ -203,8 +193,8 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                 <div>
                   <p className={label}>{t.quantity} *</p>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {t.quantities.map((q) => (
-                      <Choice key={q} on={form.quantity === q} onClick={() => set("quantity", q)} className="text-center">
+                    {t.quantities.map((q, i) => (
+                      <Choice key={q} on={form.quantity === quantityKeys[i]} onClick={() => set("quantity", quantityKeys[i])} className="text-center">
                         {q}
                       </Choice>
                     ))}
@@ -213,8 +203,8 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                 <div>
                   <p className={label}>{t.location} *</p>
                   <div className="grid gap-2 sm:grid-cols-2">
-                    {t.locations.map((l) => (
-                      <Choice key={l} on={form.location === l} onClick={() => set("location", l)}>
+                    {t.locations.map((l, i) => (
+                      <Choice key={l} on={form.location === locationKeys[i]} onClick={() => set("location", locationKeys[i])}>
                         {l}
                       </Choice>
                     ))}
@@ -232,10 +222,10 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                         <button
                           key={u}
                           type="button"
-                          onClick={() => set("urgency", u)}
+                          onClick={() => set("urgency", urgencyKeys[i])}
                           className={cn(
                             "flex-1 rounded-xl py-2.5 text-sm font-bold transition",
-                            form.urgency === u ? ["bg-brand-600 text-white", "bg-vt text-[#071a2e]", "bg-pt text-white"][i] : "text-ink-soft hover:bg-surface",
+                            form.urgency === urgencyKeys[i] ? ["bg-brand-600 text-white", "bg-vt text-[#071a2e]", "bg-pt text-white"][i] : "text-ink-soft hover:bg-surface",
                           )}
                         >
                           {u}
@@ -282,6 +272,14 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
                     . *
                   </span>
                 </label>
+                {/* Honeypot: off-screen and skipped by keyboard and screen readers, so only bots fill it. */}
+                <div aria-hidden="true" className="absolute -left-[9999px] size-px overflow-hidden">
+                  <label>
+                    {t.honeypot}
+                    <input tabIndex={-1} autoComplete="off" name="website" value={form.website} onChange={(e) => set("website", e.target.value)} />
+                  </label>
+                </div>
+                <Turnstile lang={lang} onToken={setToken} resetKey={attempt} />
               </fieldset>
             )}
           </motion.div>
@@ -304,8 +302,8 @@ export function QuoteWizard({ lang, t, services, methods, whatsapp, policyHref }
             <ArrowRight weight="bold" className="size-4 transition group-hover:translate-x-0.5" />
           </button>
         ) : (
-          <button type="submit" disabled={status === "sending"} className="inline-flex h-14 items-center gap-3 rounded-full bg-neon pl-6 pr-5 font-bold text-[#071a2e] shadow-neon transition hover:bg-lime disabled:opacity-60">
-            {status === "sending" ? t.sending : t.send}
+          <button type="submit" disabled={sending} className="inline-flex h-14 items-center gap-3 rounded-full bg-neon pl-6 pr-5 font-bold text-[#071a2e] shadow-neon transition hover:bg-lime disabled:opacity-60">
+            {sending ? t.sending : t.send}
             <ArrowRight weight="bold" className="size-5" />
           </button>
         )}

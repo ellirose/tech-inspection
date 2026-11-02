@@ -377,3 +377,12 @@ export const auditLog = pgTable(
   },
   (t) => [index("audit_log_entity_idx").on(t.entity, t.entityId)],
 );
+
+// --- Rate limiting ---------------------------------------------------------------------------
+
+/** Fixed-window counters for public endpoints. Keys hold a hash of the visitor's IP, never the IP. */
+export const rateLimit = pgTable("rate_limit", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull(),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
+});
