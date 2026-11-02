@@ -1,14 +1,14 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { home } from "@/content/home";
-import { services } from "@/content/services";
-import { methodByKey } from "@/content/methods";
+import { getBlock, getMethods, getServices } from "@/lib/data/content";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { cn } from "@/lib/cn";
 import { ServiceExplorer } from "./ServiceExplorer";
 
 /** The nine service lines as an interactive explorer. */
-export function ServicesGrid({ lang, dict, heading = true, className }: { lang: Locale; dict: Dictionary; heading?: boolean; className?: string }) {
+export async function ServicesGrid({ lang, dict, heading = true, className }: { lang: Locale; dict: Dictionary; heading?: boolean; className?: string }) {
+  const [home, services, methods] = await Promise.all([getBlock("home"), getServices(), getMethods()]);
+  const methodByKey = (key: string) => methods.find((m) => m.key === key)!;
   const t = home.services;
   return (
     <section id="servicios" className={cn("relative isolate overflow-hidden bg-surface py-24 sm:py-32", className)}>

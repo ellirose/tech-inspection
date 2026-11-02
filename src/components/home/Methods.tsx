@@ -1,12 +1,12 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { methods } from "@/content/methods";
-import { home } from "@/content/home";
+import { getBlock, getMethods } from "@/lib/data/content";
 import { cn } from "@/lib/cn";
 import { MethodsScroll } from "./MethodsScroll";
 
 /** The four NDT methods as a scroll-driven showcase. */
-export function Methods({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
+export async function Methods({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
+  const [methods, home] = await Promise.all([getMethods(), getBlock("home")]);
   const s = dict.methodsSection;
   return (
     // overflow-x-clip (not hidden) keeps the sticky stage working

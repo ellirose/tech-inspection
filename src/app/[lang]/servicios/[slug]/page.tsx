@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { serviceBySlug, services } from "@/content/services";
-import { methodByKey, type MethodKey } from "@/content/methods";
+import type { MethodKey } from "@/content/methods";
+import { getMethods, getServices } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
@@ -26,12 +26,13 @@ const tile: Record<MethodKey, string> = {
 };
 
 export async function generateStaticParams() {
+  const services = await getServices();
   return locales.flatMap((lang) => services.map((s) => ({ lang, slug: s.slug })));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/servicios/[slug]">) {
   const { lang, slug } = await params;
-  const s = serviceBySlug(slug);
+  const s = (await getServices()).find((x) => x.slug === slug);
   if (!hasLocale(lang) || !s) return {};
   return pageMeta(lang, `/servicios/${slug}`, s.name[lang], s.short[lang]);
 }
@@ -47,7 +48,9 @@ export default function ServicePage({ params }: PageProps<"/[lang]/servicios/[sl
 
 async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const s = serviceBySlug(slug);
+  const [services, methods] = await Promise.all([getServices(), getMethods()]);
+  const methodByKey = (key: MethodKey) => methods.find((m) => m.key === key)!;
+  const s = services.find((x) => x.slug === slug);
   if (!hasLocale(lang) || !s) notFound();
   const d = getDictionary(lang);
   const others = services.filter((x) => x.slug !== s.slug);

@@ -5,9 +5,8 @@ import { notFound } from "next/navigation";
 import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { methodBySlug, methods, type MethodKey } from "@/content/methods";
-import { services } from "@/content/services";
-import { methodsApplied } from "@/content/deck";
+import type { MethodKey } from "@/content/methods";
+import { getBlock, getMethods, getServices } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
@@ -27,12 +26,13 @@ const tone: Record<MethodKey, { tile: string; text: string; hex: string }> = {
 };
 
 export async function generateStaticParams() {
+  const methods = await getMethods();
   return locales.flatMap((lang) => methods.map((m) => ({ lang, slug: m.slug })));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/metodos/[slug]">) {
   const { lang, slug } = await params;
-  const m = methodBySlug(slug);
+  const m = (await getMethods()).find((x) => x.slug === slug);
   if (!hasLocale(lang) || !m) return {};
   return pageMeta(lang, `/metodos/${slug}`, `${m.name[lang]} (${m.code})`, m.tagline[lang]);
 }
@@ -48,7 +48,8 @@ export default function MethodPage({ params }: PageProps<"/[lang]/metodos/[slug]
 
 async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const m = methodBySlug(slug);
+  const [methods, services, methodsApplied] = await Promise.all([getMethods(), getServices(), getBlock("methodsApplied")]);
+  const m = methods.find((x) => x.slug === slug);
   if (!hasLocale(lang) || !m) notFound();
   const d = getDictionary(lang);
   const t = tone[m.key];

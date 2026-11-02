@@ -2,8 +2,7 @@ import Image from "next/image";
 import { Crosshair } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { home } from "@/content/home";
-import { clients } from "@/content/site";
+import { getBlock, getClients, getStats } from "@/lib/data/content";
 import { Container, Eyebrow } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
@@ -15,7 +14,8 @@ import { cn } from "@/lib/cn";
 import { HeroVisual } from "./HeroVisual";
 
 /** One-screen hero: the promise, what we inspect right now, proof in numbers, and who trusts us. */
-export function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+  const [home, stats, clients] = await Promise.all([getBlock("home"), getStats(), getClients()]);
   const h = home.hero;
   const lastSpace = h.titleB[lang].lastIndexOf(" ");
   const tail = h.titleB[lang].slice(lastSpace + 1).replace(/[.]$/, "");
@@ -68,7 +68,7 @@ export function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
 
           <Reveal delay={0.65} y={16}>
             <dl className="mt-[4vh] flex max-w-xl divide-x divide-line">
-              {h.stats.map((s) => (
+              {stats.map((s) => (
                 <div key={s.label.es} className="flex-1 px-4 first:pl-0 sm:px-6">
                   <dd className="text-[clamp(2rem,min(3.6vw,6vh),3.4rem)] font-extrabold leading-none tracking-tight text-ink">
                     <Counter value={s.value} prefix={s.prefix} />

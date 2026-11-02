@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { home } from "@/content/home";
+import { getBlock } from "@/lib/data/content";
 import { HomeHero } from "@/components/home/HomeHero";
 import { ServicesGrid } from "@/components/home/ServicesGrid";
 import { Methods } from "@/components/home/Methods";
@@ -16,13 +16,14 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = getDictionary(lang);
+  const home = await getBlock("home");
 
   return (
     <>
       <HomeHero lang={lang} dict={dict} />
       <ServicesGrid lang={lang} dict={dict} />
       <Methods lang={lang} dict={dict} />
-      <ProcessBand lang={lang} />
+      <ProcessBand lang={lang} process={home.process} />
       <WhyUs lang={lang} dict={dict} className="sheet" />
       <PlatformShowcase lang={lang} dict={dict} compact title={home.platform.title[lang]} />
       <FieldGallery dict={dict} />

@@ -2,8 +2,7 @@ import Image from "next/image";
 import { Camera, ClipboardText, Clock, Crosshair, FileText, Folders, LinkSimple, MagnifyingGlass, SealCheck, UserCircleCheck } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { tiqms } from "@/content/deck";
-import { PLATFORM_URL } from "@/content/site";
+import { getBlock, getSite } from "@/lib/data/content";
 import { Container, Eyebrow, IconBadge } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
@@ -15,7 +14,7 @@ const tones = ["solid", "neon", "brand", "lime", "brand", "neon"] as const;
 const shapes = ["rounded-[2rem] rounded-tl-[3.5rem]", "rounded-[2rem]", "rounded-[2rem] rounded-tr-[3.5rem]", "rounded-[2rem] rounded-bl-[3.5rem]", "rounded-[2rem]", "rounded-[2rem] rounded-br-[3.5rem]"];
 
 /** Slide 10: TI-QMS, the digital traceability platform. */
-export function PlatformShowcase({
+export async function PlatformShowcase({
   lang,
   dict,
   index,
@@ -35,6 +34,7 @@ export function PlatformShowcase({
   title?: string;
   className?: string;
 }) {
+  const [tiqms, { platformUrl: PLATFORM_URL }] = await Promise.all([getBlock("tiqms"), getSite()]);
   const f = tiqms.features;
   return (
     <section className={cn("relative isolate overflow-hidden py-24 sm:py-32", compact ? "bg-surface" : "bg-tint", className)}>

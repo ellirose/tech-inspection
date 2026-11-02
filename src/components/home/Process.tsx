@@ -19,7 +19,7 @@ import {
   UsersThree,
 } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
-import { process } from "@/content/deck";
+import { getBlock } from "@/lib/data/content";
 import { Container, Swoosh } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -28,9 +28,10 @@ const procIcons = [Package, Barcode, SprayBottle, Eye, Pulse, ClipboardText, Cam
 const traceIcons = [HardHat, DeviceTablet, Certificate, Hourglass, ChartLineUp, FileText, UsersThree];
 
 /** Slide 7: the general procedure and the calibration/traceability chain, on a cobalt panel. */
-export function Process({ lang, index = "05" }: { lang: Locale; index?: string }) {
-  const steps = process.procedure[lang];
-  const chain = process.trace[lang];
+export async function Process({ lang, index = "05" }: { lang: Locale; index?: string }) {
+  const proc = await getBlock("process");
+  const steps = proc.procedure[lang];
+  const chain = proc.trace[lang];
   return (
     <section className="py-10 sm:py-14">
       <Container>
@@ -44,15 +45,15 @@ export function Process({ lang, index = "05" }: { lang: Locale; index?: string }
                 <span className="size-2.5 rounded-full bg-lime" />
                 <span className="text-accent-ink">{index}</span> / {{ es: "Proceso", pt: "Processo", en: "Process" }[lang]}
               </span>
-              <h2 className="mt-6 text-balance text-[clamp(2.3rem,4.4vw,4rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{process.title[lang]}</h2>
+              <h2 className="mt-6 text-balance text-[clamp(2.3rem,4.4vw,4rem)] font-extrabold leading-[1.02] tracking-[-0.035em]">{proc.title[lang]}</h2>
             </div>
-            <p className="text-lg leading-relaxed text-white/80 sm:text-xl lg:col-span-5">{process.lead[lang]}</p>
+            <p className="text-lg leading-relaxed text-white/80 sm:text-xl lg:col-span-5">{proc.lead[lang]}</p>
           </Reveal>
 
           <div className="mt-14 grid gap-10 lg:grid-cols-12">
             {/* General procedure: a vertical rail of nine steps */}
             <div className="lg:col-span-5">
-              <p className="text-lg font-extrabold">{process.procedureTitle[lang]}</p>
+              <p className="text-lg font-extrabold">{proc.procedureTitle[lang]}</p>
               <RevealGroup stagger={0.05} className="relative mt-5">
                 <span aria-hidden className="absolute bottom-7 left-7 top-7 w-0.5 bg-[repeating-linear-gradient(to_bottom,rgb(255_255_255/0.45)_0_5px,transparent_5px_10px)]" />
                 {steps.map((s, i) => {
@@ -82,12 +83,12 @@ export function Process({ lang, index = "05" }: { lang: Locale; index?: string }
                     <LockKey weight="duotone" className="size-8" />
                   </span>
                   <p className="leading-snug">
-                    <span className="block font-extrabold">{process.lockTitle[lang]}</span>
-                    <span className="text-sm text-ink-soft">{process.lockText[lang]}</span>
+                    <span className="block font-extrabold">{proc.lockTitle[lang]}</span>
+                    <span className="text-sm text-ink-soft">{proc.lockText[lang]}</span>
                   </p>
                 </div>
               </Reveal>
-              <p className="mt-14 text-lg font-extrabold">{process.traceTitle[lang]}</p>
+              <p className="mt-14 text-lg font-extrabold">{proc.traceTitle[lang]}</p>
               <RevealGroup stagger={0.05} className="mt-5 flex flex-wrap items-center gap-2">
                 {chain.map((c, i) => {
                   const Icon = traceIcons[i];

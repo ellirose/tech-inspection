@@ -2,7 +2,7 @@ import Image from "next/image";
 import { ArrowsClockwise, Check, GraduationCap, Headset } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { partner, timelineIntro } from "@/content/deck";
+import { getBlock } from "@/lib/data/content";
 import { Container, Eyebrow, IconBadge } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -12,7 +12,8 @@ const tones = ["solid", "neon", "lime"] as const;
 const shapes = ["rounded-[2rem] rounded-tl-[4rem]", "rounded-[2rem]", "rounded-[2rem] rounded-tr-[4rem]"];
 
 /** Slide 9: more than a supplier, a strategic partner. Photo panel with cards rising over it. */
-export function Partner({ lang, dict, index = "08", intro = true }: { lang: Locale; dict: Dictionary; index?: string; intro?: boolean }) {
+export async function Partner({ lang, dict, index = "08", intro = true }: { lang: Locale; dict: Dictionary; index?: string; intro?: boolean }) {
+  const [partner, timelineIntro] = await Promise.all([getBlock("partner"), getBlock("timelineIntro")]);
   return (
     <section className="relative py-24 sm:py-32">
       <Container>

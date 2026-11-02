@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Desktop, GearSix, Handshake } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
-import { closing } from "@/content/deck";
+import { getBlock } from "@/lib/data/content";
 import { Container, Eyebrow, IconBadge } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -10,7 +10,8 @@ const icons = { reliability: GearSix, support: Handshake, digital: Desktop } as 
 const tones = ["solid", "neon", "lime"] as const;
 
 /** Slide 11: the closing statement over a rig at dusk, with the three commitments rising out of it. */
-export function Closing({ lang, index, ulterra = false }: { lang: Locale; index?: string; ulterra?: boolean }) {
+export async function Closing({ lang, index, ulterra = false }: { lang: Locale; index?: string; ulterra?: boolean }) {
+  const closing = await getBlock("closing");
   return (
     <section className="relative py-24 sm:py-32">
       <Container>

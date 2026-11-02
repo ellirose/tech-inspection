@@ -6,7 +6,7 @@ import { Container, Eyebrow } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 import { FieldMonitor } from "@/components/visuals/FieldMonitor";
-import { home } from "@/content/home";
+import type { PageBlocks } from "@/db/seed/blocks";
 import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/cn";
 
@@ -14,8 +14,7 @@ const icons = [ClipboardText, Broom, MagnifyingGlass, Scales, SealCheck];
 const ease = [0.16, 1, 0.3, 1] as const;
 
 /** Workshop video panel: the inspection route drawn as a track, with real MT and PT field footage. */
-export function ProcessBand({ lang }: { lang: Locale }) {
-  const p = home.process;
+export function ProcessBand({ lang, process: p }: { lang: Locale; process: PageBlocks["home"]["process"] }) {
   const t = { eyebrow: p.eyebrow[lang], title: p.title[lang], lead: p.lead[lang], recMt: p.recMt[lang], recPt: p.recPt[lang], steps: p.steps.map((s) => ({ t: s.t[lang], d: s.d[lang] })) };
   return (
     <section className="relative bg-canvas pb-24 pt-10 sm:pb-32 sm:pt-16">
