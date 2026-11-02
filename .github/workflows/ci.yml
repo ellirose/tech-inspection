@@ -28,6 +28,9 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/techinspection
+      # Throwaway values for the build and tests only.
+      AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      AUTH_URL: http://localhost:3000
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
