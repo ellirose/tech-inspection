@@ -56,6 +56,8 @@ export type SiteSettings = {
   years: number;
   platformUrl: string;
   keyPartner: { name: string; since: number };
+  /** Mailboxes notified of each new lead; LEAD_NOTIFY_TO is used while this is empty. */
+  notifyTo?: string[];
 };
 
 /** One row (id "site"): company data (NAP), contact lines, TI-QMS URL. */

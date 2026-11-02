@@ -7,6 +7,7 @@ import { sql } from "drizzle-orm";
 import { createDb } from "../index";
 import * as s from "../schema";
 import { blocks, homeBlock } from "./blocks";
+import { legacyRedirects } from "./redirects";
 import { home } from "@/content/home";
 import { methods } from "@/content/methods";
 import { services } from "@/content/services";
@@ -182,10 +183,16 @@ async function main() {
       ]);
     });
 
+    // Redirects are managed in the admin, so --force leaves edited ones alone and only adds missing Wix URLs.
+    await db
+      .insert(s.redirect)
+      .values(legacyRedirects.map(([fromPath, toPath]) => ({ fromPath, toPath, statusCode: 308 })))
+      .onConflictDoNothing({ target: s.redirect.fromPath });
+
     console.log(
       `Seeded: ${methods.length} methods, ${services.length} services, ${certifications.length + personnelCredentials.length} certifications, ` +
         `${clients.length} clients, ${leadership.length} people, ${channels.length} contact lines, ` +
-        `${policyDocs.length + accountabilityDocs.length} documents, ${Object.keys(blocks).length + 1} page blocks.`,
+        `${policyDocs.length + accountabilityDocs.length} documents, ${Object.keys(blocks).length + 1} page blocks, ${legacyRedirects.length} redirects.`,
     );
   } finally {
     await pool.end();

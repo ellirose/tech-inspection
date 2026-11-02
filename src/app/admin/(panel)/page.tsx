@@ -13,6 +13,7 @@ const blurbs: Record<string, string> = {
   "/admin/contenido": "Servicios, métodos, clientes, cifras, certificaciones y políticas.",
   "/admin/usuarios": "Cuentas del panel, roles y accesos.",
   "/admin/configuracion": "Datos de la empresa, canales y destinatarios de notificaciones.",
+  "/admin/redirecciones": "Direcciones antiguas que llevan a las páginas nuevas.",
   "/admin/historial": "Quién hizo qué y cuándo.",
   "/admin/seguridad": "Su contraseña y la verificación en dos pasos.",
 };

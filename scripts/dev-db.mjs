@@ -18,7 +18,16 @@ const platform = { win32: "windows", linux: "linux", darwin: "darwin" }[process.
 const { pg_ctl } = await import(`@embedded-postgres/${platform}-${process.arch}`);
 
 if (!existsSync(path.join(dir, "PG_VERSION"))) {
-  await new EmbeddedPostgres({ databaseDir: dir, user: "postgres", password: "postgres", port: PORT, onLog: () => {} }).initialise();
+  // UTF-8 explicitly: on Windows initdb would otherwise pick the system code page (WIN1252), which
+  // cannot store emoji or non-Latin text.
+  await new EmbeddedPostgres({
+    databaseDir: dir,
+    user: "postgres",
+    password: "postgres",
+    port: PORT,
+    initdbFlags: ["--encoding=UTF8", "--locale=C"],
+    onLog: () => {},
+  }).initialise();
 }
 
 const ctl = (...args) => execFileSync(pg_ctl, ["-D", dir, ...args], { stdio: "inherit" });
@@ -27,7 +36,7 @@ ctl("-o", `-p ${PORT}`, "-l", path.join(dir, "server.log"), "-w", "start");
 const admin = new pg.Client({ connectionString: `postgres://postgres:postgres@localhost:${PORT}/postgres` });
 await admin.connect();
 const { rowCount } = await admin.query("SELECT 1 FROM pg_database WHERE datname = $1", [DB]);
-if (!rowCount) await admin.query(`CREATE DATABASE "${DB}"`);
+if (!rowCount) await admin.query(`CREATE DATABASE "${DB}" ENCODING 'UTF8' TEMPLATE template0`);
 await admin.end();
 
 console.log(`PostgreSQL ready: postgres://postgres:postgres@localhost:${PORT}/${DB}`);

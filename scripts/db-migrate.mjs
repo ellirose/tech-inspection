@@ -11,6 +11,10 @@ if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
 
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 1 });
 try {
+  // Leads and content hold any language and emoji; a database created with another encoding
+  // (e.g. WIN1252 on Windows) would reject them at runtime, so stop here instead.
+  const { rows } = await pool.query("SELECT pg_encoding_to_char(encoding) AS enc FROM pg_database WHERE datname = current_database()");
+  if (rows[0].enc !== "UTF8") throw new Error(`Database encoding is ${rows[0].enc}; it must be UTF8. Recreate it with ENCODING 'UTF8'.`);
   await migrate(drizzle(pool), { migrationsFolder: new URL("../src/db/migrations", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1") });
   console.log("Migrations applied.");
 } finally {

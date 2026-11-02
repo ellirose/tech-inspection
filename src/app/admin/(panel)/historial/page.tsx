@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { desc, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { requireUser } from "@/lib/auth/session";
@@ -17,6 +18,21 @@ const actions: Record<string, string> = {
   two_factor_disabled: "Desactivó la verificación en dos pasos",
   backup_codes_regenerated: "Generó nuevos códigos de respaldo",
   user_invited: "Cuenta creada e invitación enviada",
+  user_updated: "Modificó una cuenta",
+  user_activated: "Activó una cuenta",
+  user_deactivated: "Desactivó una cuenta",
+  user_unlocked: "Desbloqueó una cuenta",
+  two_factor_reset: "Restableció la verificación en dos pasos de una cuenta",
+  access_link_sent: "Envió un enlace de acceso",
+  lead_status: "Cambió el estado de un lead",
+  lead_note: "Agregó una nota a un lead",
+  lead_assigned: "Asignó un lead",
+  leads_exported: "Exportó leads a CSV",
+  settings_updated: "Cambió la configuración",
+  redirect_created: "Creó una redirección",
+  redirect_enabled: "Activó una redirección",
+  redirect_disabled: "Desactivó una redirección",
+  redirect_deleted: "Eliminó una redirección",
 };
 
 export default async function HistoryPage() {
@@ -27,6 +43,7 @@ export default async function HistoryPage() {
       at: schema.auditLog.createdAt,
       action: schema.auditLog.action,
       entity: schema.auditLog.entity,
+      entityId: schema.auditLog.entityId,
       diff: schema.auditLog.diff,
       ip: schema.auditLog.ip,
       who: schema.user.email,
@@ -56,7 +73,14 @@ export default async function HistoryPage() {
                 <td className="whitespace-nowrap px-4 py-3 text-ink-soft">{formatBogota(r.at)}</td>
                 <td className="px-4 py-3 text-ink">{r.who ?? "—"}</td>
                 <td className="px-4 py-3 font-bold text-ink">{actions[r.action] ?? r.action}</td>
-                <td className="px-4 py-3 text-ink-soft">{r.diff ? Object.entries(r.diff as Record<string, unknown>).map(([k, v]) => `${k}: ${String(v)}`).join(" · ") : "—"}</td>
+                <td className="px-4 py-3 text-ink-soft">
+                  {r.entity === "lead" && r.entityId && (
+                    <Link href={`/admin/leads/${r.entityId}`} className="mr-2 font-mono font-bold text-accent">
+                      {r.entityId}
+                    </Link>
+                  )}
+                  {r.diff ? Object.entries(r.diff as Record<string, unknown>).map(([k, v]) => `${k}: ${String(v)}`).join(" · ") : r.entity === "lead" ? "" : "—"}
+                </td>
                 <td className="px-4 py-3 font-mono text-xs text-mute">{r.ip ?? "—"}</td>
               </tr>
             ))}
