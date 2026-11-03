@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth/session";
 import { can, roleLabels, isRole } from "@/lib/auth/roles";
 import { panelSections } from "@/components/admin/nav";
 import { Card } from "@/components/admin/ui";
+import { ExpiryWarnings } from "@/components/admin/content/ExpiryWarnings";
 
 export const metadata = { title: "Inicio" };
 
@@ -35,6 +36,8 @@ export default async function DashboardPage() {
           Rol: <strong>{isRole(user.role) ? roleLabels[user.role] : user.role}</strong>
         </p>
       </div>
+
+      {can(user.role, "content:write") && <ExpiryWarnings />}
 
       {leads && (
         <div className="grid gap-4 sm:grid-cols-2">

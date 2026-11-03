@@ -16,6 +16,7 @@ export function Showcase({ items, alt, className }: { items: Photo[]; alt: strin
   const [active, setActive] = useState(0);
   const lb = useLightbox(items.length);
   const p = items[active];
+  if (!p) return null;
 
   return (
     <div className={cn("grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_8.5rem]", className)}>

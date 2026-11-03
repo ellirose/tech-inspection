@@ -67,7 +67,7 @@ export default async function UsersPage() {
         </div>
 
         <Card title="Invitar">
-          <ActionForm action={inviteUser} submit="Enviar invitación">
+          <ActionForm action={inviteUser} submit="Enviar invitación" resetOnSuccess>
             <p className="text-sm text-ink-soft">La persona recibe un enlace de un solo uso (24 horas) para definir su contraseña.</p>
             <label className="block">
               <span className={labelClass}>Nombre</span>

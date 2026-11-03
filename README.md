@@ -75,7 +75,16 @@ Sections so far:
 - **Redirecciones:** the old Wix URLs (seeded) and any added later, applied by `src/proxy.ts` within a minute of a change.
 - **Historial:** every sign-in, account change, lead change, export and settings change.
 
-Content editing (services, methods, clients, figures, certifications, policies, page sections) with drafts and preview is next.
+- **Contenido:** services, methods, clients, figures, certifications, documents and policies, leadership and contact lines, plus the texts of the fixed page sections. One generic editor built from field definitions (`src/lib/admin/collections.ts`, `fields.ts`), so validation and form come from the same place:
+  - every translation is required once one is given; translated lists keep the same number of lines per language; image and PDF paths must exist under `/public`;
+  - new items start as drafts; publish, unpublish and reorder from the list; only super-admins delete;
+  - a save never overwrites a newer version saved by someone else, and the form warns about unsaved changes and keeps what was typed when a save is rejected;
+  - saving refreshes the cached data and rebuilds the affected public pages in the background (`src/lib/admin/refresh.ts`), so the site shows the change within seconds;
+  - page sections are edited by value only: their structure and internal keys cannot change;
+  - certifications warn 60 days before expiry (Contenido and dashboard) and leave the site once expired;
+  - services and methods have optional search-result title and description per language.
+
+Not built yet: preview of drafts (Next.js draft mode), drag-and-drop ordering (up/down buttons for now), image uploads (stage 5; until then images are chosen from files already in `public/media`), and editors for industries, case studies and FAQs, which need public pages first.
 
 ## Leads
 

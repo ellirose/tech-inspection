@@ -6,7 +6,7 @@ import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
-import { getBlock, getMethods, getServices } from "@/lib/data/content";
+import { getBlock, getMethods, getSeoOverrides, getServices } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
@@ -32,9 +32,11 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/metodos/[slug]">) {
   const { lang, slug } = await params;
-  const m = (await getMethods()).find((x) => x.slug === slug);
+  const [methods, seo] = await Promise.all([getMethods(), getSeoOverrides()]);
+  const m = methods.find((x) => x.slug === slug);
   if (!hasLocale(lang) || !m) return {};
-  return pageMeta(lang, `/metodos/${slug}`, `${m.name[lang]} (${m.code})`, m.tagline[lang]);
+  const o = seo.methods[slug];
+  return pageMeta(lang, `/metodos/${slug}`, o?.title?.[lang] || `${m.name[lang]} (${m.code})`, o?.description?.[lang] || m.tagline[lang]);
 }
 
 // Params are awaited inside <Suspense> so navigations into this route stay instant.
@@ -63,7 +65,7 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
         eyebrow={`${m.code} · ${d.methodsSection.eyebrow}`}
         title={m.name[lang]}
         lead={m.tagline[lang]}
-        image={m.gallery[1]}
+        image={m.gallery[1] ?? m.gallery[0] ?? m.cover}
         caption={m.code}
       >
         <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -138,14 +140,16 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
       </section>
 
       {/* Gallery */}
-      <section className="py-24 sm:py-28">
-        <Container>
-          <Eyebrow index="04">{d.pages.methods.gallery}</Eyebrow>
-          <div className="mt-8">
-            <Masonry items={photos(m.gallery)} alt={m.name[lang]} />
-          </div>
-        </Container>
-      </section>
+      {m.gallery.length > 0 && (
+        <section className="py-24 sm:py-28">
+          <Container>
+            <Eyebrow index="04">{d.pages.methods.gallery}</Eyebrow>
+            <div className="mt-8">
+              <Masonry items={photos(m.gallery)} alt={m.name[lang]} />
+            </div>
+          </Container>
+        </section>
+      )}
 
       {/* Related services and other methods */}
       <section className="bg-surface py-20">

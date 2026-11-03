@@ -2,7 +2,7 @@
 // with the same tags so the site refreshes in seconds without a rebuild. Only published rows are returned,
 // in the editors' order, shaped exactly like the types the components already use.
 import "server-only";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, gte, isNull, or, sql } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 import { cacheLife, cacheTag } from "next/cache";
 import { db, schema as s } from "@/db";
@@ -86,14 +86,49 @@ export async function getServices(): Promise<Service[]> {
   }));
 }
 
-export async function getCertifications() {
+/** One published service by slug, with its search-result overrides; null when missing or a draft.
+ * Detail pages use this rather than getServices(): a slug that was not prerendered is rendered from a
+ * fallback page built with the data of that time, and only a lookup keyed by the slug is fetched fresh.
+ */
+export async function getService(slug: string): Promise<(Service & { seo: SeoOverride }) | null> {
   "use cache";
   cacheLife("max");
+  cacheTag(tags.all, tags.services, tags.methods);
+  const [row] = await db
+    .select()
+    .from(s.service)
+    .where(and(published(s.service), eq(s.service.slug, slug)));
+  if (!row) return null;
+  const links = await db
+    .select({ key: s.method.key })
+    .from(s.serviceMethod)
+    .innerJoin(s.method, and(eq(s.method.id, s.serviceMethod.methodId), eq(s.method.status, "published")))
+    .where(eq(s.serviceMethod.serviceId, row.id))
+    .orderBy(asc(s.serviceMethod.sortOrder));
+  return {
+    slug: row.slug,
+    icon: row.icon as ServiceIcon,
+    image: row.image,
+    gallery: row.gallery,
+    name: row.name,
+    short: row.short,
+    body: row.body,
+    scope: row.scope,
+    methods: links.map((l) => l.key as MethodKey),
+    ...(row.needsReview ? { draft: true } : {}),
+    seo: { title: row.seoTitle, description: row.seoDescription },
+  };
+}
+
+/** Published certifications that have not expired. Refreshed daily so an expiry takes effect on its own. */
+export async function getCertifications() {
+  "use cache";
+  cacheLife("days");
   cacheTag(tags.all, tags.certifications);
   const rows = await db
     .select()
     .from(s.certification)
-    .where(published(s.certification))
+    .where(and(published(s.certification), or(isNull(s.certification.expiryDate), gte(s.certification.expiryDate, sql`current_date`))))
     .orderBy(asc(s.certification.sortOrder));
   const system: Certification[] = rows
     .filter((r) => r.kind === "system")
@@ -167,6 +202,22 @@ export async function getDocuments(kind: "policy" | "accountability"): Promise<C
     ...(d.year ? { year: d.year } : {}),
     ...(d.thumbnail ? { thumbnail: d.thumbnail } : {}),
   }));
+}
+
+export type SeoOverride = { title: L10n | null; description: L10n | null };
+
+/** Search-result title and description set in the admin for service and method pages, by slug. */
+export async function getSeoOverrides(): Promise<{ services: Record<string, SeoOverride>; methods: Record<string, SeoOverride> }> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tags.all, tags.services, tags.methods);
+  const pick = { slug: s.service.slug, title: s.service.seoTitle, description: s.service.seoDescription };
+  const [services, methods] = await Promise.all([
+    db.select(pick).from(s.service),
+    db.select({ slug: s.method.slug, title: s.method.seoTitle, description: s.method.seoDescription }).from(s.method),
+  ]);
+  const bySlug = (rows: { slug: string; title: L10n | null; description: L10n | null }[]) => Object.fromEntries(rows.map(({ slug, ...seo }) => [slug, seo]));
+  return { services: bySlug(services), methods: bySlug(methods) };
 }
 
 export async function getBlock<K extends PageBlockKey>(key: K): Promise<PageBlocks[K]> {

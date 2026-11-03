@@ -10,6 +10,7 @@ import { db, schema } from "@/db";
 import { audit, requestIp } from "@/lib/audit";
 import { authorize } from "@/lib/auth/session";
 import { tags } from "@/lib/data/content";
+import { refreshPublicPages } from "@/lib/admin/refresh";
 
 export type ActionState = { ok?: string; error?: string };
 
@@ -103,6 +104,7 @@ export async function saveSettings(_: ActionState, form: FormData): Promise<Acti
   await db.update(schema.siteSettings).set({ data, updatedBy: user.id }).where(eq(schema.siteSettings.id, row.id));
   await audit({ userId: user.id, action: "settings_updated", entity: "site_settings", diff: { campos: changed.filter((k) => k !== "phoneHref" && k !== "whatsappDisplay").map((k) => fieldNames[k] ?? k).join(", ") }, ip: requestIp(await headers()) });
   updateTag(tags.site);
+  await refreshPublicPages(["", "/contacto", "/nosotros", "/hseq", "/plataforma"]);
   refresh();
-  return { ok: "Configuración guardada. El sitio ya muestra los nuevos datos." };
+  return { ok: "Configuración guardada. El sitio se actualiza en unos segundos." };
 }

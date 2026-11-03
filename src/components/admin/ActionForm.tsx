@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useEffect, useRef } from "react";
 import { buttonClass, Notice, quietButtonClass } from "./ui";
+import { useFormAction } from "./useFormAction";
 import { cn } from "@/lib/cn";
 
 export type ActionResult = { ok?: string; error?: string };
@@ -14,6 +15,7 @@ export function ActionForm({
   submit,
   quiet,
   confirm,
+  resetOnSuccess,
   className,
   children,
 }: {
@@ -23,12 +25,19 @@ export function ActionForm({
   quiet?: boolean;
   /** Asks before submitting, for actions that are hard to undo. */
   confirm?: string;
+  /** Clears the fields after a successful submission (e.g. an invitation); otherwise they are kept. */
+  resetOnSuccess?: boolean;
   className?: string;
   children?: React.ReactNode;
 }) {
-  const [state, run, pending] = useActionState(action, {});
+  const [state, onSubmit, pending] = useFormAction(action, {}, confirm);
+  const ref = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (resetOnSuccess && state.ok) ref.current?.reset();
+  }, [state, resetOnSuccess]);
+
   return (
-    <form action={run} onSubmit={(e) => confirm && !window.confirm(confirm) && e.preventDefault()} className={className ?? "space-y-3"}>
+    <form ref={ref} onSubmit={onSubmit} className={className ?? "space-y-3"}>
       {hidden && Object.entries(hidden).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
       {children}
       {state.error && <Notice>{state.error}</Notice>}

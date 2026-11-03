@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useEffect, useRef } from "react";
 import { addLeadNote, assignLead, changeLeadStatus, type ActionState } from "@/app/admin/(panel)/leads/actions";
 import { buttonClass, Card, fieldClass, labelClass, Notice } from "@/components/admin/ui";
+import { useFormAction } from "@/components/admin/useFormAction";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -20,15 +21,25 @@ function Result({ state }: { state: ActionState }) {
 }
 
 export function LeadActions({ id, status, assignedTo, statuses, assignees }: Props) {
-  const [statusState, statusAction, statusPending] = useActionState(changeLeadStatus, {});
-  const [assignState, assignAction, assignPending] = useActionState(assignLead, {});
-  const [noteState, noteAction, notePending] = useActionState(addLeadNote, {});
+  const [statusState, statusSubmit, statusPending] = useFormAction<ActionState>(changeLeadStatus, {});
+  const [assignState, assignSubmit, assignPending] = useFormAction<ActionState>(assignLead, {});
+  const [noteState, noteSubmit, notePending] = useFormAction<ActionState>(addLeadNote, {});
+  // Comment boxes clear only once their text is saved.
+  const statusForm = useRef<HTMLFormElement>(null);
+  const noteForm = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const note = statusForm.current?.elements.namedItem("note");
+    if (statusState.ok && note instanceof HTMLTextAreaElement) note.value = "";
+  }, [statusState]);
+  useEffect(() => {
+    if (noteState.ok) noteForm.current?.reset();
+  }, [noteState]);
   const small = cn(buttonClass, "h-10 px-4 text-sm");
 
   return (
     <div className="space-y-5">
       <Card title="Estado">
-        <form action={statusAction} className="space-y-3">
+        <form ref={statusForm} onSubmit={statusSubmit} className="space-y-3">
           <input type="hidden" name="id" value={id} />
           <select name="status" defaultValue={status} className={fieldClass} aria-label="Estado">
             {statuses.map(([k, v]) => (
@@ -46,7 +57,7 @@ export function LeadActions({ id, status, assignedTo, statuses, assignees }: Pro
       </Card>
 
       <Card title="Responsable">
-        <form action={assignAction} className="space-y-3">
+        <form onSubmit={assignSubmit} className="space-y-3">
           <input type="hidden" name="id" value={id} />
           <select name="assignee" defaultValue={assignedTo ?? ""} className={fieldClass} aria-label="Responsable">
             <option value="">Sin asignar</option>
@@ -64,7 +75,7 @@ export function LeadActions({ id, status, assignedTo, statuses, assignees }: Pro
       </Card>
 
       <Card title="Nota interna">
-        <form action={noteAction} className="space-y-3">
+        <form ref={noteForm} onSubmit={noteSubmit} className="space-y-3">
           <input type="hidden" name="id" value={id} />
           <label className="block">
             <span className={cn(labelClass, "sr-only")}>Nota</span>
