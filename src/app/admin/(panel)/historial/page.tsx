@@ -39,6 +39,9 @@ const actions: Record<string, string> = {
   content_unpublished: "Retiró contenido del sitio",
   content_reordered: "Reordenó contenido",
   content_deleted: "Eliminó contenido",
+  media_uploaded: "Subió un archivo",
+  media_updated: "Editó la descripción de un archivo",
+  media_deleted: "Eliminó un archivo",
 };
 
 export default async function HistoryPage() {

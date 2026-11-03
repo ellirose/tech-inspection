@@ -278,6 +278,8 @@ export const media = pgTable("media", {
   /** Spanish alt text, required for images (design document §9.3). */
   alt: text("alt"),
   caption: text("caption"),
+  /** Name of the file as uploaded, to recognise it in the library. */
+  originalName: text("original_name"),
   uploadedBy: text("uploaded_by"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

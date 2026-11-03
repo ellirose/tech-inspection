@@ -76,15 +76,22 @@ Sections so far:
 - **Historial:** every sign-in, account change, lead change, export and settings change.
 
 - **Contenido:** services, methods, clients, figures, certifications, documents and policies, leadership and contact lines, plus the texts of the fixed page sections. One generic editor built from field definitions (`src/lib/admin/collections.ts`, `fields.ts`), so validation and form come from the same place:
-  - every translation is required once one is given; translated lists keep the same number of lines per language; image and PDF paths must exist under `/public`;
+  - every translation is required once one is given; translated lists keep the same number of lines per language; image and PDF paths must exist under `/public` or in the media library;
   - new items start as drafts; publish, unpublish and reorder from the list; only super-admins delete;
+  - **preview:** a draft's *Vista previa* link opens the public page with drafts included, for that browser only (Next.js draft mode via `/admin/vista-previa`, which checks the session; a banner shows the mode and leaves it). Signing out ends it: the proxy drops the preview cookie once the session cookie is gone. Each preview request logs a few `Unexpected cache miss after cache warming` warnings from Next.js 16.4.3: draft mode keeps cached results out of the cache, which its two-pass render does not expect, and it falls back to rendering live. The page is correct and visitors are not affected. Page sections have no drafts: a saved section is live;
   - a save never overwrites a newer version saved by someone else, and the form warns about unsaved changes and keeps what was typed when a save is rejected;
   - saving refreshes the cached data and rebuilds the affected public pages in the background (`src/lib/admin/refresh.ts`), so the site shows the change within seconds;
   - page sections are edited by value only: their structure and internal keys cannot change;
   - certifications warn 60 days before expiry (Contenido and dashboard) and leave the site once expired;
   - services and methods have optional search-result title and description per language.
 
-Not built yet: preview of drafts (Next.js draft mode), drag-and-drop ordering (up/down buttons for now), image uploads (stage 5; until then images are chosen from files already in `public/media`), and editors for industries, case studies and FAQs, which need public pages first.
+- **Medios:** upload JPG, PNG or WebP images (up to 15 MB) and PDFs (up to 20 MB). The type is read from the file's content; images are turned upright, stripped of camera data (GPS included), reduced to 2400 px on the long side and stored as WebP with their size in the name (`/media/uploads/2026/name-1a2b3c4d-1600x1200.webp`), so pages lay them out without a lookup. Images need a Spanish text alternative. Copy a file's path into any image, gallery or document field. A file still used by any content, page section or setting cannot be deleted; the message says where it is used. Editors upload; the sales role can only look.
+
+Not built yet: quote attachments (private, time-limited links; stage 5 part 2), drag-and-drop ordering (up/down buttons for now), and editors for industries, case studies and FAQs, which need public pages first. The site still describes images with each item's name in the page's language; the Spanish text alternative from the library is not used on the pages yet.
+
+## File storage
+
+`src/lib/storage.ts`. With `DO_SPACES_KEY`, `DO_SPACES_SECRET`, `DO_SPACES_BUCKET`, `DO_SPACES_REGION` and `DO_SPACES_ENDPOINT` set, uploads go to DigitalOcean Spaces (or MinIO from `docker-compose.yml`: endpoint `http://localhost:9000`, create the bucket in its console first); without them, to `.data/uploads` (development only). The bucket stays private: public files are served by the site's own routes (`/media/uploads/…`, `/docs/uploads/…`, cached for a year since names never repeat), so URLs do not change if storage does.
 
 ## Leads
 

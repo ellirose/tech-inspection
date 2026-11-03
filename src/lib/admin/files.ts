@@ -1,8 +1,9 @@
-// Files already published under /public, offered as suggestions in the editor's path fields until
-// uploads arrive (stage 5).
+// Files the editors' path fields accept and suggest: those shipped under /public and the uploads in the
+// media library.
 import "server-only";
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { db, schema } from "@/db";
 
 function walk(dir: string, base: string): string[] {
   let entries;
@@ -14,12 +15,19 @@ function walk(dir: string, base: string): string[] {
   return entries.flatMap((e) => (e.isDirectory() ? walk(path.join(dir, e.name), `${base}/${e.name}`) : [`${base}/${e.name}`]));
 }
 
-export function publicFiles() {
+export async function publicFiles() {
   const root = path.join(process.cwd(), "public");
-  const all = [...walk(path.join(root, "media"), "/media"), ...walk(path.join(root, "docs"), "/docs")].sort();
+  const uploads = await db.select({ url: schema.media.url }).from(schema.media);
+  const all = [...uploads.map((u) => u.url), ...walk(path.join(root, "media"), "/media"), ...walk(path.join(root, "docs"), "/docs")].sort();
   return {
     images: all.filter((f) => /\.(jpe?g|png|webp|avif|svg)$/i.test(f)),
     videos: all.filter((f) => /\.(mp4|webm)$/i.test(f)),
     docs: all.filter((f) => /\.pdf$/i.test(f)),
   };
+}
+
+/** A check for the editors' path fields: true for a file under /public or an upload. Loads the uploads once. */
+export async function fileChecker() {
+  const uploads = new Set((await db.select({ url: schema.media.url }).from(schema.media)).map((u) => u.url));
+  return (p: string) => uploads.has(p) || existsSync(path.join(process.cwd(), "public", ...p.split("/").filter(Boolean)));
 }
