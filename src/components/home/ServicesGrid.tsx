@@ -1,17 +1,19 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { home } from "@/content/home";
-import { services } from "@/content/services";
-import { methodByKey } from "@/content/methods";
+import { getBlock, getMethods, getServices } from "@/lib/data/content";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { cn } from "@/lib/cn";
+import { cue } from "@/lib/scene";
 import { ServiceExplorer } from "./ServiceExplorer";
 
 /** The nine service lines as an interactive explorer. */
-export function ServicesGrid({ lang, dict, heading = true, className }: { lang: Locale; dict: Dictionary; heading?: boolean; className?: string }) {
+export async function ServicesGrid({ lang, dict, heading = true, className }: { lang: Locale; dict: Dictionary; heading?: boolean; className?: string }) {
+  const [home, services, methods] = await Promise.all([getBlock("home"), getServices(), getMethods()]);
+  const methodByKey = (key: string) => methods.find((m) => m.key === key)!;
   const t = home.services;
   return (
-    <section id="servicios" className={cn("relative isolate overflow-hidden bg-surface py-24 sm:py-32", className)}>
+    // Inside a pipe under inspection while the visitor browses what we inspect
+    <section id="servicios" {...cue({ mode: "scan", intensity: 0.45, veil: 0.55 })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
       <div className="pointer-events-none absolute -right-20 top-0 -z-10 h-[34rem] w-[60rem] bg-hatch mask-radial" />
       <Container>
         {heading && <SectionHeading eyebrow={t.eyebrow[lang]} title={t.title[lang]} lead={t.lead[lang]} />}

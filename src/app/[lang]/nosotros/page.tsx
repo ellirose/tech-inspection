@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { EnvelopeSimple, Eye, Target } from "@phosphor-icons/react/ssr";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { leadership } from "@/content/site";
+import { getLeadership } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow, IconBadge, SectionHeading } from "@/components/ui/Section";
@@ -31,6 +31,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
   const a = d.pages.about;
+  const leadership = await getLeadership();
   const team = [
     { ...photo("/media/photos/team-office.jpg"), pos: "50% 45%" },
     { ...photo("/media/photos/team-uniform.jpg"), pos: "50% 30%" },
@@ -79,7 +80,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
       <Closing lang={lang} index="04" ulterra />
 
       {/* Team */}
-      <section className="bg-surface py-24 sm:py-32">
+      <section className="band py-24 sm:py-32">
         <Container>
           <SectionHeading index="05" eyebrow={a.team} title={a.teamTitle} lead={a.teamLead} />
           <Mosaic className="mt-14" items={team} alt={a.team} />

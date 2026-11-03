@@ -1,14 +1,16 @@
 import { WhatsappLogo } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { company, whatsappLink } from "@/content/site";
+import { getSite } from "@/lib/data/content";
+import { whatsappLink } from "@/lib/site";
 import { Container, Eyebrow, Swoosh } from "./Section";
 import { Reveal } from "./Reveal";
 import { ButtonLink } from "./Button";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 
 /** Closing call to action used at the end of inner pages: a cobalt card with a photo inset. */
-export function CtaBand({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+export async function CtaBand({ lang, dict }: { lang: Locale; dict: Dictionary }) {
+  const { company } = await getSite();
   return (
     <section className="py-16 sm:py-24">
       <Container>
@@ -23,7 +25,7 @@ export function CtaBand({ lang, dict }: { lang: Locale; dict: Dictionary }) {
               <ButtonLink href={`/${lang}/contacto#cotizar`} variant="light">
                 {dict.cta.quote}
               </ButtonLink>
-              <ButtonLink href={whatsappLink(dict.quote.waIntro)} variant="whatsapp" icon={<WhatsappLogo weight="fill" className="size-6" />}>
+              <ButtonLink href={whatsappLink(company.whatsapp, dict.quote.waIntro)} variant="whatsapp" icon={<WhatsappLogo weight="fill" className="size-6" />}>
                 {company.whatsappDisplay}
               </ButtonLink>
             </div>

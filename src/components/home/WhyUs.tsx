@@ -2,18 +2,23 @@ import Image from "next/image";
 import { Certificate, Handshake, Ruler, ShieldCheck } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { home } from "@/content/home";
-import { credentials, standards } from "@/content/deck";
-import { FOUNDED, keyPartner } from "@/content/site";
+import { getBlock, getSite } from "@/lib/data/content";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { Seal } from "@/components/visuals/Seal";
 import { cn } from "@/lib/cn";
+import { cue } from "@/lib/scene";
 
 const hex = { "DS-1": "bg-pt text-white", API: "bg-lime text-[#071a2e]", ASTM: "bg-brand-600 text-white dark:bg-brand-400" } as const;
 
 /** Credentials as a bento of distinct shapes: each card carries one auditable fact. */
-export function WhyUs({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
+export async function WhyUs({ lang, dict, className }: { lang: Locale; dict: Dictionary; className?: string }) {
+  const [home, credentials, standards, { founded: FOUNDED, keyPartner }] = await Promise.all([
+    getBlock("home"),
+    getBlock("credentials"),
+    getBlock("standards"),
+    getSite(),
+  ]);
   const t = home.why;
   const c = Object.fromEntries(credentials.map((x) => [x.key, x])) as Record<(typeof credentials)[number]["key"], (typeof credentials)[number]>;
   const triad = [
@@ -23,7 +28,7 @@ export function WhyUs({ lang, dict, className }: { lang: Locale; dict: Dictionar
   ];
 
   return (
-    <section className={cn("relative isolate overflow-hidden bg-tint py-24 sm:py-32", className)}>
+    <section {...cue({ mode: "rigs", intensity: 0.3, veil: 0.5 })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-50 mask-fade-y" />
       <Container>
         <SectionHeading eyebrow={t.eyebrow[lang]} title={t.title[lang]} lead={t.lead[lang]} />

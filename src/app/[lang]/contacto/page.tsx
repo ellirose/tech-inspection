@@ -2,12 +2,13 @@ import { notFound } from "next/navigation";
 import { Briefcase, Calculator, ClipboardText, EnvelopeSimple, Gear, Phone, ShieldCheck, Wallet, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { channels, company } from "@/content/site";
+import { getChannels, getSite } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { QuoteSection } from "@/components/quote/QuoteSection";
+import { RequestFlow } from "@/components/quote/RequestFlow";
 import { Email } from "@/components/ui/Email";
 import { cn } from "@/lib/cn";
 
@@ -27,6 +28,7 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
+  const [{ company }, channels] = await Promise.all([getSite(), getChannels()]);
 
   return (
     <>
@@ -40,10 +42,11 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
         caption={company.phone}
       />
       <QuoteSection lang={lang} dict={d} heading={false} />
+      <RequestFlow dict={d} index="01" />
 
-      <section className="bg-surface py-24 sm:py-28">
+      <section className="band py-24 sm:py-28">
         <Container>
-          <SectionHeading index="01" eyebrow={d.contact.eyebrow} title={d.contact.directory} lead={d.contact.directoryLead} />
+          <SectionHeading index="02" eyebrow={d.contact.eyebrow} title={d.contact.directory} lead={d.contact.directoryLead} />
           <RevealGroup className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {channels.map((c, i) => {
               const digits = `57${c.phone.replace(/\D/g, "")}`;

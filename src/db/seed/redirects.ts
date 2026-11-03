@@ -1,0 +1,27 @@
+// Old Wix URLs → new localized routes, so existing links and search results keep working.
+// Seeded into the `redirect` table (editable under Redirecciones) and applied by src/proxy.ts.
+export const legacyRedirects: [from: string, to: string][] = [
+  ["/inicio", "/es"],
+  ["/nosotros", "/es/nosotros"],
+  ["/directivas", "/es/nosotros#liderazgo"],
+  ["/nuestro-clientes", "/es/nosotros#clientes"],
+  ["/tecnicas-de-inspeccion", "/es/metodos"],
+  ["/particulas-magneticas", "/es/metodos/particulas-magneticas"],
+  ["/liquidos-penetrantes", "/es/metodos/liquidos-penetrantes"],
+  ["/ultrasonido", "/es/metodos/ultrasonido"],
+  ["/dimensional-visual", "/es/metodos/dimensional-visual"],
+  ["/servicios", "/es/servicios"],
+  ["/inspeccion-de-tuberia", "/es/servicios/tuberia"],
+  ["/inspeccion-de-componentes-bha", "/es/servicios/componentes-bha"],
+  ["/inspeccion-de-lineas-de-presion", "/es/servicios/lineas-de-presion"],
+  ["/inspeccion-de-herramientas-de-fishing-y", "/es/servicios/fishing-wireline"],
+  ["/inspeccion-de-equipos-de-cementacion", "/es/servicios/equipos-de-cementacion"],
+  ["/inspección-de-herremientas-de-levante", "/es/servicios/levante-e-izaje"],
+  ["/inspección-de-herramientas-de-levante", "/es/servicios/levante-e-izaje"],
+  ["/inspección-de-tanques", "/es/servicios/tanques"],
+  ["/copia-de-inspección-de-tanques", "/es/servicios/estructural"],
+  ["/hseq", "/es/hseq"],
+  ["/contacto", "/es/contacto"],
+  ["/fullscreen-page", "/es"],
+  ["/members-area", "/es/plataforma"],
+];

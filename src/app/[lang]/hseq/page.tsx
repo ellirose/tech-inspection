@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowDown, FilePdf, FirstAidKit, Heart, HardHat, Plant, ShieldCheck, Certificate, UsersThree } from "@phosphor-icons/react/ssr";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { accountabilityDocs, policyDocs } from "@/content/site";
-import { credentials } from "@/content/deck";
+import { getBlock, getDocuments } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { photo } from "@/lib/media";
 import { PageHero } from "@/components/ui/PageHero";
@@ -24,13 +23,16 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/hseq">) {
 }
 
 // Thumbnails shown on the policy rows (the data-protection banner comes from the original site).
-const docThumb: Record<string, string> = { "PL-09-1": "/media/hseq/data-protection.jpg" };
-
 export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
   const h = d.pages.hseq;
+  const [policyDocs, accountabilityDocs, credentials] = await Promise.all([
+    getDocuments("policy"),
+    getDocuments("accountability"),
+    getBlock("credentials"),
+  ]);
   const deckFacts = [credentials.find((c) => c.key === "quality")!, credentials.find((c) => c.key === "safety")!];
 
   // Photo sits above the text (never under it), so nobody in the picture is covered.
@@ -85,7 +87,7 @@ export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
         </div>
       </PageHero>
 
-      <section className="bg-surface py-20 sm:py-28">
+      <section className="band py-20 sm:py-28">
         <Container>
           <RevealGroup className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {pillars.map((p, i) => (
@@ -135,7 +137,7 @@ export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
       </section>
 
       {/* Team life */}
-      <section className="relative bg-surface py-24 sm:py-28">
+      <section className="relative band py-24 sm:py-28">
         <Container>
           <SectionHeading index="02" eyebrow={h.integration} title={h.life} lead={h.lifeLead} />
           <Reveal delay={0.1} className="mt-10">
@@ -154,9 +156,9 @@ export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
               {policyDocs.map((doc) => (
                 <RevealItem key={doc.code}>
                   <a href={doc.file} target="_blank" rel="noopener" className="group flex items-center gap-5 bg-surface p-5 shadow-soft ring-1 ring-line shape-ticket transition hover:bg-tint">
-                    {docThumb[doc.code] ? (
+                    {doc.thumbnail ? (
                       <span className="relative h-16 w-28 shrink-0 overflow-hidden rounded-2xl ring-1 ring-line">
-                        <Image src={docThumb[doc.code]} alt="" fill sizes="7rem" className="object-cover" />
+                        <Image src={doc.thumbnail} alt="" fill sizes="7rem" className="object-cover" />
                       </span>
                     ) : (
                       <IconBadge icon={FilePdf} size="lg" tone="red" />

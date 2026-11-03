@@ -1,6 +1,6 @@
 import { Check, GraduationCap, Headset, ListChecks, ShieldCheck } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
-import { standards } from "@/content/deck";
+import { getBlock } from "@/lib/data/content";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -14,7 +14,8 @@ const look = {
 const moreIcons = [ListChecks, GraduationCap, Headset];
 
 /** Slide 8: the international standards behind each decision. */
-export function Standards({ lang, index }: { lang: Locale; index?: string }) {
+export async function Standards({ lang, index }: { lang: Locale; index?: string }) {
+  const standards = await getBlock("standards");
   const t = standards.triad;
   return (
     <section className="relative isolate overflow-hidden py-24 sm:py-32">

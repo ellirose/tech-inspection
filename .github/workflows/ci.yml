@@ -1,0 +1,46 @@
+# Pull-request checks (design document §15.5). The build prerenders pages from the database,
+# so a migrated and seeded PostgreSQL runs alongside it.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: techinspection
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/techinspection
+      # Throwaway values for the build and tests only.
+      AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      AUTH_URL: http://localhost:3000
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run db:setup
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build

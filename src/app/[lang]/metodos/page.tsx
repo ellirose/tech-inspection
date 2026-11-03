@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { pageMeta } from "@/lib/metadata";
+import { getBlock } from "@/lib/data/content";
 import { PageHero } from "@/components/ui/PageHero";
 import { Methods } from "@/components/home/Methods";
 import { ProcessBand } from "@/components/home/ProcessBand";
@@ -19,6 +20,7 @@ export default async function MethodsPage({ params }: PageProps<"/[lang]/metodos
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
+  const home = await getBlock("home");
 
   return (
     <>
@@ -32,8 +34,9 @@ export default async function MethodsPage({ params }: PageProps<"/[lang]/metodos
         caption="UT · ASNT Nivel II"
       />
       <Methods lang={lang} dict={d} />
-      <ProcessBand lang={lang} />
+      {/* Standards sits between the two pinned video sections */}
       <Standards lang={lang} />
+      <ProcessBand lang={lang} process={home.process} />
       <CtaBand lang={lang} dict={d} />
     </>
   );

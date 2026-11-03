@@ -12,7 +12,6 @@ import type { ServiceIcon } from "@/content/services";
 import { Logo } from "@/components/ui/Logo";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
 import { LangMenu } from "./LangMenu";
-import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/cn";
 
 export type NavData = {
@@ -29,7 +28,7 @@ const methodTile: Record<MethodKey, string> = {
   ut: "bg-ut/12 text-[#0784b8] dark:text-ut",
 };
 
-export function Header({ data, theme }: { data: NavData; theme: { light: string; dark: string } }) {
+export function Header({ data }: { data: NavData }) {
   const { lang, nav } = data;
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -106,7 +105,6 @@ export function Header({ data, theme }: { data: NavData; theme: { light: string;
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-2 xl:ml-0">
-            <ThemeToggle labels={theme} className="hidden sm:grid" />
             <LangMenu lang={lang} label={nav.language} className="hidden sm:block" />
             <Link
               href={`${base}/contacto#cotizar`}
@@ -216,7 +214,6 @@ export function Header({ data, theme }: { data: NavData; theme: { light: string;
               <div className="relative mt-auto space-y-4 p-6">
                 <div className="flex items-center gap-2">
                   <LangMenu lang={lang} label={nav.language} placement="up" />
-                  <ThemeToggle labels={theme} />
                 </div>
                 <Link href={`${base}/contacto#cotizar`} className="flex h-14 items-center justify-center gap-2 rounded-full bg-brand-600 text-lg font-bold text-white dark:bg-neon dark:text-[#071a2e]">
                   {nav.quote}

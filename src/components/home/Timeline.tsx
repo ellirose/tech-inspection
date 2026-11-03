@@ -1,7 +1,8 @@
 import { ArrowsClockwise, Buildings, Certificate, ClipboardText, Desktop, Handshake, HardHat, ShieldCheck } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { timeline, timelineIntro, type Milestone } from "@/content/deck";
+import type { Milestone } from "@/content/deck";
+import { getBlock } from "@/lib/data/content";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -19,16 +20,17 @@ const icons: Record<Milestone["icon"], typeof Buildings> = {
 
 // Rising curve: each milestone's dot sits higher than the last (px from the bottom of a 34rem stage).
 const H = 544;
-const lift = (i: number) => 36 + 230 * Math.pow(i / (timeline.length - 1), 1.45);
+const lift = (i: number, n: number) => 36 + 230 * Math.pow(i / (n - 1), 1.45);
 
 /** Slide 2: our track record, 2014 → 2026, as a rising curve with dashed stems. */
-export function Timeline({ lang, dict, index }: { lang: Locale; dict: Dictionary; index?: string }) {
+export async function Timeline({ lang, dict, index }: { lang: Locale; dict: Dictionary; index?: string }) {
+  const [timeline, timelineIntro] = await Promise.all([getBlock("timeline"), getBlock("timelineIntro")]);
   const n = timeline.length;
-  const pts = timeline.map((_, i) => [((i + 0.5) / n) * 1000, H - lift(i)] as const);
+  const pts = timeline.map((_, i) => [((i + 0.5) / n) * 1000, H - lift(i, timeline.length)] as const);
   const d = `M0 ${H - 20} ` + pts.map(([x, y], i) => (i === 0 ? `S ${x - 60} ${y + 8} ${x} ${y}` : `S ${x - 60} ${y + 12} ${x} ${y}`)).join(" ") + ` S 990 ${pts[n - 1][1] - 30} 1000 ${pts[n - 1][1] - 40}`;
 
   return (
-    <section className="relative isolate overflow-hidden bg-surface py-24 sm:py-32">
+    <section className="relative isolate overflow-hidden band py-24 sm:py-32">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-blueprint mask-fade-y" />
       <Container>
         <SectionHeading index={index} eyebrow="2014 — 2026" title={dict.ui.trajectory} lead={timelineIntro[lang]} />
@@ -43,7 +45,7 @@ export function Timeline({ lang, dict, index }: { lang: Locale; dict: Dictionary
             const Icon = icons[m.icon];
             const last = i === n - 1;
             return (
-              <div key={m.year} className="absolute flex w-[11.5%] -translate-x-1/2 flex-col items-center text-center" style={{ left: `${((i + 0.5) / n) * 100}%`, bottom: lift(i) - 9 }}>
+              <div key={m.year} className="absolute flex w-[11.5%] -translate-x-1/2 flex-col items-center text-center" style={{ left: `${((i + 0.5) / n) * 100}%`, bottom: lift(i, timeline.length) - 9 }}>
                 <span className={cn("grid size-16 place-items-center rounded-full shadow-card ring-1", last ? "bg-lime text-[#071a2e] ring-lime" : "bg-surface text-accent ring-line")}>
                   <Icon weight="duotone" className="size-8" />
                 </span>

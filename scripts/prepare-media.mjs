@@ -1,11 +1,11 @@
 // Copies the curated photos from the Wix scrape into /public/media with clean names,
 // applying EXIF rotation and capping the long edge so the repo stays light.
-// Usage: node scripts/prepare-media.mjs ../scrape/assets
+// Usage: node scripts/prepare-media.mjs ../../reference/wix-scrape/assets
 import sharp from "sharp";
 import fs from "node:fs";
 import path from "node:path";
 
-const SRC = path.resolve(process.argv[2] ?? "../scrape/assets");
+const SRC = path.resolve(process.argv[2] ?? "../../reference/wix-scrape/assets");
 const OUT = path.resolve("public/media");
 const img = (f) => path.join(SRC, "images", f);
 
@@ -113,7 +113,7 @@ const VIDEOS = {
 };
 
 // Images lifted from the client deck (presentacion cliente ulterra.pdf), cropped clear of slide text.
-// Source PNGs live in ../scrape/deck; crop = [left, top, width, height] in source pixels.
+// Source PNGs live in ../../reference/wix-scrape/deck; crop = [left, top, width, height] in source pixels.
 const DECK_SRC = path.resolve(SRC, "../deck");
 const DECK = {
   "deck/pdc-bit.jpg": { src: "p01-1-1672x941.png" },
@@ -131,7 +131,7 @@ const DECK = {
   "deck/bit-rig.jpg": { src: "p11-0-1536x1024.png", crop: [700, 0, 836, 700] },
 };
 
-// Stock media from Pexels (Pexels License: free commercial use, no attribution required). Source files in ../scrape/stock.
+// Stock media from Pexels (Pexels License: free commercial use, no attribution required). Source files in ../../reference/wix-scrape/stock.
 //   rig-dusk.jpg    pexels.com/photo/15973758  (GANESH RAMSUMAIR)
 //   pipe-yard.jpg   pexels.com/photo/33791802  (Shuaizhi Tian)
 //   plant-night.jpg pexels.com/photo/10407689  (Tom Fisk)

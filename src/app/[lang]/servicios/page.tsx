@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { pageMeta } from "@/lib/metadata";
+import { getBlock } from "@/lib/data/content";
 import { PageHero } from "@/components/ui/PageHero";
 import { ServicesGrid } from "@/components/home/ServicesGrid";
 import { ProcessBand } from "@/components/home/ProcessBand";
@@ -18,6 +19,7 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const d = getDictionary(lang);
+  const home = await getBlock("home");
 
   return (
     <>
@@ -31,7 +33,7 @@ export default async function ServicesPage({ params }: PageProps<"/[lang]/servic
         caption={d.ui.services}
       />
       <ServicesGrid lang={lang} dict={d} heading={false} />
-      <ProcessBand lang={lang} />
+      <ProcessBand lang={lang} process={home.process} />
       <CtaBand lang={lang} dict={d} />
     </>
   );

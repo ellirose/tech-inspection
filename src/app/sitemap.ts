@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 import { locales } from "@/i18n/config";
-import { methods } from "@/content/methods";
-import { services } from "@/content/services";
-import { SITE_URL } from "@/content/site";
+import { getMethods, getServices } from "@/lib/data/content";
+import { SITE_URL } from "@/lib/site";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [methods, services] = await Promise.all([getMethods(), getServices()]);
   const paths = [
     "",
     "/nosotros",
