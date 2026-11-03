@@ -1,7 +1,5 @@
 "use server";
 
-import { existsSync } from "node:fs";
-import path from "node:path";
 import { refresh, updateTag } from "next/cache";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
@@ -11,6 +9,7 @@ import { audit, requestIp } from "@/lib/audit";
 import { authorize } from "@/lib/auth/session";
 import { tags } from "@/lib/data/content";
 import { blockInfo, rebuildBlock } from "@/lib/admin/blocks";
+import { fileChecker } from "@/lib/admin/files";
 import { refreshPublicPages } from "@/lib/admin/refresh";
 
 export type BlockState = { ok?: string; error?: string; errors?: Record<string, string> };
@@ -18,8 +17,6 @@ export type BlockState = { ok?: string; error?: string; errors?: Record<string, 
 // PostgreSQL returns JSONB objects with their keys reordered; compare with sorted keys.
 const canonical = (v: unknown): unknown =>
   Array.isArray(v) ? v.map(canonical) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => a.localeCompare(b)).map(([k, x]) => [k, canonical(x)])) : v;
-
-const publicFileExists = (p: string) => existsSync(path.join(process.cwd(), "public", ...p.split("/").filter(Boolean)));
 
 export async function saveBlock(_: BlockState, form: FormData): Promise<BlockState> {
   const user = await authorize("content:write");
@@ -31,7 +28,7 @@ export async function saveBlock(_: BlockState, form: FormData): Promise<BlockSta
     return { error: "Otra persona guardó cambios en esta sección mientras usted editaba. Copie sus cambios, recargue la página y vuelva a aplicarlos." };
   }
 
-  const { value, errors } = rebuildBlock(row.data, form, publicFileExists);
+  const { value, errors } = rebuildBlock(row.data, form, await fileChecker());
   if (errors.length) return { error: `Hay ${errors.length} ${errors.length === 1 ? "campo" : "campos"} por revisar.`, errors: Object.fromEntries(errors.map((e) => [e.path, e.message])) };
   if (JSON.stringify(canonical(value)) === JSON.stringify(canonical(row.data))) return { ok: "Sin cambios." };
 

@@ -3,8 +3,6 @@
 // Saving content from the generic editor. Each save checks the role, validates every field from its
 // definition, refuses to overwrite a newer version (someone else saved meanwhile), records the changed
 // fields in the audit log and refreshes only the cached data of that content type.
-import { existsSync } from "node:fs";
-import path from "node:path";
 import { refresh, updateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -15,14 +13,13 @@ import { audit, requestIp } from "@/lib/audit";
 import { authorize } from "@/lib/auth/session";
 import { findCollection, type Collection } from "@/lib/admin/collections";
 import { readField } from "@/lib/admin/fields";
+import { fileChecker } from "@/lib/admin/files";
 import { refreshPublicPages } from "@/lib/admin/refresh";
 
 export type SaveState = { ok?: string; error?: string; fieldErrors?: Record<string, string> };
 
 type ContentTable = PgTable & { id: PgColumn; status: PgColumn; sortOrder: PgColumn; updatedAt: PgColumn };
 const tableOf = (c: Collection) => c.table as unknown as ContentTable;
-
-const publicFileExists = (p: string) => existsSync(path.join(process.cwd(), "public", ...p.split("/").filter(Boolean)));
 
 // PostgreSQL returns JSONB objects with their keys reordered; compare with sorted keys.
 const canonical = (v: unknown): unknown =>
@@ -48,9 +45,10 @@ export async function saveContent(_: SaveState, form: FormData): Promise<SaveSta
   const values: Record<string, unknown> = {};
   const fieldErrors: Record<string, string> = {};
   let methodIds: string[] | undefined;
+  const fileExists = await fileChecker();
   for (const field of c.fields) {
     if (field.type === "text" && field.createOnly && !creating) continue;
-    const { value, error } = readField(field, form, publicFileExists);
+    const { value, error } = readField(field, form, fileExists);
     if (error) fieldErrors[field.name] = error;
     else if (field.type === "methods") methodIds = value as string[];
     else values[field.name] = value;

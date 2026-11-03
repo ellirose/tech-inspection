@@ -1,10 +1,12 @@
 // Public-site content reads. Every function is cached and tagged; admin mutations call updateTag()
-// with the same tags so the site refreshes in seconds without a rebuild. Only published rows are returned,
-// in the editors' order, shaped exactly like the types the components already use.
+// with the same tags so the site refreshes in seconds without a rebuild. Only published rows are returned
+// (drafts too in preview, see visible()), in the editors' order, shaped exactly like the types the components
+// already use.
 import "server-only";
 import { and, asc, eq, gte, isNull, or, sql } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 import { cacheLife, cacheTag } from "next/cache";
+import { draftMode } from "next/headers";
 import { db, schema as s } from "@/db";
 import type { PageBlockKey, PageBlocks } from "@/db/seed/blocks";
 import type { L10n } from "@/i18n/config";
@@ -27,7 +29,15 @@ export const tags = {
   block: (key: PageBlockKey) => `content:block:${key}`,
 } as const;
 
-const published = (t: { status: PgColumn }) => eq(t.status, "published");
+/**
+ * Rows the current request may see: published ones, or every row while an editor previews the site
+ * (draft mode, switched on from the admin). Draft mode makes the cached functions below run fresh on
+ * each request and keeps their results out of the cache, so drafts never reach other visitors.
+ */
+async function visible(t: { status: PgColumn }) {
+  const { isEnabled } = await draftMode();
+  return isEnabled ? undefined : eq(t.status, "published");
+}
 
 export async function getSite() {
   "use cache";
@@ -42,7 +52,7 @@ export async function getMethods(): Promise<Method[]> {
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.methods);
-  const rows = await db.select().from(s.method).where(published(s.method)).orderBy(asc(s.method.sortOrder));
+  const rows = await db.select().from(s.method).where(await visible(s.method)).orderBy(asc(s.method.sortOrder));
   return rows.map((m) => ({
     key: m.key as MethodKey,
     slug: m.slug,
@@ -65,11 +75,11 @@ export async function getServices(): Promise<Service[]> {
   cacheLife("max");
   cacheTag(tags.all, tags.services, tags.methods);
   const [rows, links] = await Promise.all([
-    db.select().from(s.service).where(published(s.service)).orderBy(asc(s.service.sortOrder)),
+    db.select().from(s.service).where(await visible(s.service)).orderBy(asc(s.service.sortOrder)),
     db
       .select({ serviceId: s.serviceMethod.serviceId, key: s.method.key })
       .from(s.serviceMethod)
-      .innerJoin(s.method, and(eq(s.method.id, s.serviceMethod.methodId), eq(s.method.status, "published")))
+      .innerJoin(s.method, and(eq(s.method.id, s.serviceMethod.methodId), await visible(s.method)))
       .orderBy(asc(s.serviceMethod.sortOrder)),
   ]);
   return rows.map((r) => ({
@@ -86,7 +96,7 @@ export async function getServices(): Promise<Service[]> {
   }));
 }
 
-/** One published service by slug, with its search-result overrides; null when missing or a draft.
+/** One published service (or draft, in preview) by slug, with its search-result overrides; null when missing or a draft.
  * Detail pages use this rather than getServices(): a slug that was not prerendered is rendered from a
  * fallback page built with the data of that time, and only a lookup keyed by the slug is fetched fresh.
  */
@@ -97,12 +107,12 @@ export async function getService(slug: string): Promise<(Service & { seo: SeoOve
   const [row] = await db
     .select()
     .from(s.service)
-    .where(and(published(s.service), eq(s.service.slug, slug)));
+    .where(and(await visible(s.service), eq(s.service.slug, slug)));
   if (!row) return null;
   const links = await db
     .select({ key: s.method.key })
     .from(s.serviceMethod)
-    .innerJoin(s.method, and(eq(s.method.id, s.serviceMethod.methodId), eq(s.method.status, "published")))
+    .innerJoin(s.method, and(eq(s.method.id, s.serviceMethod.methodId), await visible(s.method)))
     .where(eq(s.serviceMethod.serviceId, row.id))
     .orderBy(asc(s.serviceMethod.sortOrder));
   return {
@@ -128,7 +138,7 @@ export async function getCertifications() {
   const rows = await db
     .select()
     .from(s.certification)
-    .where(and(published(s.certification), or(isNull(s.certification.expiryDate), gte(s.certification.expiryDate, sql`current_date`))))
+    .where(and(await visible(s.certification), or(isNull(s.certification.expiryDate), gte(s.certification.expiryDate, sql`current_date`))))
     .orderBy(asc(s.certification.sortOrder));
   const system: Certification[] = rows
     .filter((r) => r.kind === "system")
@@ -147,7 +157,7 @@ export async function getClients(): Promise<{ name: string; logo: string; square
   const rows = await db
     .select()
     .from(s.client)
-    .where(and(published(s.client), eq(s.client.showLogo, true)))
+    .where(and(await visible(s.client), eq(s.client.showLogo, true)))
     .orderBy(asc(s.client.sortOrder));
   return rows.map((c) => ({ name: c.name, logo: c.logo, ...(c.square ? { square: true } : {}) }));
 }
@@ -156,7 +166,7 @@ export async function getStats(): Promise<{ value: number; prefix?: string; labe
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.stats);
-  const rows = await db.select().from(s.stat).where(published(s.stat)).orderBy(asc(s.stat.sortOrder));
+  const rows = await db.select().from(s.stat).where(await visible(s.stat)).orderBy(asc(s.stat.sortOrder));
   return rows.map((r) => ({ value: r.value, ...(r.prefix ? { prefix: r.prefix } : {}), label: r.label }));
 }
 
@@ -167,7 +177,7 @@ export async function getLeadership() {
   const rows = await db
     .select()
     .from(s.teamMember)
-    .where(and(published(s.teamMember), eq(s.teamMember.isLeadership, true)))
+    .where(and(await visible(s.teamMember), eq(s.teamMember.isLeadership, true)))
     .orderBy(asc(s.teamMember.sortOrder));
   return rows.map((p) => ({ name: p.name, photo: p.photo ?? "", email: p.email ?? "", role: p.role, bio: p.bio ?? p.role }));
 }
@@ -179,7 +189,7 @@ export async function getChannels() {
   const rows = await db
     .select()
     .from(s.contactChannel)
-    .where(published(s.contactChannel))
+    .where(await visible(s.contactChannel))
     .orderBy(asc(s.contactChannel.sortOrder));
   return rows.map((c) => ({ role: c.role, scope: c.scope, phone: c.phone, email: c.email }));
 }
@@ -193,7 +203,7 @@ export async function getDocuments(kind: "policy" | "accountability"): Promise<C
   const rows = await db
     .select()
     .from(s.companyDocument)
-    .where(and(published(s.companyDocument), eq(s.companyDocument.kind, kind)))
+    .where(and(await visible(s.companyDocument), eq(s.companyDocument.kind, kind)))
     .orderBy(asc(s.companyDocument.sortOrder));
   return rows.map((d) => ({
     code: d.code,
@@ -227,7 +237,7 @@ export async function getBlock<K extends PageBlockKey>(key: K): Promise<PageBloc
   const [row] = await db
     .select({ data: s.pageBlock.data })
     .from(s.pageBlock)
-    .where(and(eq(s.pageBlock.key, key), eq(s.pageBlock.status, "published")));
+    .where(and(eq(s.pageBlock.key, key), await visible(s.pageBlock)));
   if (!row) throw new Error(`page_block "${key}" is missing: run \`npm run db:seed\``);
   return row.data as PageBlocks[K];
 }

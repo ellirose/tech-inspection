@@ -40,7 +40,7 @@ export default async function BlockPage({ params }: PageProps<"/admin/contenido/
           <Notice tone="info">Solo lectura para su rol.</Notice>
         </div>
       )}
-      <BlockEditor blockKey={key} updatedAt={row.updatedAt.toISOString()} value={row.data} images={publicFiles().images} readOnly={!write} />
+      <BlockEditor blockKey={key} updatedAt={row.updatedAt.toISOString()} value={row.data} images={(await publicFiles()).images} readOnly={!write} />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../globals.css";
@@ -11,6 +12,7 @@ import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { LandingRecorder } from "@/components/leads/LandingRecorder";
+import { PreviewBar } from "@/components/layout/PreviewBar";
 
 const sans = Plus_Jakarta_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-jakarta", display: "swap" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
@@ -61,7 +63,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = getDictionary(lang);
-  const [site, methods, services, policyDocs] = await Promise.all([getSite(), getMethods(), getServices(), getDocuments("policy")]);
+  const [site, methods, services, policyDocs, draft] = await Promise.all([getSite(), getMethods(), getServices(), getDocuments("policy"), draftMode()]);
   const { company } = site;
 
   const navData: NavData = {
@@ -111,6 +113,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
           />
         </SmoothScroll>
         <LandingRecorder />
+        {draft.isEnabled && <PreviewBar />}
       </body>
     </html>
   );

@@ -225,6 +225,15 @@ export function ContentEditor({ collection, id, updatedAt, fields, values, files
                 {locked ? <p className="font-mono text-sm text-ink">{String(values[field.name])}</p> : <FieldInput field={field} value={values[field.name]} methods={methods} />}
               </div>
               {field.hint && !locked && <p className="mt-2 text-xs text-mute">{field.hint}</p>}
+              {(field.type === "path" || field.type === "paths") && !readOnly && (
+                <p className="mt-2 text-xs text-mute">
+                  ¿Un archivo nuevo? Súbalo en{" "}
+                  <a href="/admin/medios" target="_blank" rel="noopener" className="font-bold text-accent">
+                    Medios ↗
+                  </a>{" "}
+                  (se abre aparte, sin perder lo escrito) y pegue aquí su ruta.
+                </p>
+              )}
               {error && <p className="mt-2 text-sm font-bold text-pt">{error}</p>}
             </Card>
           );

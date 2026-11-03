@@ -16,6 +16,9 @@ import { DeleteButton, StatusButton } from "@/components/admin/content/RowAction
 
 export const metadata = { title: "Editar contenido" };
 
+/** Opens a public page in preview, so a draft shows where it will appear. */
+const previewHref = (path: string) => `/admin/vista-previa?ruta=${encodeURIComponent(path)}`;
+
 /** Public page where the item appears, to check it after publishing. */
 const publicPath = (collection: string, row: Record<string, unknown>) =>
   ({
@@ -82,7 +85,7 @@ export default async function EditContentPage({ params, searchParams }: PageProp
           updatedAt={row ? row.updatedAt.toISOString() : null}
           fields={c.fields}
           values={plain}
-          files={publicFiles()}
+          files={await publicFiles()}
           methods={methods}
           readOnly={!write}
         />
@@ -95,11 +98,12 @@ export default async function EditContentPage({ params, searchParams }: PageProp
                 <span className="text-mute">Última modificación: {formatBogota(row.updatedAt)}</span>
               </p>
               {write && <StatusButton collection={c.key} id={row.id} published={row.status === "published"} />}
-              {href && row.status === "published" && (
-                <a href={href} target="_blank" rel="noopener" className="mt-3 block text-sm font-bold text-accent">
-                  Ver en el sitio ↗
+              {href && (
+                <a href={row.status === "published" ? href : previewHref(href)} target="_blank" rel="noopener" className="mt-3 block text-sm font-bold text-accent">
+                  {row.status === "published" ? "Ver en el sitio ↗" : "Vista previa ↗"}
                 </a>
               )}
+              {href && row.status !== "published" && <p className="mt-1 text-xs text-mute">Muestra la última versión guardada, con los borradores; solo la ven quienes entran al panel.</p>}
             </Card>
             {c.canDelete && can(user.role, "content:delete") && (
               <Card title="Eliminar">
