@@ -1,10 +1,13 @@
 // Lead intake for the quote wizard and the assistant. Order: validate, drop bots (honeypot), rate
 // limit, verify Turnstile, store, then email after the response. Logs carry the reference only.
+// The wizard sends multipart form data when files are attached (a "payload" field with the JSON, plus
+// "files"); everything else sends JSON. This path is outside the proxy, so its body limit does not apply.
 import { after, userAgent, type NextRequest } from "next/server";
 import { getServices } from "@/lib/data/content";
+import { readAttachments, removeAttachments, storeAttachments, type Attachment } from "@/lib/leads/attachments";
 import { leadInput } from "@/lib/leads/input";
 import { notifyLead } from "@/lib/leads/notify";
-import type { LeadResponse } from "@/lib/leads/options";
+import { ATTACHMENTS, type LeadResponse } from "@/lib/leads/options";
 import { createLead, newReference } from "@/lib/leads/service";
 import { hit, pruneRateLimits, visitorKey } from "@/lib/rate-limit";
 import { verifyTurnstile } from "@/lib/turnstile";
@@ -19,17 +22,30 @@ const reply = (body: LeadResponse, status: number, headers?: HeadersInit) => Res
 /** Nginx sets X-Real-IP; X-Forwarded-For is the fallback when another proxy sits in front. */
 const clientIp = (request: NextRequest) => request.headers.get("x-real-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? undefined;
 
-export async function POST(request: NextRequest) {
-  let body: unknown;
+/** The JSON body and any attached files; null when the body cannot be read. */
+async function readBody(request: NextRequest): Promise<{ body: unknown; files: File[] } | null> {
   try {
-    body = await request.json();
+    if (!request.headers.get("content-type")?.startsWith("multipart/form-data")) return { body: await request.json(), files: [] };
+    const form = await request.formData();
+    const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
+    return { body: JSON.parse(String(form.get("payload"))), files };
   } catch {
-    return reply({ ok: false, error: "invalid" }, 400);
+    return null;
   }
+}
+
+export async function POST(request: NextRequest) {
+  // Room for the files plus the form itself.
+  if (Number(request.headers.get("content-length") ?? 0) > ATTACHMENTS.maxBytes + 256 * 1024) return reply({ ok: false, error: "files" }, 413);
+  const read = await readBody(request);
+  if (!read) return reply({ ok: false, error: "invalid" }, 400);
+  const { body } = read;
 
   const parsed = leadInput.safeParse(body);
   if (!parsed.success) return reply({ ok: false, error: "invalid" }, 422);
   const input = parsed.data;
+  const files = read.files.length ? await readAttachments(read.files) : [];
+  if (!files) return reply({ ok: false, error: "files" }, 422);
 
   // Bots get the same answer as people, so the trap is not revealed.
   if (input.website) return reply({ ok: true, reference: newReference() }, 201);
@@ -44,9 +60,11 @@ export async function POST(request: NextRequest) {
   const known = new Set((await getServices()).map((s) => s.slug));
   input.services = input.services.filter((s) => known.has(s));
 
+  let attachments: Attachment[] = [];
   try {
+    attachments = await storeAttachments(files);
     const { device } = userAgent(request);
-    const lead = await createLead(input, { device: device.type ?? "desktop" });
+    const lead = await createLead(input, { device: device.type ?? "desktop", attachments });
     after(async () => {
       await notifyLead(lead);
       await pruneRateLimits();
@@ -57,6 +75,7 @@ export async function POST(request: NextRequest) {
     // Drizzle's own message lists the query parameters (personal data); log the database's reason only.
     const cause = (error as { cause?: Error }).cause;
     console.error("[leads] could not store lead:", cause?.message ?? (error as Error).name);
+    await removeAttachments(attachments);
     return reply({ ok: false, error: "server" }, 500);
   }
 }

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check } from "@phosphor-icons/react/ssr";
+import { ArrowLeft, ArrowRight, Check, Paperclip } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
@@ -11,7 +11,7 @@ import type { ServiceIcon } from "@/content/services";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
 import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/leads/Turnstile";
 import { saveThanks, submitLead } from "@/lib/leads/client";
-import { labelFor, locationKeys, quantityKeys, urgencyKeys, type LeadMethod, type LocationKey, type QuantityKey, type UrgencyKey } from "@/lib/leads/options";
+import { ATTACHMENTS, formatBytes, labelFor, locationKeys, quantityKeys, urgencyKeys, type LeadMethod, type LocationKey, type QuantityKey, type UrgencyKey } from "@/lib/leads/options";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -66,10 +66,22 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
     consent: false,
     website: "",
   });
+  // Files stay out of `form`: they are sent as they are, next to the answers.
+  const [files, setFiles] = useState<File[]>([]);
   const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) => setForm((f) => ({ ...f, [k]: v }));
   const toggle = <K extends "services" | "methods">(k: K, v: (typeof form)[K][number]) => {
     const list = form[k] as string[];
     set(k, (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]) as (typeof form)[K]);
+  };
+
+  const addFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = [...files, ...(e.target.files ?? [])];
+    e.target.value = "";
+    const accepted = next.every((f) => ATTACHMENTS.accept.split(",").includes(f.type) || ATTACHMENTS.extensions.test(f.name));
+    const total = next.reduce((sum, f) => sum + f.size, 0);
+    if (!accepted || next.length > ATTACHMENTS.maxFiles || total > ATTACHMENTS.maxBytes) return setError(t.filesError);
+    setError("");
+    setFiles(next);
   };
 
   const valid = [form.services.length > 0, !!form.quantity && !!form.location, !!form.name && (!!form.email || !!form.phone) && form.consent];
@@ -108,14 +120,18 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
       quantity: quantity || undefined,
       location: location || undefined,
       turnstileToken: token ?? undefined,
-    });
+    }, files);
     if (res.ok) {
       saveThanks({ reference: res.reference, whatsappText: summary(res.reference), emailed: !!form.email });
       return router.push(`/${lang}/gracias`);
     }
     setSending(false);
     setAttempt((n) => n + 1);
-    setError({ invalid: t.invalid, rate_limited: t.rateLimited, captcha: t.captcha, server: t.error }[res.error]);
+    if (res.error === "files") {
+      setDir(-1);
+      setStep(1);
+    }
+    setError({ invalid: t.invalid, files: t.filesError, rate_limited: t.rateLimited, captcha: t.captcha, server: t.error }[res.error]);
   };
 
   return (
@@ -238,6 +254,33 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
                   <span className={label}>{t.notes}</span>
                   <textarea className={cn(field, "min-h-28 resize-y")} placeholder={t.notesPh} value={form.notes} onChange={(e) => set("notes", e.target.value)} />
                 </label>
+                <div>
+                  <p className={label}>{t.files}</p>
+                  <p id="quote-files-hint" className="-mt-1 mb-3 text-sm text-mute">
+                    {t.filesHint}
+                  </p>
+                  {files.length > 0 && (
+                    <ul className="mb-3 space-y-2">
+                      {files.map((f, i) => (
+                        <li key={`${f.name}-${f.size}-${i}`} className="flex items-center gap-3 rounded-2xl bg-surface-2 px-4 py-2.5 ring-1 ring-inset ring-line">
+                          <Paperclip weight="bold" className="size-4 shrink-0 text-accent" aria-hidden />
+                          <span className="min-w-0 flex-1 truncate font-medium text-ink">{f.name}</span>
+                          <span className="shrink-0 text-sm text-mute">{formatBytes(f.size, lang)}</span>
+                          <button type="button" onClick={() => setFiles(files.filter((_, j) => j !== i))} className="shrink-0 text-sm font-bold text-accent" aria-label={`${t.filesRemove}: ${f.name}`}>
+                            {t.filesRemove}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {files.length < ATTACHMENTS.maxFiles && (
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-surface px-5 py-3 font-bold text-ink ring-1 ring-inset ring-line transition hover:ring-accent/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-neon">
+                      <Paperclip weight="bold" className="size-5 text-accent" aria-hidden />
+                      {t.filesAdd}
+                      <input type="file" multiple accept={ATTACHMENTS.accept} onChange={addFiles} aria-describedby="quote-files-hint" className="sr-only" />
+                    </label>
+                  )}
+                </div>
               </fieldset>
             )}
 
@@ -296,13 +339,15 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
         <button type="button" onClick={() => go(step - 1)} className={cn("inline-flex h-14 items-center gap-2 rounded-full px-5 font-bold text-ink-soft transition hover:bg-surface-2", step === 0 && "invisible")}>
           <ArrowLeft weight="bold" className="size-5" /> {t.prev}
         </button>
+        {/* Separate keys: if React reused one element for both, the click on "next" that reaches the last step
+            would turn it into the submit button mid-click and send the form at once. */}
         {step < 2 ? (
-          <button type="button" onClick={() => go(step + 1)} className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand-600 pl-6 pr-5 font-bold text-white transition hover:bg-brand-500 dark:bg-neon dark:text-[#071a2e]">
+          <button key="next" type="button" onClick={() => go(step + 1)} className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand-600 pl-6 pr-5 font-bold text-white transition hover:bg-brand-500 dark:bg-neon dark:text-[#071a2e]">
             {t.next}
             <ArrowRight weight="bold" className="size-4 transition group-hover:translate-x-0.5" />
           </button>
         ) : (
-          <button type="submit" disabled={sending} className="inline-flex h-14 items-center gap-3 rounded-full bg-neon pl-6 pr-5 font-bold text-[#071a2e] shadow-neon transition hover:bg-lime disabled:opacity-60">
+          <button key="send" type="submit" disabled={sending} className="inline-flex h-14 items-center gap-3 rounded-full bg-neon pl-6 pr-5 font-bold text-[#071a2e] shadow-neon transition hover:bg-lime disabled:opacity-60">
             {sending ? t.sending : t.send}
             <ArrowRight weight="bold" className="size-5" />
           </button>

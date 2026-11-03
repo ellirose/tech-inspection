@@ -92,6 +92,7 @@ export async function listLeads(f: LeadFilters) {
         urgency: l.urgency,
         services: l.services,
         description: l.description,
+        files: sql<number>`jsonb_array_length(${l.attachments})`.mapWith(Number),
         name: l.name,
         company: l.company,
         assignee: schema.user.name,

@@ -69,7 +69,7 @@ Old Wix URLs are redirected from the `redirect` table (seeded from `src/db/seed/
 
 Sections so far:
 
-- **Leads:** the inbox with search and filters (status, source, service, priority, assignee, dates); each lead shows the full request, its origin and a history; status changes, internal notes, assignment; CSV export of the filtered list (every export is logged).
+- **Leads:** the inbox with search and filters (status, source, service, priority, assignee, dates); each lead shows the full request, its origin, its attachments and a history; status changes, internal notes, assignment; CSV export of the filtered list (every export is logged). Attachments download through `/admin/leads/<reference>/adjuntos/<n>`, which checks the role, logs the download and, with Spaces, redirects to a link that expires after five minutes.
 - **Usuarios:** invite, change name and role (applies at once), deactivate (ends open sessions), unlock, reset two-step verification, resend the access link. Nobody manages their own account there, and the last active super-admin cannot be demoted or deactivated.
 - **Configuración:** company data, contact lines, hours, TI-QMS URL and lead-notification recipients; saving updates the public site at once.
 - **Redirecciones:** the old Wix URLs (seeded) and any added later, applied by `src/proxy.ts` within a minute of a change.
@@ -87,15 +87,17 @@ Sections so far:
 
 - **Medios:** upload JPG, PNG or WebP images (up to 15 MB) and PDFs (up to 20 MB). The type is read from the file's content; images are turned upright, stripped of camera data (GPS included), reduced to 2400 px on the long side and stored as WebP with their size in the name (`/media/uploads/2026/name-1a2b3c4d-1600x1200.webp`), so pages lay them out without a lookup. Images need a Spanish text alternative. Copy a file's path into any image, gallery or document field. A file still used by any content, page section or setting cannot be deleted; the message says where it is used. Editors upload; the sales role can only look.
 
-Not built yet: quote attachments (private, time-limited links; stage 5 part 2), drag-and-drop ordering (up/down buttons for now), and editors for industries, case studies and FAQs, which need public pages first. The site still describes images with each item's name in the page's language; the Spanish text alternative from the library is not used on the pages yet.
+Not built yet: drag-and-drop ordering (up/down buttons for now), and editors for industries, case studies and FAQs, which need public pages first. The site still describes images with each item's name in the page's language; the Spanish text alternative from the library is not used on the pages yet.
 
 ## File storage
 
-`src/lib/storage.ts`. With `DO_SPACES_KEY`, `DO_SPACES_SECRET`, `DO_SPACES_BUCKET`, `DO_SPACES_REGION` and `DO_SPACES_ENDPOINT` set, uploads go to DigitalOcean Spaces (or MinIO from `docker-compose.yml`: endpoint `http://localhost:9000`, create the bucket in its console first); without them, to `.data/uploads` (development only). The bucket stays private: public files are served by the site's own routes (`/media/uploads/…`, `/docs/uploads/…`, cached for a year since names never repeat), so URLs do not change if storage does.
+`src/lib/storage.ts`. With `DO_SPACES_KEY`, `DO_SPACES_SECRET`, `DO_SPACES_BUCKET`, `DO_SPACES_REGION` and `DO_SPACES_ENDPOINT` set, uploads go to DigitalOcean Spaces (or MinIO from `docker-compose.yml`: endpoint `http://localhost:9000`, create the bucket in its console first); without them, to `.data/uploads` (development only). The bucket stays private: public files are served by the site's own routes (`/media/uploads/…`, `/docs/uploads/…`, cached for a year since names never repeat), so URLs do not change if storage does. Quote attachments go under `leads/`, which no public route serves; they are only reachable from the admin.
 
 ## Leads
 
 Every request is stored in the `lead` table first, then emailed: a notification to the recipients set under Configuración (or `LEAD_NOTIFY_TO` while that is empty; in Spanish, reply-to set to the requester) and a confirmation to the requester in their language. Each email outcome is recorded in `lead_event`. In development, set `EMAIL_OUTBOX_DIR` to get the emails as `.html` files instead of sending them. Server logs carry the lead reference only, never personal data.
+
+The quote form takes up to three PDF, JPG or PNG files, 10 MB in total (design document §11.2), checked by content on the server and kept as sent. The emails list the file names; the files themselves stay in private storage and the team opens them from the lead's page. With files, the wizard posts multipart form data; Nginx needs `client_max_body_size 11m` on `/api/leads`.
 
 Before launch: a Resend account with `send.tech-inspection.com` verified (DNS records added by the domain owner), the real Turnstile keys, and the mailbox list for `LEAD_NOTIFY_TO`.
 
