@@ -6,7 +6,7 @@ import { readCue } from "@/lib/scene";
 import type { SceneApi } from "./scene";
 
 /**
- * The fixed backdrop of every public page: a CSS night sky, the WebGL oil-field scene on top of it
+ * The fixed backdrop of every public page: a CSS night sky, the WebGL inspection-yard scene on top of it
  * (desktop with a fine pointer only; three.js is loaded on demand) and a veil. The section crossing
  * the middle of the screen drives the scene through its cue (see lib/scene.ts).
  */

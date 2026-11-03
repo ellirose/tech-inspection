@@ -28,7 +28,7 @@ export async function WhyUs({ lang, dict, className }: { lang: Locale; dict: Dic
   ];
 
   return (
-    <section {...cue({ mode: "rigs", intensity: 0.3, veil: 0.5 })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
+    <section {...cue({ mode: "yard", intensity: 0.3, veil: 0.5 })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-50 mask-fade-y" />
       <Container>
         <SectionHeading eyebrow={t.eyebrow[lang]} title={t.title[lang]} lead={t.lead[lang]} />

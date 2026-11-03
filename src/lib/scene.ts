@@ -2,11 +2,11 @@
  * Scene cues: how the fixed 3D background (components/scene) behaves while a section is centred
  * on screen. Spread the result on the section root: `<section {...cue({ mode: "scan" })}>`.
  *
- * - `rigs`  the default flight: derricks, pipelines with travelling pulses, particle dust
- * - `scan`  the pipe tunnel with a sweeping inspection ring, tinted by `accent`
+ * - `yard`  the default: the drill-pipe yard with inspection rings and pulses, PDC bits, magnetic flux
+ * - `scan`  inside a pipe bore with a sweeping inspection ring, tinted by `accent`
  * - `pause` the section covers the screen (scroll sequences), so the scene stops rendering
  */
-export type SceneMode = "rigs" | "scan" | "pause";
+export type SceneMode = "yard" | "scan" | "pause";
 
 export type SceneCue = {
   mode?: SceneMode;
@@ -18,7 +18,7 @@ export type SceneCue = {
   accent?: string;
 };
 
-export const SCENE_DEFAULTS = { mode: "rigs", intensity: 0.5, veil: 0.35, accent: "#1fc8f5" } as const satisfies Required<SceneCue>;
+export const SCENE_DEFAULTS = { mode: "yard", intensity: 0.5, veil: 0.35, accent: "#1fc8f5" } as const satisfies Required<SceneCue>;
 
 export function cue({ mode, intensity, veil, accent }: SceneCue) {
   return {

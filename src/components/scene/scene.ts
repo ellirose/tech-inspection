@@ -2,10 +2,12 @@ import * as THREE from "three";
 import type { SceneMode } from "@/lib/scene";
 
 /**
- * The night oil field behind the site, drawn in code. As the page scrolls the camera flies forward
- * past drilling derricks and two pipelines; ultrasonic pulses travel along the pipes, a sonar ring
- * beats near the hero and an A-scan trace sweeps across the horizon. In `scan` mode the derricks
- * fade out and the camera is inside a pipe being inspected, tinted by the section's accent.
+ * The inspection yard behind the site, drawn in code from what Tech-Inspection inspects. As the page
+ * scrolls the camera moves down a yard of drill pipe racked in pyramids (tool joints, threaded pins),
+ * where EMI inspection rings run along the joints carrying ultrasonic pulses. PDC drill bits turn at
+ * points along the way, a magnetic flux field shows the leakage at a crack (how MT finds it), a sonar
+ * ring beats near the hero and an A-scan trace sweeps across the far end. In `scan` mode the yard fades
+ * and the camera is inside a pipe bore being inspected, tinted by the section's accent.
  *
  * Loaded on demand by SceneBackground (desktop, WebGL only).
  */
@@ -14,12 +16,13 @@ const FOG = 0x030a12;
 const AZURE = 0x3a98f0;
 const NEON = 0x1fc8f5;
 const FLOOR = -14;
-const PIPE = { x: 8.5, y: FLOOR + 1.2, r: 0.9 };
+const PIPE = { r: 0.55, joint: 0.78, length: 26, gap: 1.6 };
+const RACK = { x: 12, y: FLOOR + 2.2, spacing: 1.7 };
 const TUNNEL = { y: -1, r: 12 };
 const Z_NEAR = 30;
 const Z_FAR = -345;
 
-// Camera flight, keyed by page scroll progress
+// Camera path, keyed by page scroll progress
 const FLIGHT = [
   { p: 0, x: 0, y: 2, z: 26 },
   { p: 0.15, x: -3, y: 1, z: -6 },
@@ -40,6 +43,7 @@ export type SceneApi = {
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 const gauss = (s: number, mu: number, w: number) => Math.exp(-(((s - mu) / w) ** 2));
+const TAU = Math.PI * 2;
 
 function flight(p: number) {
   let a = FLIGHT[0];
@@ -62,10 +66,14 @@ class Lines {
   seg(a: number[], b: number[]) {
     this.v.push(a[0], a[1], a[2], b[0], b[1], b[2]);
   }
+  path(points: number[][]) {
+    for (let i = 0; i < points.length - 1; i++) this.seg(points[i], points[i + 1]);
+  }
+  /** Circle around the z axis at (cx, cy, z). */
   ring(cx: number, cy: number, z: number, r: number, n: number) {
     for (let i = 0; i < n; i++) {
-      const a0 = (i / n) * Math.PI * 2;
-      const a1 = ((i + 1) / n) * Math.PI * 2;
+      const a0 = (i / n) * TAU;
+      const a1 = ((i + 1) / n) * TAU;
       this.seg([cx + r * Math.cos(a0), cy + r * Math.sin(a0), z], [cx + r * Math.cos(a1), cy + r * Math.sin(a1), z]);
     }
   }
@@ -76,77 +84,158 @@ class Lines {
   }
 }
 
-/** A land drilling derrick: tapered lattice mast, crown block, monkey board, drill floor and catwalk. */
-function derrick(L: Lines, ox: number, oy: number, oz: number, rot: number, h = 30, base = 3.4, top = 0.9) {
-  const c = Math.cos(rot);
-  const s = Math.sin(rot);
-  const P = (x: number, y: number, z: number) => [ox + x * c - z * s, oy + y, oz + x * s + z * c];
-  const box = (x0: number, x1: number, y0: number, y1: number, z0: number, z1: number) => {
-    const q = [P(x0, y0, z0), P(x1, y0, z0), P(x1, y0, z1), P(x0, y0, z1), P(x0, y1, z0), P(x1, y1, z0), P(x1, y1, z1), P(x0, y1, z1)];
-    for (let k = 0; k < 4; k++) {
-      L.seg(q[k], q[(k + 1) % 4]);
-      L.seg(q[k + 4], q[((k + 1) % 4) + 4]);
-      L.seg(q[k], q[k + 4]);
-    }
-    return q;
-  };
-
-  const levels = 9;
-  const corners = (i: number) => {
-    const t = i / levels;
-    const w = lerp(base, top, Math.pow(t, 0.9));
-    const y = t * h;
-    return [P(-w, y, -w), P(w, y, -w), P(w, y, w), P(-w, y, w)];
-  };
-  for (let i = 0; i <= levels; i++) {
-    const r = corners(i);
-    for (let k = 0; k < 4; k++) L.seg(r[k], r[(k + 1) % 4]);
-    if (i < levels) {
-      const n = corners(i + 1);
-      for (let k = 0; k < 4; k++) {
-        L.seg(r[k], n[k]);
-        L.seg(r[k], n[(k + 1) % 4]);
-        L.seg(r[(k + 1) % 4], n[k]);
-      }
-    }
+/** One drill pipe joint lying along z: box tool joint toward the camera, pipe body, pin tool joint and threaded pin. */
+function pipeJoint(L: Lines, x: number, y: number, z0: number, z1: number) {
+  const { r, joint: R } = PIPE;
+  const at = (rad: number, a: number, z: number) => [x + rad * Math.cos(a), y + rad * Math.sin(a), z];
+  const sides = 6;
+  // Box end
+  L.ring(x, y, z0, R, 12);
+  L.ring(x, y, z0 - 1.6, R, 12);
+  for (let k = 0; k < sides; k++) {
+    const a = (k / sides) * TAU;
+    L.seg(at(R, a, z0), at(R, a, z0 - 1.6));
+    L.seg(at(R, a, z0 - 1.6), at(r, a, z0 - 2));
   }
-  // Monkey board, crown block and gin pole
-  const my = h * 0.72;
-  const mw = lerp(base, top, Math.pow(0.72, 0.9));
-  L.seg(P(mw, my, -mw), P(mw + 2.2, my, -mw));
-  L.seg(P(mw + 2.2, my, -mw), P(mw + 2.2, my, mw));
-  L.seg(P(mw + 2.2, my, mw), P(mw, my, mw));
-  box(-top - 0.5, top + 0.5, h, h + 1.4, -top - 0.5, top + 0.5);
-  L.seg(P(-0.5, h + 1.4, 0), P(0, h + 3.2, 0));
-  L.seg(P(0.5, h + 1.4, 0), P(0, h + 3.2, 0));
-  // Travelling block line
-  L.seg(P(0, h, 0), P(0, 1, 0));
-  // Drill floor (substructure) with bracing, and the catwalk ramp
-  const q = box(-base - 1, base + 1, -3, 0, -base - 1, base + 1);
-  L.seg(q[0], q[5]);
-  L.seg(q[1], q[4]);
-  L.seg(q[3], q[6]);
-  L.seg(q[2], q[7]);
-  L.seg(P(base + 1, 0, -0.8), P(base + 10, -3, -0.8));
-  L.seg(P(base + 1, 0, 0.8), P(base + 10, -3, 0.8));
+  // Body
+  for (let k = 0; k < sides; k++) {
+    const a = (k / sides) * TAU;
+    L.seg(at(r, a, z0 - 2), at(r, a, z1 + 2.3));
+  }
+  for (let z = z0 - 6; z > z1 + 3; z -= 5) L.ring(x, y, z, r, 10);
+  // Pin tool joint
+  L.ring(x, y, z1 + 2, R, 12);
+  L.ring(x, y, z1 + 0.9, R, 12);
+  for (let k = 0; k < sides; k++) {
+    const a = (k / sides) * TAU;
+    L.seg(at(r, a, z1 + 2.3), at(R, a, z1 + 2));
+    L.seg(at(R, a, z1 + 2), at(R, a, z1 + 0.9));
+  }
+  // Tapered thread: a helix narrowing to the pin nose
+  const turns = 5;
+  const steps = turns * 10;
+  const helix: number[][] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    helix.push(at(lerp(0.64, 0.44, t), t * turns * TAU, lerp(z1 + 0.9, z1, t)));
+  }
+  L.path(helix);
 }
 
-/** A ground pipeline: longitudinal lines, weld rings, flanges and H supports. */
-function pipeline(L: Lines, x: number) {
-  const { y, r } = PIPE;
-  for (let k = 0; k < 8; k++) {
-    const a = (k / 8) * Math.PI * 2;
-    L.seg([x + r * Math.cos(a), y + r * Math.sin(a), Z_NEAR], [x + r * Math.cos(a), y + r * Math.sin(a), Z_FAR]);
+/** Pipe rack on one side of the path: sawhorse supports and drill pipe stacked 3-2-1. Returns the lanes (pipe centres). */
+function pipeRack(L: Lines, cx: number) {
+  const { r } = PIPE;
+  const s = RACK.spacing;
+  const rise = s * Math.sin(Math.PI / 3);
+  const y0 = RACK.y + r;
+  const lanes = [
+    ...[-s, 0, s].map((dx) => ({ x: cx + dx, y: y0 })),
+    ...[-s / 2, s / 2].map((dx) => ({ x: cx + dx, y: y0 + rise })),
+    { x: cx, y: y0 + 2 * rise },
+  ];
+  for (let z = Z_NEAR - 4; z > Z_FAR; z -= 13) {
+    L.seg([cx - 3, RACK.y, z], [cx + 3, RACK.y, z]);
+    L.seg([cx - 3, RACK.y, z], [cx - 3.6, FLOOR, z]);
+    L.seg([cx + 3, RACK.y, z], [cx + 3.6, FLOOR, z]);
+    L.seg([cx - 3.3, FLOOR + 1.1, z], [cx + 3.3, FLOOR + 1.1, z]);
   }
-  for (let z = Z_NEAR; z > Z_FAR; z -= 6) {
-    const flange = Math.round(z) % 24 === 0;
-    L.ring(x, y, z, flange ? r * 1.4 : r, 12);
-    if (flange) L.ring(x, y, z - 0.35, r * 1.4, 12);
+  lanes.forEach((lane, i) => {
+    // Joints laid end to end, staggered per lane like a real stack
+    for (let z0 = Z_NEAR - ((i * 7) % 13); z0 - PIPE.length > Z_FAR; z0 -= PIPE.length + PIPE.gap) pipeJoint(L, lane.x, lane.y, z0, z0 - PIPE.length);
+  });
+  return lanes;
+}
+
+/** A PDC drill bit, axis along +z (cutting face toward +z): threaded pin, body with gauge pads, blades and cutters. */
+function pdcBit(L: Lines, blades = 6) {
+  const body = 4;
+  const face = (rad: number) => 1.5 * (1 - (rad / body) ** 2) + 0.2;
+  // Pin with thread, shoulder
+  const helix: number[][] = [];
+  for (let i = 0; i <= 60; i++) {
+    const t = i / 60;
+    const rad = lerp(1.5, 2.1, t);
+    helix.push([rad * Math.cos(t * 6 * TAU), rad * Math.sin(t * 6 * TAU), lerp(-7, -4, t)]);
   }
-  for (let z = Z_NEAR - 3; z > Z_FAR; z -= 12) {
-    L.seg([x - r, FLOOR, z], [x - r, y - r * 0.6, z]);
-    L.seg([x + r, FLOOR, z], [x + r, y - r * 0.6, z]);
-    L.seg([x - r - 0.3, y - r * 0.6, z], [x + r + 0.3, y - r * 0.6, z]);
+  L.path(helix);
+  L.ring(0, 0, -7, 1.5, 20);
+  L.ring(0, 0, -4, 2.1, 20);
+  L.ring(0, 0, -4, 3, 24);
+  L.ring(0, 0, -3.4, 3, 24);
+  // Body and gauge
+  for (const z of [-3.4, -1.7, 0]) L.ring(0, 0, z, body, 36);
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * TAU;
+    L.seg([3 * Math.cos(a), 3 * Math.sin(a), -3.4], [body * Math.cos(a), body * Math.sin(a), -3.4]);
+  }
+  // Blades sweeping from the nose to the gauge, with cutters along their edge
+  for (let b = 0; b < blades; b++) {
+    const a0 = (b / blades) * TAU;
+    const edge: number[][] = [];
+    const root: number[][] = [];
+    const angleAt = (rad: number) => a0 + 0.55 * (rad / body);
+    for (let i = 0; i <= 12; i++) {
+      const rad = lerp(0.5, body, i / 12);
+      const a = angleAt(rad);
+      edge.push([rad * Math.cos(a), rad * Math.sin(a), face(rad) + 0.55]);
+      root.push([rad * Math.cos(a), rad * Math.sin(a), face(rad) - 0.1]);
+    }
+    L.path(edge);
+    L.path(root);
+    L.seg(root[root.length - 1], [body * Math.cos(angleAt(body)), body * Math.sin(angleAt(body)), -1.7]);
+    L.seg(edge[edge.length - 1], [body * Math.cos(angleAt(body)), body * Math.sin(angleAt(body)), -1.7]);
+    // Cutters: small discs facing the direction of rotation
+    for (const rad of [1.1, 1.7, 2.3, 2.9, 3.5]) {
+      const a = angleAt(rad);
+      const u = [Math.cos(a), Math.sin(a), 0];
+      const c = [rad * Math.cos(a), rad * Math.sin(a), face(rad) + 0.55];
+      const disc: number[][] = [];
+      for (let i = 0; i <= 10; i++) {
+        const t = (i / 10) * TAU;
+        disc.push([c[0] + 0.28 * Math.cos(t) * u[0], c[1] + 0.28 * Math.cos(t) * u[1], c[2] + 0.28 * Math.sin(t)]);
+      }
+      L.path(disc);
+    }
+  }
+  // Nozzles between blades
+  for (let b = 0; b < blades; b++) {
+    const a = ((b + 0.5) / blades) * TAU + 0.3;
+    const p = [1.9 * Math.cos(a), 1.9 * Math.sin(a), face(1.9)];
+    L.ring(p[0], p[1], p[2], 0.3, 10);
+  }
+}
+
+/** Magnetic flux from a yoke through a steel plate, with the leakage field that bulges out at a crack. */
+function fluxField(L: Lines, routes: number[][][]) {
+  const arc = (a: number, h: number, dy = 0) => {
+    const pts: number[][] = [];
+    for (let i = 0; i <= 28; i++) {
+      const t = Math.PI - (i / 28) * Math.PI;
+      pts.push([a * Math.cos(t), dy + h * Math.sin(t), 0]);
+    }
+    return pts;
+  };
+  // Plate surface and the crack in it
+  L.seg([-16, 0, 0], [16, 0, 0]);
+  L.seg([-16, -0.8, 0], [16, -0.8, 0]);
+  L.path([
+    [-0.2, 0, 0],
+    [0.15, -0.3, 0],
+    [-0.1, -0.55, 0],
+    [0.1, -0.8, 0],
+  ]);
+  // Yoke legs
+  for (const x of [-12, 12]) L.path([[x - 0.8, 0, 0], [x - 0.8, 3, 0], [x + 0.8, 3, 0], [x + 0.8, 0, 0]]);
+  for (let a = 3; a <= 12; a += 1.5) {
+    const pts = arc(a, 0.45 * a);
+    L.path(pts);
+    routes.push(pts);
+  }
+  // Leakage at the crack: tight loops that only appear where the field is interrupted
+  for (const a of [0.5, 0.85, 1.25, 1.7]) {
+    const pts = arc(a, 1.3 * a);
+    L.path(pts);
+    routes.push(pts);
   }
 }
 
@@ -171,13 +260,13 @@ const lineMat = (color: number, opacity: number, additive = false) =>
 function circleLoop(r: number, n: number) {
   const pts: THREE.Vector3[] = [];
   for (let i = 0; i < n; i++) {
-    const a = (i / n) * Math.PI * 2;
+    const a = (i / n) * TAU;
     pts.push(new THREE.Vector3(r * Math.cos(a), r * Math.sin(a), 0));
   }
   return new THREE.BufferGeometry().setFromPoints(pts);
 }
 
-type Pulse = { a: number; side: number; z: number; speed: number };
+type Pulse = { lane: number; a: number; z: number; speed: number };
 
 export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: boolean }): SceneApi | null {
   let renderer: THREE.WebGLRenderer;
@@ -196,65 +285,77 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
   const accentTarget = new THREE.Color(NEON);
   const tinted: { color: THREE.Color }[] = [];
 
-  // ── Magnetic-particle dust along the whole flight, with a constellation near the start
-  const DUST = 260;
+  // ── Magnetic particles drifting in the air, kept out of the camera's corridor
+  const DUST = 220;
   const dustPos = new Float32Array(DUST * 3);
-  const near: THREE.Vector3[] = [];
   for (let i = 0; i < DUST; i++) {
     const x = (Math.random() - 0.5) * 140;
     const y = FLOOR + 1 + Math.random() * 40;
     const z = Z_NEAR - Math.random() * (Z_NEAR - Z_FAR);
-    // Keep the camera's corridor clear, or passing particles fill the screen as blurry blobs
     if (Math.abs(x) < 9 && y > -8 && y < 10) {
       i--;
       continue;
     }
     dustPos.set([x, y, z], i * 3);
-    if (z > -70) near.push(new THREE.Vector3(x, y, z));
   }
   const dustGeo = new THREE.BufferGeometry();
   dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
-  const dustMat = new THREE.PointsMaterial({ color: NEON, size: 0.55, map: dot, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  const dustMat = new THREE.PointsMaterial({ color: NEON, size: 0.5, map: dot, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
   scene.add(new THREE.Points(dustGeo, dustMat));
-  const web = new Lines();
-  near.forEach((p, i) => {
-    let links = 0;
-    for (let j = i + 1; j < near.length && links < 3; j++) {
-      if (p.distanceTo(near[j]) < 13) {
-        web.seg([p.x, p.y, p.z], [near[j].x, near[j].y, near[j].z]);
-        links++;
-      }
-    }
-  });
-  const webMat = lineMat(NEON, 0.16, true);
-  scene.add(new THREE.LineSegments(web.geometry(), webMat));
-  tinted.push(dustMat, webMat);
+  tinted.push(dustMat);
 
-  // ── Derricks, alternating sides of the flight path
-  const rigs = new Lines();
-  for (let i = 0; i < 8; i++) {
-    const side = i % 2 ? 1 : -1;
-    derrick(rigs, side * (17 + (i % 3) * 3), FLOOR + 3, -38 - i * 25, i * 0.55 + (side > 0 ? Math.PI : 0), 28 + (i % 3) * 3);
-  }
-  const rigMat = lineMat(AZURE, 0.42);
-  scene.add(new THREE.LineSegments(rigs.geometry(), rigMat));
+  // ── The pipe yard: a rack of drill pipe on each side of the path
+  const yard = new Lines();
+  const lanes = [...pipeRack(yard, -RACK.x), ...pipeRack(yard, RACK.x)];
+  const yardMat = lineMat(AZURE, 0.4);
+  scene.add(new THREE.LineSegments(yard.geometry(), yardMat));
 
-  // ── Two pipelines on the ground, each with an inspection ring travelling ahead of the camera
-  const pipes = new Lines();
-  pipeline(pipes, -PIPE.x);
-  pipeline(pipes, PIPE.x);
-  const pipeMat = lineMat(NEON, 0.3, true);
-  scene.add(new THREE.LineSegments(pipes.geometry(), pipeMat));
-  const pigMat = lineMat(NEON, 0.9, true);
-  const pigs = [-1, 1].map((side) => {
-    const loop = new THREE.LineLoop(circleLoop(PIPE.r * 1.7, 32), pigMat);
-    loop.position.set(side * PIPE.x, PIPE.y, 0);
+  // EMI inspection rings running along a few joints, ahead of the camera
+  const emiMat = lineMat(NEON, 0.9, true);
+  const emiLanes = [1, 5, 7, 9];
+  const emi = emiLanes.map((lane) => {
+    const loop = new THREE.LineLoop(circleLoop(PIPE.joint * 1.5, 32), emiMat);
+    loop.position.set(lanes[lane].x, lanes[lane].y, 0);
     scene.add(loop);
     return loop;
   });
-  tinted.push(pigMat);
+  tinted.push(emiMat);
 
-  // ── Sonar rings beating near the hero visual
+  // ── PDC drill bits turning along the way (tilted toward the path)
+  const bitLines = new Lines();
+  pdcBit(bitLines);
+  const bitGeo = bitLines.geometry();
+  const bitMat = lineMat(AZURE, 0.55, true);
+  const bits = [
+    // Between the heading and the visual on the first screen, then alternating sides further down.
+    // Cutting faces turned mostly toward the camera, so blades and cutters read at a glance.
+    { pos: [2, 9, -28], tilt: [0.3, -0.22, 0], scale: 1.7 },
+    { pos: [-12, 5, -104], tilt: [0.25, 0.35, 0], scale: 2.1 },
+    { pos: [12, 4, -188], tilt: [0.2, -0.32, 0], scale: 2.2 },
+  ].map(({ pos, tilt, scale }) => {
+    const holder = new THREE.Group();
+    holder.position.set(pos[0], pos[1], pos[2]);
+    holder.rotation.set(tilt[0], tilt[1], tilt[2]);
+    holder.scale.setScalar(scale);
+    const bit = new THREE.LineSegments(bitGeo, bitMat);
+    holder.add(bit);
+    scene.add(holder);
+    return bit;
+  });
+
+  // ── Magnetic flux and the leakage at a crack, low in front of the first screen
+  const fluxLines = new Lines();
+  const fluxRoutes: number[][][] = [];
+  fluxField(fluxLines, fluxRoutes);
+  const flux = new THREE.Group();
+  flux.position.set(0, FLOOR + 2.4, -16);
+  flux.scale.setScalar(1.35);
+  const fluxMat = lineMat(NEON, 0.3, true);
+  flux.add(new THREE.LineSegments(fluxLines.geometry(), fluxMat));
+  scene.add(flux);
+  tinted.push(fluxMat);
+
+  // ── Sonar rings beating near the hero visual (ultrasonic testing)
   const sonarMats = [0, 1, 2].map(() => lineMat(NEON, 0, true));
   const sonar = sonarMats.map((m) => {
     const loop = new THREE.LineLoop(circleLoop(1, 96), m);
@@ -264,11 +365,11 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
   });
   tinted.push(...sonarMats);
 
-  // ── Scan mode: the camera inside a pipe, with a sweeping ring
+  // ── Scan mode: inside a pipe bore, with a sweeping inspection ring
   const tube = new Lines();
   for (let z = Z_NEAR - 5; z > Z_FAR; z -= 7) tube.ring(0, TUNNEL.y, z, TUNNEL.r, 28);
   for (let k = 0; k < 18; k++) {
-    const a = (k / 18) * Math.PI * 2;
+    const a = (k / 18) * TAU;
     tube.seg([TUNNEL.r * Math.cos(a), TUNNEL.y + TUNNEL.r * Math.sin(a), Z_NEAR - 5], [TUNNEL.r * Math.cos(a), TUNNEL.y + TUNNEL.r * Math.sin(a), Z_FAR]);
   }
   const tubeMat = lineMat(NEON, 0, true);
@@ -279,34 +380,30 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
   scene.add(sweep);
   tinted.push(tubeMat, sweepMat);
 
-  // ── Pulses: ultrasonic packets along the pipes (rigs) or the tunnel walls (scan)
-  const makePulses = (n: number, size: number) => {
-    const pos = new Float32Array(n * 3);
+  // ── Pulses: ultrasonic packets along the pipe joints (yard), the bore walls (scan) and particles along the flux lines
+  const makePoints = (n: number, size: number) => {
+    const pos = new Float32Array(Math.max(1, n) * 3);
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+    geo.setDrawRange(0, n);
     const mat = new THREE.PointsMaterial({ color: NEON, size, map: dot, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
-    scene.add(new THREE.Points(geo, mat));
-    tinted.push(mat);
-    const list: Pulse[] = Array.from({ length: n }, (_, i) => ({ a: 0, side: i % 2 ? 1 : -1, z: 0, speed: 0.6 + Math.random() * 0.9 }));
-    return { pos, geo, mat, list };
+    return { pos, geo, mat, points: new THREE.Points(geo, mat) };
   };
-  const pipePulses = makePulses(reduced ? 0 : 28, 1.5);
-  const tubePulses = makePulses(reduced ? 0 : 36, 1.7);
+  const pipePulses = { ...makePoints(reduced ? 0 : 30, 1.3), list: [] as Pulse[] };
+  const tubePulses = { ...makePoints(reduced ? 0 : 36, 1.7), list: [] as Pulse[] };
+  const fluxDots = { ...makePoints(reduced ? 0 : 40, 0.9), list: [] as { route: number; t: number; speed: number }[] };
+  scene.add(pipePulses.points, tubePulses.points);
+  flux.add(fluxDots.points);
+  tinted.push(pipePulses.mat, tubePulses.mat, fluxDots.mat);
 
-  // ── Floor grid, horizon glow and the A-scan trace on the horizon
+  // ── Floor grid and the A-scan trace at the far end
   const grid = new THREE.GridHelper(720, 72, AZURE, 0x0b2a48);
   grid.position.set(0, FLOOR, -150);
   const gridMat = grid.material as THREE.Material;
   gridMat.transparent = true;
-  gridMat.opacity = 0.2;
+  gridMat.opacity = 0.18;
   gridMat.depthWrite = false;
   scene.add(grid);
-
-  const glowMat = new THREE.MeshBasicMaterial({ color: NEON, transparent: true, opacity: 0.08, fog: false, depthWrite: false, blending: THREE.AdditiveBlending });
-  const glow = new THREE.Mesh(new THREE.CircleGeometry(85, 64), glowMat);
-  glow.position.set(0, 2, -430);
-  scene.add(glow);
-  tinted.push(glowMat);
 
   const TRACE = 320;
   const tracePos = new Float32Array(TRACE * 3);
@@ -352,17 +449,21 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
     p.z = camZ - 4 - Math.random() * spread;
     p.speed = 0.6 + Math.random() * 0.9;
   };
-  pipePulses.list.forEach((p) => {
-    p.a = Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+  for (let i = 0; i < pipePulses.geo.drawRange.count; i++) {
+    const p: Pulse = { lane: Math.floor(Math.random() * lanes.length), a: Math.PI / 2 + (Math.random() - 0.5) * 1.4, z: 0, speed: 1 };
     respawn(p, FLIGHT[0].z, 120);
-  });
-  tubePulses.list.forEach((p) => {
-    p.a = Math.random() * Math.PI * 2;
+    pipePulses.list.push(p);
+  }
+  for (let i = 0; i < tubePulses.geo.drawRange.count; i++) {
+    const p: Pulse = { lane: 0, a: Math.random() * TAU, z: 0, speed: 1 };
     respawn(p, FLIGHT[0].z, 120);
-  });
+    tubePulses.list.push(p);
+  }
+  for (let i = 0; i < fluxDots.geo.drawRange.count; i++) fluxDots.list.push({ route: i % fluxRoutes.length, t: Math.random(), speed: 0.08 + Math.random() * 0.1 });
 
   function frame(now: number) {
-    const dt = Math.min(0.05, (now - last) / 1000);
+    // rAF's timestamp can precede the performance.now() taken when the loop was scheduled
+    const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
     last = now;
     if (!reduced) time += dt;
 
@@ -376,7 +477,7 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
     for (const m of tinted) m.color.copy(accent);
 
     const I = 0.3 + 0.7 * intensity;
-    const rigsOn = 1 - modeBlend;
+    const yardOn = 1 - modeBlend;
 
     // Camera
     const f = flight(progress);
@@ -386,30 +487,31 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
     const camZ = f.z;
 
     // Layers
-    dustMat.opacity = 0.6 * I;
-    dustMat.size = 0.5 + 0.25 * intensity;
-    webMat.opacity = 0.17 * I * rigsOn;
-    rigMat.opacity = 0.44 * (0.6 + 0.4 * I) * rigsOn;
-    pipeMat.opacity = 0.3 * (0.6 + 0.4 * I) * rigsOn;
-    gridMat.opacity = (0.14 + 0.1 * I) * (0.4 + 0.6 * rigsOn);
-    glowMat.opacity = 0.05 + 0.06 * I;
+    dustMat.opacity = 0.5 * I;
+    yardMat.opacity = 0.42 * (0.6 + 0.4 * I) * yardOn;
+    bitMat.opacity = 0.5 * (0.6 + 0.4 * I) * yardOn;
+    fluxMat.opacity = 0.32 * I * yardOn;
+    gridMat.opacity = (0.12 + 0.1 * I) * (0.4 + 0.6 * yardOn);
     tubeMat.opacity = 0.2 * (0.6 + 0.4 * I) * modeBlend;
 
-    // Inspection rings on the pipes ("pigs"), always a little ahead of the camera
-    pigs.forEach((pig, i) => {
-      const phase = ((time * 0.16 + i * 0.5) % 1 + 1) % 1;
-      pig.position.z = camZ - 10 - phase * 70;
-      pigMat.opacity = 0.85 * I * rigsOn;
+    // Bits turn slowly
+    bits.forEach((bit, i) => (bit.rotation.z = time * (0.18 + i * 0.04)));
+
+    // EMI rings, always a little ahead of the camera
+    emi.forEach((ring, i) => {
+      const phase = ((time * 0.14 + i * 0.27) % 1 + 1) % 1;
+      ring.position.z = camZ - 10 - phase * 80;
     });
+    emiMat.opacity = 0.85 * I * yardOn;
 
     // Sonar: three rings expanding in turn
     sonar.forEach((ring, i) => {
       const ph = reduced ? 0.35 + i * 0.2 : ((time / 4.8 + i / 3) % 1 + 1) % 1;
       ring.scale.setScalar(1 + ph * 15);
-      sonarMats[i].opacity = Math.pow(1 - ph, 1.6) * 0.55 * I * rigsOn;
+      sonarMats[i].opacity = Math.pow(1 - ph, 1.6) * 0.5 * I * yardOn;
     });
 
-    // Sweep ring in the tunnel
+    // Sweep ring in the bore
     const sw = ((time * 0.25) % 1 + 1) % 1;
     sweep.position.z = camZ - 8 - sw * 90;
     sweepMat.opacity = 0.9 * modeBlend * (1 - sw * 0.7);
@@ -419,10 +521,11 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
     pipePulses.list.forEach((p, i) => {
       p.z -= p.speed * speed;
       if (p.z < camZ - 150 || p.z > camZ + 2) respawn(p, camZ, 30);
-      pipePulses.pos.set([p.side * PIPE.x + PIPE.r * Math.cos(p.a), PIPE.y + PIPE.r * Math.sin(p.a), p.z], i * 3);
+      const lane = lanes[p.lane];
+      pipePulses.pos.set([lane.x + PIPE.r * Math.cos(p.a), lane.y + PIPE.r * Math.sin(p.a), p.z], i * 3);
     });
     pipePulses.geo.attributes.position.needsUpdate = true;
-    pipePulses.mat.opacity = 0.95 * rigsOn;
+    pipePulses.mat.opacity = 0.95 * yardOn;
     tubePulses.list.forEach((p, i) => {
       p.z -= p.speed * speed * 1.4;
       if (p.z < camZ - 150 || p.z > camZ + 2) respawn(p, camZ, 30);
@@ -430,6 +533,17 @@ export function createScene(canvas: HTMLCanvasElement, { reduced }: { reduced: b
     });
     tubePulses.geo.attributes.position.needsUpdate = true;
     tubePulses.mat.opacity = 0.95 * modeBlend;
+    fluxDots.list.forEach((d, i) => {
+      d.t = (d.t + d.speed * dt * (0.5 + intensity)) % 1;
+      const route = fluxRoutes[d.route];
+      const x = d.t * (route.length - 1);
+      const a = route[Math.floor(x)];
+      const b = route[Math.min(route.length - 1, Math.floor(x) + 1)];
+      const u = x - Math.floor(x);
+      fluxDots.pos.set([lerp(a[0], b[0], u), lerp(a[1], b[1], u), 0], i * 3);
+    });
+    fluxDots.geo.attributes.position.needsUpdate = true;
+    fluxDots.mat.opacity = 0.9 * I * yardOn;
 
     // A-scan: main bang, a flaw echo that drifts and the back-wall echo, revealed left to right
     const shift = Math.floor(time * 30);

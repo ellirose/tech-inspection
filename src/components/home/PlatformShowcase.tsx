@@ -62,7 +62,7 @@ export async function PlatformShowcase({
   const f = tiqms.features;
   return (
     // Lime pulses: the inspection becoming a digital record
-    <section {...cue({ mode: "rigs", intensity: 0.65, veil: 0.4, accent: "#86e33a" })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
+    <section {...cue({ mode: "yard", intensity: 0.65, veil: 0.4, accent: "#86e33a" })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-40 mask-fade-y" />
       <Container>
         <div className="grid gap-14 lg:grid-cols-12 lg:items-center">
