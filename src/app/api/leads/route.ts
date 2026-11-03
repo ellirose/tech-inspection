@@ -4,6 +4,7 @@
 // "files"); everything else sends JSON. This path is outside the proxy, so its body limit does not apply.
 import { after, userAgent, type NextRequest } from "next/server";
 import { getServices } from "@/lib/data/content";
+import { linkLead } from "@/lib/chat/log";
 import { readAttachments, removeAttachments, storeAttachments, type Attachment } from "@/lib/leads/attachments";
 import { leadInput } from "@/lib/leads/input";
 import { notifyLead } from "@/lib/leads/notify";
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
     const { device } = userAgent(request);
     const lead = await createLead(input, { device: device.type ?? "desktop", attachments });
     after(async () => {
+      if (input.conversationId && input.source === "chatbot") await linkLead(input.conversationId, lead.reference).catch(() => {});
       await notifyLead(lead);
       await pruneRateLimits();
     });

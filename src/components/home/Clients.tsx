@@ -12,7 +12,7 @@ export async function Clients({ lang, dict, className }: { lang: Locale; dict: D
   const [clients, { keyPartner }] = await Promise.all([getClients(), getSite()]);
   const since = { es: "Aliado desde", pt: "Aliado desde", en: "Partner since" }[lang];
   return (
-    <section className={cn("relative bg-surface py-16 sm:py-20", className)}>
+    <section className={cn("relative band py-16 sm:py-20", className)}>
       <Container className="grid items-center gap-8 lg:grid-cols-12">
         <Reveal className="lg:col-span-4">
           <Eyebrow>{dict.ui.clients}</Eyebrow>

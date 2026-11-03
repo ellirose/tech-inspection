@@ -11,6 +11,7 @@ import { LineReveal, Underline } from "@/components/ui/LineReveal";
 import { RotatingWord } from "@/components/ui/RotatingWord";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 import { cn } from "@/lib/cn";
+import { cue } from "@/lib/scene";
 import { HeroVisual } from "./HeroVisual";
 
 /** One-screen hero: the promise, what we inspect right now, proof in numbers, and who trusts us. */
@@ -21,13 +22,11 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
   const tail = h.titleB[lang].slice(lastSpace + 1).replace(/[.]$/, "");
 
   return (
-    <section className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-28 lg:h-[100svh] lg:min-h-[44rem]">
-      {/* Background: ultrasonic rings centred on the visual, contour lines, one soft glow */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-rings [--rx:72%] [--ry:58%] mask-radial" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-20 h-[55%] mask-fade-y">
-        <div className="absolute inset-0 bg-contours opacity-70" />
-      </div>
-      <div className="pointer-events-none absolute -right-48 -top-48 -z-20 size-[44rem] rounded-full bg-neon/15 blur-[130px]" />
+    <section {...cue({ mode: "rigs", intensity: 0.8, veil: 0.12 })} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-28 lg:h-[100svh] lg:min-h-[44rem]">
+      {/* Background: the oil-field scene behind the page, ultrasonic rings centred on the visual, a soft glow, and a wash that keeps the text column readable */}
+      <div className="pointer-events-none absolute inset-0 -z-20 bg-rings opacity-60 [--rx:72%] [--ry:58%] mask-radial" />
+      <div className="pointer-events-none absolute -right-48 -top-48 -z-20 size-[44rem] rounded-full bg-neon/10 blur-[130px]" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 -z-20 hidden w-[58%] bg-gradient-to-r from-[#030a12]/80 via-[#030a12]/40 to-transparent lg:block" />
 
       <Container className="grid flex-1 items-center gap-10 lg:grid-cols-12 lg:gap-6">
         <div className="lg:col-span-6 xl:col-span-6">
@@ -95,7 +94,7 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
       </Container>
 
       {/* Who trusts us, still inside the first screen */}
-      <div className="relative mt-10 border-t border-line/80 bg-surface/60 backdrop-blur-sm lg:mt-4">
+      <div className="relative mt-10 border-t border-line/80 bg-[#030a12]/60 backdrop-blur-sm lg:mt-4">
         <Container className="flex items-center gap-6 py-3.5">
           <p className="hidden shrink-0 font-mono text-xs font-medium uppercase tracking-[0.16em] text-mute sm:block">{h.clients[lang]}</p>
           <div className="min-w-0 flex-1 overflow-hidden mask-fade-x">

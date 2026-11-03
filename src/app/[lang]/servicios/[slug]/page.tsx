@@ -71,7 +71,7 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
         </span>
       </PageHero>
 
-      <section className="bg-surface py-20 sm:py-28">
+      <section className="band py-20 sm:py-28">
         <Container className="grid gap-10 lg:grid-cols-12">
           <Reveal className="space-y-5 lg:col-span-7">
             <Eyebrow index="01">{s.name[lang]}</Eyebrow>
@@ -107,7 +107,7 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
 
       {bits && <WhyBit lang={lang} dict={d} index="03" link={false} />}
 
-      <section className="bg-tint py-20 sm:py-28">
+      <section className="band py-20 sm:py-28">
         <Container>
           <Eyebrow index={bits ? "04" : "03"}>{d.servicesSection.methodsUsed}</Eyebrow>
           <RevealGroup className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]">

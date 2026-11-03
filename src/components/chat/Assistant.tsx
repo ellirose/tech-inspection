@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, ArrowsClockwise, ChatCircleDots, PaperPlaneRight, Sparkle, WhatsappLogo, X } from "@phosphor-icons/react/ssr";
+import { ArrowRight, ArrowsClockwise, PaperPlaneRight, Sparkle, WhatsappLogo, X } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
 import { Turnstile } from "@/components/leads/Turnstile";
+import { ChatLauncher } from "./ChatLauncher";
 import { submitLead } from "@/lib/leads/client";
 import { quantityKeys, splitContact, type QuantityKey } from "@/lib/leads/options";
 import { cn } from "@/lib/cn";
@@ -244,23 +245,7 @@ export function Assistant(props: AssistantProps) {
 
   return (
     <>
-      <motion.button
-        type="button"
-        onClick={toggle}
-        aria-label={t.open}
-        aria-expanded={open}
-        whileHover={{ scale: 1.06 }}
-        whileTap={{ scale: 0.95 }}
-        className="relative grid size-14 place-items-center rounded-full bg-brand-600 text-white shadow-float ring-4 ring-surface sm:size-16"
-      >
-        <span className="absolute inset-0 -z-10 animate-pulse-ring rounded-full bg-neon/35" />
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span key={open ? "x" : "chat"} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-            {open ? <X weight="bold" className="size-7" /> : <ChatCircleDots weight="light" className="size-7" />}
-          </motion.span>
-        </AnimatePresence>
-        {!open && <span className="absolute -right-0.5 -top-0.5 grid size-5 place-items-center rounded-full bg-lime text-[#071a2e] ring-2 ring-surface"><Sparkle weight="fill" className="size-3" /></span>}
-      </motion.button>
+      <ChatLauncher open={open} onClick={toggle} label={t.open} />
 
       <AnimatePresence>
         {open && (

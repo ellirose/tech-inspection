@@ -87,7 +87,7 @@ export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
         </div>
       </PageHero>
 
-      <section className="bg-surface py-20 sm:py-28">
+      <section className="band py-20 sm:py-28">
         <Container>
           <RevealGroup className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {pillars.map((p, i) => (
@@ -137,7 +137,7 @@ export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
       </section>
 
       {/* Team life */}
-      <section className="relative bg-surface py-24 sm:py-28">
+      <section className="relative band py-24 sm:py-28">
         <Container>
           <SectionHeading index="02" eyebrow={h.integration} title={h.life} lead={h.lifeLead} />
           <Reveal delay={0.1} className="mt-10">

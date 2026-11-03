@@ -8,7 +8,7 @@ import type { Locale } from "@/i18n/config";
 import { readThanks } from "@/lib/leads/client";
 import { whatsappLink } from "@/lib/site";
 
-type Copy = Record<"successTitle" | "successText" | "continueWa" | "newRequest" | "reference" | "emailSent" | "backHome" | "waIntro", string>;
+type Copy = Record<"successTitle" | "successText" | "continueWa" | "newRequest" | "reference" | "emailSent" | "backHome" | "waIntro" | "nextTitle", string> & { nextSteps: string[] };
 
 const subscribe = () => () => {};
 
@@ -30,6 +30,17 @@ export function ThanksPanel({ lang, t, whatsapp }: { lang: Locale; t: Copy; what
       )}
       <p className="mt-4 max-w-md text-lg text-ink-soft">{t.successText}</p>
       {thanks?.emailed && <p className="mt-2 max-w-md text-ink-soft">{t.emailSent}</p>}
+      <div className="mt-8 w-full max-w-md rounded-[1.75rem] bg-surface-2 p-5 text-left ring-1 ring-line">
+        <p className="font-mono text-[0.75rem] font-medium uppercase tracking-[0.16em] text-mute">{t.nextTitle}</p>
+        <ol className="mt-3 space-y-2.5">
+          {t.nextSteps.map((s, i) => (
+            <li key={s} className="flex gap-3 text-ink-soft">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-tint font-mono text-xs font-bold text-accent-ink">{i + 1}</span>
+              {s}
+            </li>
+          ))}
+        </ol>
+      </div>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <a href={whatsappLink(whatsapp, thanks?.whatsappText ?? t.waIntro)} target="_blank" rel="noopener" className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-whatsapp px-6 font-bold text-white">
           <WhatsappLogo weight="fill" className="size-6" /> {t.continueWa}

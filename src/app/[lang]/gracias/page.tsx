@@ -26,7 +26,7 @@ export default async function ThanksPage({ params }: PageProps<"/[lang]/gracias"
       <Container className="max-w-3xl">
         <ThanksPanel
           lang={lang}
-          t={{ successTitle: q.successTitle, successText: q.successText, continueWa: q.continueWa, newRequest: q.newRequest, reference: q.reference, emailSent: q.emailSent, backHome: q.backHome, waIntro: q.waIntro }}
+          t={{ successTitle: q.successTitle, successText: q.successText, continueWa: q.continueWa, newRequest: q.newRequest, reference: q.reference, emailSent: q.emailSent, backHome: q.backHome, waIntro: q.waIntro, nextTitle: q.nextTitle, nextSteps: q.nextSteps }}
           whatsapp={company.whatsapp}
         />
       </Container>

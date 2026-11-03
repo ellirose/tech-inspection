@@ -25,6 +25,8 @@ const copy = {
   reference: { es: "Referencia", pt: "Referência", en: "Reference" },
   methods: { es: "Métodos", pt: "Métodos", en: "Methods" },
   place: { es: "Lugar", pt: "Local", en: "Location" },
+  industry: { es: "Industria", pt: "Setor", en: "Industry" },
+  component: { es: "Componente o equipo", pt: "Componente ou equipamento", en: "Component or equipment" },
   files: { es: "Archivos adjuntos", pt: "Arquivos anexados", en: "Attached files" },
   summary: { es: "Resumen de su solicitud", pt: "Resumo da sua solicitação", en: "Summary of your request" },
   urgent: {
@@ -54,6 +56,8 @@ function requestRows(lead: Lead, ctx: EmailContext, lang: Locale, filesHref?: st
   return [
     [q.steps[0], lead.services.map((s) => ctx.serviceNames[s]?.[lang] ?? s).join(", ")],
     [copy.methods[lang], methods.join(", ")],
+    [copy.industry[lang], lead.industry ?? undefined],
+    [copy.component[lang], lead.component ?? undefined],
     [q.quantity, labelFor(quantityKeys, q.quantities, lead.quantity as (typeof quantityKeys)[number])],
     [copy.place[lang], labelFor(locationKeys, q.locations, lead.location as (typeof locationKeys)[number])],
     [q.city, lead.city ?? undefined],
@@ -106,6 +110,8 @@ export function teamEmail(lead: Lead, ctx: EmailContext, to: string[]): Email {
   const contact: Row[] = [
     ["Nombre", lead.name],
     ["Empresa", lead.company ?? undefined],
+    ["Cargo", lead.role ?? undefined],
+    ["Prefiere", lead.preferredChannel ? { email: "Correo", phone: "Llamada", whatsapp: "WhatsApp" }[lead.preferredChannel] : undefined],
     ["Correo", lead.email ?? undefined, lead.email ? `mailto:${lead.email}` : undefined],
     ["Teléfono", lead.phone ?? undefined, phoneDigits ? `https://wa.me/${phoneDigits.length === 10 ? `57${phoneDigits}` : phoneDigits}` : undefined],
   ];

@@ -31,16 +31,23 @@ export const leadInput = z
     quantity: z.enum(quantityKeys).optional(),
     location: z.enum(locationKeys).optional(),
     city: text(120),
+    /** Collected by the chatbot (design document §12.2); the quote wizard leaves them out. */
+    industry: text(120),
+    component: text(160),
     urgency: z.enum(urgencyKeys).optional(),
     description: text(2000),
     name: z.string().trim().min(2).max(120),
     company: text(160),
+    role: text(120),
+    preferredChannel: z.enum(["email", "phone", "whatsapp"]).optional(),
     email: text(160).pipe(z.string().regex(EMAIL).optional()),
     phone: text(40).pipe(z.string().refine(isPhone).optional()),
     /** The assistant asks for "phone or email" in one answer; split into email or phone below. */
     contact: text(160),
     consent: z.literal(true),
     turnstileToken: text(2048),
+    /** The chatbot conversation the request came from, so the conversation log can show its reference. */
+    conversationId: z.uuid().optional(),
     /** Honeypot: hidden from people, so anything here came from a bot. */
     website: z.string().max(500).optional(),
     attribution,

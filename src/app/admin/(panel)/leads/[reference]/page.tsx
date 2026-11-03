@@ -109,6 +109,7 @@ export default async function LeadPage({ params }: PageProps<"/admin/leads/[refe
                     </span>
                   ),
                 ],
+                ["Canal preferido", lead.preferredChannel && { email: "Correo", phone: "Teléfono", whatsapp: "WhatsApp" }[lead.preferredChannel]],
                 ["Consentimiento", lead.consentAt ? `Aceptado el ${formatBogota(lead.consentAt)}` : "No registrado"],
               ]}
             />
@@ -119,6 +120,8 @@ export default async function LeadPage({ params }: PageProps<"/admin/leads/[refe
               rows={[
                 ["Servicios", lead.services.map((s) => services.find((x) => x.slug === s)?.name.es ?? s).join(", ")],
                 ["Métodos", lead.methods.map((m) => (m === "unsure" ? q.unsure : (methods.find((x) => x.key === m)?.name.es ?? m))).join(", ")],
+                ["Industria", lead.industry],
+                ["Componente o equipo", lead.component],
                 ["Cantidad", labelFor(quantityKeys, q.quantities, lead.quantity as (typeof quantityKeys)[number])],
                 ["Lugar", labelFor(locationKeys, q.locations, lead.location as (typeof locationKeys)[number])],
                 ["Ciudad o campo", lead.city],

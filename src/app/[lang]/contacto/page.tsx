@@ -8,6 +8,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { QuoteSection } from "@/components/quote/QuoteSection";
+import { RequestFlow } from "@/components/quote/RequestFlow";
 import { Email } from "@/components/ui/Email";
 import { cn } from "@/lib/cn";
 
@@ -41,10 +42,11 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
         caption={company.phone}
       />
       <QuoteSection lang={lang} dict={d} heading={false} />
+      <RequestFlow dict={d} index="01" />
 
-      <section className="bg-surface py-24 sm:py-28">
+      <section className="band py-24 sm:py-28">
         <Container>
-          <SectionHeading index="01" eyebrow={d.contact.eyebrow} title={d.contact.directory} lead={d.contact.directoryLead} />
+          <SectionHeading index="02" eyebrow={d.contact.eyebrow} title={d.contact.directory} lead={d.contact.directoryLead} />
           <RevealGroup className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {channels.map((c, i) => {
               const digits = `57${c.phone.replace(/\D/g, "")}`;

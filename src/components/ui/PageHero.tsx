@@ -4,6 +4,7 @@ import { CaretRight } from "@phosphor-icons/react/ssr";
 import { Container, Eyebrow } from "./Section";
 import { Reveal } from "./Reveal";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
+import { cue } from "@/lib/scene";
 
 type Crumb = { label: string; href?: string };
 
@@ -33,8 +34,8 @@ export function PageHero({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="relative isolate overflow-hidden pb-16 pt-36 sm:pb-24 sm:pt-44">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-blueprint mask-fade-b" />
+    <section {...cue({ mode: "rigs", intensity: 0.7, veil: 0.15 })} className="relative isolate overflow-hidden pb-16 pt-36 sm:pb-24 sm:pt-44">
+      <div className="pointer-events-none absolute inset-y-0 left-0 -z-10 hidden w-[60%] bg-gradient-to-r from-[#030a12]/80 via-[#030a12]/35 to-transparent lg:block" />
       <div className="pointer-events-none absolute -right-24 top-0 -z-10 h-[34rem] w-[42rem] bg-network opacity-60 mask-radial" />
       <div className="pointer-events-none absolute -right-40 -top-40 -z-10 size-[36rem] rounded-full bg-neon/15 blur-[110px]" />
       <Container className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">

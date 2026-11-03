@@ -13,22 +13,18 @@ import { FloatingActions } from "@/components/layout/FloatingActions";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { LandingRecorder } from "@/components/leads/LandingRecorder";
 import { PreviewBar } from "@/components/layout/PreviewBar";
+import { SceneBackground } from "@/components/scene/SceneBackground";
 
 const sans = Plus_Jakarta_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-jakarta", display: "swap" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
-
-// Runs before paint: the saved choice wins, otherwise the system setting decides.
-const themeScript = `try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}`;
 
 export async function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f2f7fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a1d30" },
-  ],
+  themeColor: "#030a12",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -89,22 +85,38 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   };
 
   return (
-    <html lang={htmlLang[lang as Locale]} className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
+    // Dark only: the fixed data-theme keeps every `dark:` style on.
+    <html lang={htmlLang[lang as Locale]} data-theme="dark" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-svh overflow-x-clip">
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <SceneBackground />
         <SmoothScroll>
-          <Header data={navData} theme={dict.ui.theme} />
+          <Header data={navData} />
           <main>{children}</main>
           <Footer lang={lang} dict={dict} />
           <FloatingActions
             whatsappLabel={dict.cta.whatsapp}
+            // Read at build time: the chatbot needs ANTHROPIC_API_KEY both when the site is built and when it runs.
+            ai={Boolean(process.env.ANTHROPIC_API_KEY)}
             assistant={{
               lang,
               t: dict.chat,
               quantities: dict.quote.quantities,
               waIntro: dict.quote.waIntro,
               whatsapp: company.whatsapp,
+              phone: company.phone,
+              phoneHref: company.phoneHref,
+              quote: {
+                quantities: dict.quote.quantities,
+                locations: dict.quote.locations,
+                urgencies: dict.quote.urgencies,
+                unsure: dict.quote.unsure,
+                consent: dict.quote.consent,
+                consentLink: dict.quote.consentLink,
+                captcha: dict.quote.captcha,
+                invalid: dict.quote.invalid,
+                rateLimited: dict.quote.rateLimited,
+              },
               platformUrl: site.platformUrl,
               policyHref: policyDocs.find((d) => d.code === "PL-09-1")?.file ?? `/${lang}/hseq`,
               services: navData.services.map((s) => ({ slug: s.slug, name: s.name })),

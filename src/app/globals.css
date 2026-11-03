@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Dark mode follows data-theme on <html>, set before paint from the visitor's choice or system setting. */
+/* The site is dark only: <html data-theme="dark"> is fixed in the layout, so every `dark:` style always applies. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /* ───────────────────────── Static tokens ───────────────────────── */
@@ -35,9 +35,9 @@
   --color-vt: #f5a524;
   --color-whatsapp: #25d366;
 
-  --shadow-soft: 0 1px 2px rgb(8 45 80 / 0.06), 0 10px 30px -12px rgb(8 45 80 / 0.18);
-  --shadow-card: 0 2px 6px rgb(8 45 80 / 0.06), 0 24px 50px -24px rgb(8 45 80 / 0.28);
-  --shadow-float: 0 40px 80px -30px rgb(8 45 80 / 0.38), 0 12px 28px -14px rgb(8 45 80 / 0.2);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -12px rgb(0 0 0 / 0.5);
+  --shadow-card: 0 2px 6px rgb(0 0 0 / 0.3), 0 24px 50px -24px rgb(0 0 0 / 0.65);
+  --shadow-float: 0 40px 80px -30px rgb(0 0 0 / 0.75), 0 12px 28px -14px rgb(0 0 0 / 0.45);
   --shadow-neon: 0 0 0 1px rgb(31 200 245 / 0.35), 0 14px 36px -10px rgb(31 200 245 / 0.55);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -88,7 +88,7 @@
   }
 }
 
-/* ───────────────────────── Theme tokens (light / dark) ───────────────────────── */
+/* ───────────────────────── Theme tokens (night inspection) ───────────────────────── */
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -104,41 +104,24 @@
   --color-mist: var(--mist);
 }
 
+/* Near-black night with the brand blues as light sources. Surfaces are slightly translucent so the
+   3D scene behind the page (SceneBackground) reads through cards without hurting legibility. */
 :root {
-  --canvas: #f2f7fa;
-  --surface: #ffffff;
-  --surface-2: #f6fafc;
-  --tint: #e5f5fc;
-  --mist: #edf3f8;
-  --ink: #071a2e;
-  --ink-soft: #3a4d63;
-  --mute: #64778c;
-  --line: #dbe5ee;
-  --accent: #0a64bf;
-  --accent-ink: #0592c4;
-  --glass: rgb(255 255 255 / 0.74);
-  --grid: rgb(10 100 191 / 0.07);
-  --dot: rgb(10 100 191 / 0.15);
-  --contour: rgb(5 146 196 / 0.22);
-  color-scheme: light;
-}
-
-[data-theme="dark"] {
-  --canvas: #0a1d30;
-  --surface: #102a42;
-  --surface-2: #13314c;
-  --tint: #0e3049;
-  --mist: #0d2539;
-  --ink: #edf6fc;
-  --ink-soft: #b7cadb;
-  --mute: #86a0b6;
-  --line: #1f4260;
+  --canvas: #030a12;
+  --surface: rgb(9 23 38 / 0.9);
+  --surface-2: rgb(12 30 49 / 0.92);
+  --tint: rgb(16 52 82 / 0.5);
+  --mist: rgb(18 42 66 / 0.7);
+  --ink: #eef7fd;
+  --ink-soft: #b3c7d8;
+  --mute: #7f98ad;
+  --line: rgb(120 190 240 / 0.15);
   --accent: #5cc2ff;
   --accent-ink: #3fd6ff;
-  --glass: rgb(16 42 66 / 0.72);
-  --grid: rgb(92 194 255 / 0.07);
-  --dot: rgb(63 214 255 / 0.16);
-  --contour: rgb(63 214 255 / 0.18);
+  --glass: rgb(6 18 31 / 0.66);
+  --grid: rgb(92 194 255 / 0.06);
+  --dot: rgb(63 214 255 / 0.14);
+  --contour: rgb(63 214 255 / 0.14);
   color-scheme: dark;
 }
 
@@ -151,7 +134,6 @@
   }
   body {
     @apply bg-canvas font-sans text-ink;
-    transition: background-color 0.3s, color 0.3s;
   }
   ::selection {
     background: var(--color-neon);
@@ -194,19 +176,26 @@
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360' viewBox='0 0 640 360'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.2'%3E%3Cpath d='M-20 60 C 90 10, 180 110, 300 70 S 520 0, 660 50'/%3E%3Cpath d='M-20 100 C 100 50, 190 150, 310 110 S 520 40, 660 90'/%3E%3Cpath d='M-20 140 C 110 92, 200 190, 320 150 S 525 82, 660 130'/%3E%3Cpath d='M-20 180 C 120 134, 210 228, 330 190 S 530 124, 660 170'/%3E%3Cpath d='M-20 220 C 130 176, 220 266, 340 230 S 535 166, 660 210'/%3E%3Cpath d='M-20 260 C 140 218, 230 304, 350 270 S 540 208, 660 250'/%3E%3Cpath d='M-20 300 C 150 260, 240 342, 360 310 S 545 250, 660 290'/%3E%3Cpath d='M-20 340 C 160 302, 250 380, 370 350 S 550 292, 660 330'/%3E%3C/g%3E%3C/svg%3E") 0 0 / 640px 360px repeat;
 }
 
-/* A section that slides up over the previous one like a stacked sheet */
+/* A section that slides up over the previous one like a stacked sheet: a dark tinted panel with a
+   lit top edge, so the scene stays faintly visible through it */
 @utility sheet {
   position: relative;
   z-index: 1;
   margin-top: -3rem;
   border-top-left-radius: 3rem;
   border-top-right-radius: 3rem;
-  box-shadow: 0 -24px 60px -36px rgb(8 45 80 / 0.35);
+  background-color: rgb(4 13 23 / 0.78);
+  box-shadow: inset 0 1px 0 rgb(92 194 255 / 0.18), 0 -24px 60px -30px rgb(0 0 0 / 0.8);
   @media (width >= 64rem) {
     margin-top: -4rem;
     border-top-left-radius: 4.5rem;
     border-top-right-radius: 4.5rem;
   }
+}
+/* A full-width tinted band for content-dense sections that sit over the scene */
+@utility band {
+  background-color: rgb(4 13 23 / 0.62);
+  box-shadow: inset 0 1px 0 rgb(92 194 255 / 0.1), inset 0 -1px 0 rgb(92 194 255 / 0.1);
 }
 @utility text-stroke {
   -webkit-text-stroke: 2px currentColor;
@@ -253,7 +242,7 @@
     radial-gradient(circle 12px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
 }
 @utility drop {
-  filter: drop-shadow(0 18px 30px rgb(8 45 80 / 0.16)) drop-shadow(0 2px 4px rgb(8 45 80 / 0.06));
+  filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.45)) drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
 }
 
 @utility glass {
@@ -269,6 +258,55 @@
 }
 @utility preserve-3d {
   transform-style: preserve-3d;
+}
+
+/* ───────────────────────── Background scene (SceneBackground) ───────────────────────── */
+/* Fixed behind the page: a CSS night sky for phones and before WebGL starts, the WebGL canvas on
+   top of it, and a veil whose darkness each section sets through its scene cue. */
+.scene-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 50% 108%, rgb(31 200 245 / 0.13), transparent 70%),
+    radial-gradient(70% 60% at 85% 0%, rgb(10 100 191 / 0.22), transparent 70%),
+    linear-gradient(to bottom, #04101c, #030a12 55%, #02070d);
+}
+.scene-sky::after {
+  content: "";
+  position: absolute;
+  inset: 45% -20% -10%;
+  background-image:
+    linear-gradient(to right, rgb(92 194 255 / 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(92 194 255 / 0.09) 1px, transparent 1px);
+  background-size: 64px 64px;
+  transform: perspective(600px) rotateX(62deg);
+  transform-origin: 50% 0;
+  mask-image: linear-gradient(to bottom, transparent, #000 40%);
+}
+.scene-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out-expo);
+}
+.scene-canvas[data-ready] {
+  opacity: 1;
+}
+.scene-veil {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 30%, rgb(3 10 18 / 0.35) 0, rgb(3 10 18 / 0.75) 70%, rgb(3 10 18 / 0.95) 100%);
+  opacity: 0.35;
+  transition: opacity 0.7s var(--ease-out-expo);
 }
 
 @media (prefers-reduced-motion: reduce) {

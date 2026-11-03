@@ -34,8 +34,9 @@ export default async function MethodsPage({ params }: PageProps<"/[lang]/metodos
         caption="UT · ASNT Nivel II"
       />
       <Methods lang={lang} dict={d} />
-      <ProcessBand lang={lang} process={home.process} />
+      {/* Standards sits between the two pinned video sections */}
       <Standards lang={lang} />
+      <ProcessBand lang={lang} process={home.process} />
       <CtaBand lang={lang} dict={d} />
     </>
   );

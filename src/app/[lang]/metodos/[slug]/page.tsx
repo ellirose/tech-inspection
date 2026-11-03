@@ -82,7 +82,7 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
       </PageHero>
 
       {/* Intro over a photo that bleeds to the edge */}
-      <section className="relative isolate overflow-hidden bg-surface py-24 sm:py-32">
+      <section className="relative isolate overflow-hidden band py-24 sm:py-32">
         <div className="absolute inset-y-0 right-0 -z-10 hidden w-1/2 mask-fade-l lg:block">
           <Image src={m.cover} alt="" fill sizes="50vw" className="object-cover" />
         </div>
@@ -116,7 +116,7 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
       </section>
 
       {/* Advantages + video */}
-      <section className="bg-tint py-24 sm:py-28">
+      <section className="band py-24 sm:py-28">
         <Container className="grid gap-12 lg:grid-cols-12 lg:items-center">
           <div className={cn(m.video ? "lg:col-span-5" : "lg:col-span-12")}>
             <Eyebrow index="03">{d.methodsSection.advantages}</Eyebrow>
@@ -152,7 +152,7 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
       )}
 
       {/* Related services and other methods */}
-      <section className="bg-surface py-20">
+      <section className="band py-20">
         <Container className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <h2 className="text-[clamp(1.8rem,3vw,2.6rem)] font-extrabold tracking-tight text-ink">{d.pages.methods.related}</h2>
