@@ -104,7 +104,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
               waIntro: dict.quote.waIntro,
               whatsapp: company.whatsapp,
               platformUrl: site.platformUrl,
-              policyHref: policyDocs.find((d) => d.code === "PL-09-1")!.file,
+              policyHref: policyDocs.find((d) => d.code === "PL-09-1")?.file ?? `/${lang}/hseq`,
               services: navData.services.map((s) => ({ slug: s.slug, name: s.name })),
               methods: navData.methods.map((m) => ({ key: m.key, slug: m.slug, name: m.name })),
             }}

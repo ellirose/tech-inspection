@@ -5,7 +5,7 @@ import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
-import { getMethods, getServices } from "@/lib/data/content";
+import { getMethods, getService, getServices } from "@/lib/data/content";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
@@ -32,9 +32,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/servicios/[slug]">) {
   const { lang, slug } = await params;
-  const s = (await getServices()).find((x) => x.slug === slug);
+  const s = await getService(slug);
   if (!hasLocale(lang) || !s) return {};
-  return pageMeta(lang, `/servicios/${slug}`, s.name[lang], s.short[lang]);
+  return pageMeta(lang, `/servicios/${slug}`, s.seo.title?.[lang] || s.name[lang], s.seo.description?.[lang] || s.short[lang]);
 }
 
 // Params are awaited inside <Suspense> so navigations into this route stay instant.
@@ -48,13 +48,13 @@ export default function ServicePage({ params }: PageProps<"/[lang]/servicios/[sl
 
 async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const [services, methods] = await Promise.all([getServices(), getMethods()]);
+  const [s, services, methods] = await Promise.all([getService(slug), getServices(), getMethods()]);
   const methodByKey = (key: MethodKey) => methods.find((m) => m.key === key)!;
-  const s = services.find((x) => x.slug === slug);
   if (!hasLocale(lang) || !s) notFound();
   const d = getDictionary(lang);
   const others = services.filter((x) => x.slug !== s.slug);
   const bits = s.slug === "brocas";
+  const gallery = s.gallery.filter((g) => g !== s.image);
 
   return (
     <>
@@ -94,14 +94,16 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
         </Container>
       </section>
 
-      <section className="py-20 sm:py-28">
-        <Container>
-          <Eyebrow index="02">{d.pages.services.gallery}</Eyebrow>
-          <Reveal className="mt-8">
-            <Showcase items={photos(s.gallery.filter((g) => g !== s.image))} alt={s.name[lang]} />
-          </Reveal>
-        </Container>
-      </section>
+      {gallery.length > 0 && (
+        <section className="py-20 sm:py-28">
+          <Container>
+            <Eyebrow index="02">{d.pages.services.gallery}</Eyebrow>
+            <Reveal className="mt-8">
+              <Showcase items={photos(gallery)} alt={s.name[lang]} />
+            </Reveal>
+          </Container>
+        </section>
+      )}
 
       {bits && <WhyBit lang={lang} dict={d} index="03" link={false} />}
 

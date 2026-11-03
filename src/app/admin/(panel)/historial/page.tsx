@@ -33,6 +33,12 @@ const actions: Record<string, string> = {
   redirect_enabled: "Activó una redirección",
   redirect_disabled: "Desactivó una redirección",
   redirect_deleted: "Eliminó una redirección",
+  content_created: "Creó contenido",
+  content_updated: "Editó contenido",
+  content_published: "Publicó contenido",
+  content_unpublished: "Retiró contenido del sitio",
+  content_reordered: "Reordenó contenido",
+  content_deleted: "Eliminó contenido",
 };
 
 export default async function HistoryPage() {
