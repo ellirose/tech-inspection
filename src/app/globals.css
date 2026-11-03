@@ -116,8 +116,10 @@
   --ink-soft: #b3c7d8;
   --mute: #7f98ad;
   --line: rgb(120 190 240 / 0.15);
-  --accent: #5cc2ff;
-  --accent-ink: #3fd6ff;
+  /* Text blues: tints of the logo's institutional blue #030A8C (same hue, 237°), which itself is unreadable
+     on this background; ~6.3:1 and ~8.5:1 on --canvas. See doc/04-brand/BRAND-GUIDELINES.md */
+  --accent: #8086fa;
+  --accent-ink: #a6aafd;
   --glass: rgb(6 18 31 / 0.66);
   --grid: rgb(92 194 255 / 0.06);
   --dot: rgb(63 214 255 / 0.14);

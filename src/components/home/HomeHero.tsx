@@ -22,7 +22,7 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
   const tail = h.titleB[lang].slice(lastSpace + 1).replace(/[.]$/, "");
 
   return (
-    <section {...cue({ mode: "yard", intensity: 0.8, veil: 0.12 })} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-28 lg:h-[100svh] lg:min-h-[44rem]">
+    <section {...cue({ mode: "yard", intensity: 0.8, veil: 0.12 })} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-28 lg:min-h-[max(100svh,44rem)]">
       {/* Background: the inspection-yard scene behind the page, ultrasonic rings centred on the visual, a soft glow, and a wash that keeps the text column readable */}
       <div className="pointer-events-none absolute inset-0 -z-20 bg-rings opacity-60 [--rx:72%] [--ry:58%] mask-radial" />
       <div className="pointer-events-none absolute -right-48 -top-48 -z-20 size-[44rem] rounded-full bg-neon/10 blur-[130px]" />
@@ -34,7 +34,7 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
             <Eyebrow>{h.eyebrow[lang]}</Eyebrow>
           </Reveal>
 
-          <h1 className="mt-[3vh] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink [font-size:clamp(2.6rem,min(4.75vw,8.6vh),5.4rem)]">
+          <h1 className="mt-[3vh] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink [font-size:clamp(2.6rem,min(4.75vw,8.6vh),4.75rem)]">
             <LineReveal delay={0.05}>{h.titleA[lang]}</LineReveal>
             <LineReveal delay={0.15} className="text-balance text-accent">
               {h.titleB[lang].slice(0, lastSpace)}{" "}

@@ -61,9 +61,10 @@ export const credentials: Credential[] = [
   },
   {
     key: "equipment",
-    value: { es: "ISO/IEC 17025", pt: "ISO/IEC 17025", en: "ISO/IEC 17025" },
+    // Not ISO/IEC 17025 or 17020: the client's ISO/IEC 17020 accreditation is a project for 2027 (2026-11-03)
+    value: { es: "Calibración vigente", pt: "Calibração vigente", en: "In calibration" },
     t: { es: "Equipos calibrados", pt: "Equipamentos calibrados", en: "Calibrated equipment" },
-    d: { es: "Certificados bajo ISO/IEC 17025.", pt: "Certificados sob a ISO/IEC 17025.", en: "Certified under ISO/IEC 17025." },
+    d: { es: "Cada equipo con su certificado de calibración, consultable en TI-QMS.", pt: "Cada equipamento com seu certificado de calibração, disponível no TI-QMS.", en: "Every instrument with its calibration certificate, available in TI-QMS." },
   },
   {
     key: "experience",

@@ -68,6 +68,12 @@ const es = {
     title: "Respaldados por normas que se auditan.",
     lead: "Nuestro Sistema de Gestión Integral cubre a todo el personal, contratistas y visitantes en nuestras áreas y en las asignadas por el cliente.",
     personnel: "Personal",
+    projects: "Proyectos en curso",
+    iso17020: {
+      title: "Acreditación ISO/IEC 17020",
+      body: "Requisitos para los organismos que realizan inspección. Proyecto en preparación: todavía no es una acreditación vigente.",
+      status: "Meta 2027",
+    },
   },
   quote: {
     eyebrow: "Cotización",
@@ -369,6 +375,12 @@ const pt: Dictionary = {
     title: "Respaldados por normas auditadas.",
     lead: "Nosso Sistema de Gestão Integrada abrange toda a equipe, contratadas e visitantes em nossas áreas e nas designadas pelo cliente.",
     personnel: "Equipe",
+    projects: "Projetos em andamento",
+    iso17020: {
+      title: "Acreditação ISO/IEC 17020",
+      body: "Requisitos para os organismos que realizam inspeção. Projeto em preparação: ainda não é uma acreditação vigente.",
+      status: "Meta 2027",
+    },
   },
   quote: {
     eyebrow: "Orçamento",
@@ -668,6 +680,12 @@ const en: Dictionary = {
     title: "Backed by standards that get audited.",
     lead: "Our integrated management system covers all personnel, contractors and visitors in our facilities and in client-assigned work areas.",
     personnel: "Personnel",
+    projects: "Projects in progress",
+    iso17020: {
+      title: "ISO/IEC 17020 accreditation",
+      body: "Requirements for bodies that perform inspection. A project in preparation: not yet a current accreditation.",
+      status: "Target 2027",
+    },
   },
   quote: {
     eyebrow: "Quote",

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, ArrowsClockwise, PaperPlaneRight, Sparkle, WhatsappLogo, X } from "@phosphor-icons/react/ssr";
+import { ArrowRight, ArrowsClockwise, PaperPlaneRight, WhatsappLogo, X } from "@phosphor-icons/react/ssr";
+import { Mascot } from "./Mascot";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
@@ -261,9 +262,7 @@ export function Assistant(props: AssistantProps) {
             <div className="relative overflow-hidden bg-brand-600 px-5 pb-5 pt-5 text-white">
               <div className="absolute inset-0 bg-network opacity-50" />
               <div className="relative flex items-center gap-3">
-                <span className="grid size-11 place-items-center rounded-full ring-1 ring-white/20">
-                  <Sparkle weight="light" className="size-6 text-lime" />
-                </span>
+                <Mascot className="size-11 shrink-0 rounded-full ring-1 ring-white/25" />
                 <div className="min-w-0">
                   <p className="text-lg font-semibold leading-tight tracking-tight">{t.title}</p>
                   <p className="flex items-center gap-1.5 text-sm text-white/75">

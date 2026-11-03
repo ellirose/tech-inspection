@@ -34,6 +34,23 @@ export async function Certifications({ lang, dict, index }: { lang: Locale; dict
             </RevealItem>
           ))}
         </RevealGroup>
+
+        {/* Projects: kept apart from the certifications above so nothing reads as held before it is */}
+        <div id="proyectos" className="mt-16 scroll-mt-32">
+          <p className="font-mono text-sm font-bold uppercase tracking-[0.18em] text-mute">{c.projects}</p>
+          <div className="mt-5 flex flex-col gap-5 rounded-[2rem] border-2 border-dashed border-line p-6 sm:flex-row sm:items-center sm:p-7 lg:max-w-3xl">
+            <span className="grid size-24 shrink-0 place-items-center rounded-full border-2 border-dashed border-line text-center font-mono text-[0.78rem] font-bold leading-tight text-ink-soft">
+              17020
+            </span>
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="text-xl font-extrabold leading-tight tracking-tight text-ink">{c.iso17020.title}</h3>
+                <span className="rounded-full bg-mist px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-ink-soft">{c.iso17020.status}</span>
+              </div>
+              <p className="mt-2 leading-relaxed text-ink-soft">{c.iso17020.body}</p>
+            </div>
+          </div>
+        </div>
       </Container>
     </section>
   );

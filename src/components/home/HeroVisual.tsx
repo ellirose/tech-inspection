@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
-import { Certificate, ShieldCheck, Ruler } from "@phosphor-icons/react/ssr";
+import { Certificate, HardHat, ShieldCheck } from "@phosphor-icons/react/ssr";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 import { MethodOverlay } from "@/components/visuals/MethodOverlay";
 import { Waveform } from "@/components/visuals/Waveform";
@@ -131,7 +131,7 @@ export function HeroVisual({ t }: { t: HeroVisualText }) {
         <Seal ring={`ASNT · ${t.personnel.toUpperCase()} · `} code="ASNT" spin />
       </motion.div>
 
-      {/* Management system and calibration badges */}
+      {/* Management system and safety badges (only what is held today: ISO/IEC 17020 is a 2027 project) */}
       <motion.ul
         style={mid}
         initial={{ opacity: 0, x: 30 }}
@@ -142,7 +142,7 @@ export function HeroVisual({ t }: { t: HeroVisualText }) {
         {[
           { icon: Certificate, label: "ISO 9001" },
           { icon: ShieldCheck, label: "ISO 45001" },
-          { icon: Ruler, label: "ISO/IEC 17025" },
+          { icon: HardHat, label: "RUC · CCS" },
         ].map(({ icon: Icon, label }) => (
           <li key={label} className="flex items-center gap-2.5 rounded-xl bg-surface px-3 py-2 font-mono text-[0.8rem] font-bold text-ink">
             <Icon weight="duotone" className="size-6 text-accent" />

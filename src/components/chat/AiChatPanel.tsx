@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, ArrowsClockwise, Check, PaperPlaneRight, Phone, Sparkle, WhatsappLogo, X } from "@phosphor-icons/react/ssr";
+import { ArrowRight, ArrowsClockwise, Check, PaperPlaneRight, Phone, WhatsappLogo, X } from "@phosphor-icons/react/ssr";
+import { Mascot } from "./Mascot";
 import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/leads/Turnstile";
 import { submitLead } from "@/lib/leads/client";
 import { labelFor, locationKeys, quantityKeys, urgencyKeys } from "@/lib/leads/options";
@@ -241,9 +242,7 @@ export default function AiChatPanel(props: AiAssistantProps & { open: boolean; o
       <div className="relative overflow-hidden bg-brand-600 px-5 pb-4 pt-5 text-white">
         <div className="absolute inset-0 bg-network opacity-50" />
         <div className="relative flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-full ring-1 ring-white/20">
-            <Sparkle weight="light" className="size-6 text-lime" />
-          </span>
+          <Mascot className="size-11 shrink-0 rounded-full ring-1 ring-white/25" />
           <div className="min-w-0">
             <p className="text-lg font-semibold leading-tight tracking-tight">{t.title}</p>
             <p className="flex items-center gap-1.5 text-sm text-white/75">
