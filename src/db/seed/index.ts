@@ -1,7 +1,8 @@
 // Loads the site's current content (src/content/*.ts, the material migrated from Wix and the client deck)
 // into an empty database. Refuses to touch a database that already has content unless --force is given,
-// so it can never overwrite edits made in the admin panel by accident.
-// Usage: npm run db:seed [-- --force]
+// so it can never overwrite edits made in the admin panel by accident. --blocks reloads only the named
+// page sections (for a change to their structure, which the admin cannot make) and leaves the rest alone.
+// Usage: npm run db:seed [-- --force | --blocks tiqms,home]
 import { existsSync } from "node:fs";
 import { sql } from "drizzle-orm";
 import { createDb } from "../index";
@@ -51,9 +52,26 @@ const contentTables = [
 async function main() {
   if (!process.env.DATABASE_URL && existsSync(".env.local")) process.loadEnvFile(".env.local");
   const force = process.argv.includes("--force");
+  const blockArg = process.argv.indexOf("--blocks");
   const { db, pool } = createDb();
 
   try {
+    if (blockArg !== -1) {
+      const all: Record<string, unknown> = { home: homeBlock, ...blocks };
+      const keys = (process.argv[blockArg + 1] ?? "").split(",").filter(Boolean);
+      const unknown = keys.filter((k) => !(k in all));
+      if (!keys.length || unknown.length) throw new Error(`--blocks needs page-section keys from: ${Object.keys(all).join(", ")}`);
+      for (const key of keys) {
+        await db
+          .insert(s.pageBlock)
+          .values({ key, data: all[key] })
+          .onConflictDoUpdate({ target: s.pageBlock.key, set: { data: all[key], updatedAt: new Date(), updatedBy: null } });
+      }
+      console.log(`Reloaded page sections: ${keys.join(", ")}. Restart the site or save the section in the admin to refresh its cache.`);
+      return;
+    }
+
+
     const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(s.siteSettings);
     if (count > 0 && !force) {
       console.log("Content already present; nothing changed. Use --force to wipe content tables and reload.");

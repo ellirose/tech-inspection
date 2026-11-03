@@ -7,6 +7,7 @@ import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { Seal } from "@/components/visuals/Seal";
 import { cn } from "@/lib/cn";
+import { cue } from "@/lib/scene";
 
 const hex = { "DS-1": "bg-pt text-white", API: "bg-lime text-[#071a2e]", ASTM: "bg-brand-600 text-white dark:bg-brand-400" } as const;
 
@@ -27,7 +28,7 @@ export async function WhyUs({ lang, dict, className }: { lang: Locale; dict: Dic
   ];
 
   return (
-    <section className={cn("relative isolate overflow-hidden bg-tint py-24 sm:py-32", className)}>
+    <section {...cue({ mode: "rigs", intensity: 0.3, veil: 0.5 })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-50 mask-fade-y" />
       <Container>
         <SectionHeading eyebrow={t.eyebrow[lang]} title={t.title[lang]} lead={t.lead[lang]} />

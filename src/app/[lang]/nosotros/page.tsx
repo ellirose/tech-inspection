@@ -80,7 +80,7 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
       <Closing lang={lang} index="04" ulterra />
 
       {/* Team */}
-      <section className="bg-surface py-24 sm:py-32">
+      <section className="band py-24 sm:py-32">
         <Container>
           <SectionHeading index="05" eyebrow={a.team} title={a.teamTitle} lead={a.teamLead} />
           <Mosaic className="mt-14" items={team} alt={a.team} />

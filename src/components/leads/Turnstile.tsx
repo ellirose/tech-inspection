@@ -55,7 +55,7 @@ export function Turnstile({ lang, onToken, resetKey = 0, className }: { lang: Lo
           sitekey: TURNSTILE_SITE_KEY,
           action: "lead",
           appearance: "interaction-only",
-          theme: document.documentElement.dataset.theme === "dark" ? "dark" : "light",
+          theme: "dark",
           language: lang === "pt" ? "pt-br" : lang,
           callback: (token: string) => callback.current(token),
           "expired-callback": () => callback.current(null),

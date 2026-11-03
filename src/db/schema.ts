@@ -365,6 +365,36 @@ export const leadEvent = pgTable(
   (t) => [index("lead_event_lead_idx").on(t.leadId)],
 );
 
+// --- Chatbot ------------------------------------------------------------------------------
+
+export type ChatLogEntry = { role: "user" | "assistant"; text: string; at: string };
+
+/**
+ * One chatbot conversation, kept for quality review (design document §12.3) and deleted after
+ * CHAT_RETENTION_DAYS. Holds what the visitor typed and what the bot answered, nothing else about them:
+ * no IP address and no browser details.
+ */
+export const chatConversation = pgTable(
+  "chat_conversation",
+  {
+    /** Random id the browser keeps for its session. */
+    id: uuid("id").primaryKey(),
+    lang: text("lang").notNull(),
+    /** Page the conversation started on. */
+    page: text("page"),
+    messages: jsonb("messages").$type<ChatLogEntry[]>().notNull().default([]),
+    /** Reference of the lead the visitor confirmed from the chat, if any. */
+    leadReference: text("lead_reference"),
+    model: text("model").notNull(),
+    inputTokens: integer("input_tokens").notNull().default(0),
+    cachedTokens: integer("cached_tokens").notNull().default(0),
+    outputTokens: integer("output_tokens").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("chat_conversation_updated_at_idx").on(t.updatedAt)],
+);
+
 // --- Admin accounts ----------------------------------------------------------------------------
 // Tables and field names are the ones Better Auth expects (src/lib/auth); the password hash lives in
 // `account`, the TOTP secret and backup codes (encrypted by Better Auth) in `two_factor`.

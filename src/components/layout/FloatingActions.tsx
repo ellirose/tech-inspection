@@ -2,10 +2,11 @@
 
 import { motion } from "motion/react";
 import { WhatsappLogo } from "@phosphor-icons/react/ssr";
-import { Assistant, type AssistantProps } from "@/components/chat/Assistant";
+import { Assistant } from "@/components/chat/Assistant";
+import { AiAssistant, type AiAssistantProps } from "@/components/chat/AiAssistant";
 
-/** Bottom-right stack: WhatsApp shortcut above the guided assistant. */
-export function FloatingActions({ assistant, whatsappLabel }: { assistant: AssistantProps; whatsappLabel: string }) {
+/** Bottom-right stack: WhatsApp shortcut above the chatbot, or the guided assistant when the chatbot is off. */
+export function FloatingActions({ assistant, ai, whatsappLabel }: { assistant: AiAssistantProps; ai: boolean; whatsappLabel: string }) {
   return (
     <div className="fixed bottom-5 right-4 z-[55] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
       <motion.a
@@ -24,7 +25,7 @@ export function FloatingActions({ assistant, whatsappLabel }: { assistant: Assis
           {whatsappLabel}
         </span>
       </motion.a>
-      <Assistant {...assistant} />
+      {ai ? <AiAssistant {...assistant} /> : <Assistant {...assistant} />}
     </div>
   );
 }

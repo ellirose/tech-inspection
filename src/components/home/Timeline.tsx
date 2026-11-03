@@ -30,7 +30,7 @@ export async function Timeline({ lang, dict, index }: { lang: Locale; dict: Dict
   const d = `M0 ${H - 20} ` + pts.map(([x, y], i) => (i === 0 ? `S ${x - 60} ${y + 8} ${x} ${y}` : `S ${x - 60} ${y + 12} ${x} ${y}`)).join(" ") + ` S 990 ${pts[n - 1][1] - 30} 1000 ${pts[n - 1][1] - 40}`;
 
   return (
-    <section className="relative isolate overflow-hidden bg-surface py-24 sm:py-32">
+    <section className="relative isolate overflow-hidden band py-24 sm:py-32">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-blueprint mask-fade-y" />
       <Container>
         <SectionHeading index={index} eyebrow="2014 — 2026" title={dict.ui.trajectory} lead={timelineIntro[lang]} />

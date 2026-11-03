@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Camera, ClipboardText, Clock, Crosshair, FileText, Folders, LinkSimple, MagnifyingGlass, SealCheck, UserCircleCheck } from "@phosphor-icons/react/ssr";
+import { Certificate, ChatsCircle, ClipboardText, Clock, FileText, Handshake, IdentificationCard, LinkSimple, ListChecks, MagnifyingGlass, SealCheck, ShieldCheck } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { getBlock, getSite } from "@/lib/data/content";
@@ -7,11 +7,35 @@ import { Container, Eyebrow, IconBadge } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { cue } from "@/lib/scene";
 
-const featureIcons = { requests: ClipboardText, competence: UserCircleCheck, calibration: Crosshair, photos: Camera, reports: FileText, documents: Folders } as const;
+const featureIcons = {
+  requests: ClipboardText,
+  tracking: ListChecks,
+  reports: FileText,
+  evidence: Certificate,
+  contracts: Handshake,
+  payroll: IdentificationCard,
+  pqr: ChatsCircle,
+  policies: ShieldCheck,
+} as const;
 const benefitIcons = [Clock, LinkSimple, SealCheck, MagnifyingGlass];
-const tones = ["solid", "neon", "brand", "lime", "brand", "neon"] as const;
-const shapes = ["rounded-[2rem] rounded-tl-[3.5rem]", "rounded-[2rem]", "rounded-[2rem] rounded-tr-[3.5rem]", "rounded-[2rem] rounded-bl-[3.5rem]", "rounded-[2rem]", "rounded-[2rem] rounded-br-[3.5rem]"];
+const tones = ["solid", "neon", "brand", "lime", "brand", "lime", "solid", "neon"] as const;
+// Two rows of four: the outer corners of the grid are cut deeper
+const shapes = [
+  "rounded-[2rem] rounded-tl-[3.5rem]",
+  "rounded-[2rem]",
+  "rounded-[2rem]",
+  "rounded-[2rem] rounded-tr-[3.5rem]",
+  "rounded-[2rem] rounded-bl-[3.5rem]",
+  "rounded-[2rem]",
+  "rounded-[2rem]",
+  "rounded-[2rem] rounded-br-[3.5rem]",
+];
+// The block is stored in the database, so a key without its own icon falls back to the first one
+const iconFor = (key: string) => featureIcons[key as keyof typeof featureIcons] ?? ClipboardText;
+// Floating off the tablet: what a client checks most
+const floating = ["evidence", "tracking"];
 
 /** Slide 10: TI-QMS, the digital traceability platform. */
 export async function PlatformShowcase({
@@ -37,14 +61,9 @@ export async function PlatformShowcase({
   const [tiqms, { platformUrl: PLATFORM_URL }] = await Promise.all([getBlock("tiqms"), getSite()]);
   const f = tiqms.features;
   return (
-    <section className={cn("relative isolate overflow-hidden py-24 sm:py-32", compact ? "bg-surface" : "bg-tint", className)}>
-      {compact ? (
-        <div className="pointer-events-none absolute inset-y-0 left-0 -z-10 w-2/3 [mask-image:linear-gradient(to_right,#000_30%,transparent)]">
-          <div className="absolute inset-0 bg-contours opacity-80" />
-        </div>
-      ) : (
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-50 mask-fade-y" />
-      )}
+    // Lime pulses: the inspection becoming a digital record
+    <section {...cue({ mode: "rigs", intensity: 0.65, veil: 0.4, accent: "#86e33a" })} className={cn("relative isolate overflow-hidden py-24 sm:py-32", className)}>
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-network opacity-40 mask-fade-y" />
       <Container>
         <div className="grid gap-14 lg:grid-cols-12 lg:items-center">
           <Reveal className="lg:col-span-5">
@@ -54,7 +73,7 @@ export async function PlatformShowcase({
             {compact && (
               <ul className="mt-8 grid gap-x-6 gap-y-4 sm:grid-cols-2">
                 {f.map((x, i) => {
-                  const Icon = featureIcons[x.key as keyof typeof featureIcons];
+                  const Icon = iconFor(x.key);
                   return (
                     <li key={x.key} className="flex items-center gap-3.5">
                       <IconBadge icon={Icon} size="md" tone={tones[i]} shape={i % 2 ? "circle" : "square"} />
@@ -79,8 +98,8 @@ export async function PlatformShowcase({
                 <Image src="/media/deck/tiqms-tablet.jpg" alt="TI-QMS" fill sizes="(min-width:1024px) 55vw, 100vw" className="object-cover" quality={90} />
               </div>
             </div>
-            {[f[3], f[2]].map((x, i) => {
-              const Icon = featureIcons[x.key as keyof typeof featureIcons];
+            {f.filter((x) => floating.includes(x.key)).map((x, i) => {
+              const Icon = iconFor(x.key);
               return (
                 <div key={x.key} className={cn("glass absolute hidden animate-float items-center gap-3 rounded-2xl py-3 pl-3 pr-5 shadow-float ring-1 ring-line/70 sm:flex", i ? "-bottom-6 right-6" : "-left-4 top-8")} style={{ animationDelay: `${i * 1.5}s` }}>
                   <IconBadge icon={Icon} size="md" tone={i ? "lime" : "solid"} />
@@ -92,12 +111,12 @@ export async function PlatformShowcase({
         </div>
 
         {!compact && (
-        <RevealGroup className="mt-20 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealGroup className="mt-20 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {f.map((x, i) => {
-            const Icon = featureIcons[x.key as keyof typeof featureIcons];
+            const Icon = iconFor(x.key);
             return (
-              <RevealItem key={x.key} className={cn("flex gap-5 bg-surface p-6 shadow-soft ring-1 ring-line sm:p-7", shapes[i])}>
-                <IconBadge icon={Icon} size="xl" tone={tones[i]} shape={i % 3 === 1 ? "circle" : "square"} />
+              <RevealItem key={x.key} className={cn("flex flex-col gap-5 bg-surface p-6 shadow-soft ring-1 ring-line sm:p-7", shapes[i])}>
+                <IconBadge icon={Icon} size="xl" tone={tones[i]} shape={i % 2 ? "circle" : "square"} />
                 <div>
                   <h3 className="text-xl font-extrabold leading-tight tracking-tight text-ink">{x.t[lang]}</h3>
                   <p className="mt-2 leading-relaxed text-ink-soft">{x.d[lang]}</p>

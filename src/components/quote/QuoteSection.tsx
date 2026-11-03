@@ -7,6 +7,7 @@ import { whatsappLink } from "@/lib/site";
 import { Container, IconBadge, SectionHeading } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
+import { cue } from "@/lib/scene";
 import { Email } from "@/components/ui/Email";
 import { QuoteWizard } from "./QuoteWizard";
 
@@ -22,7 +23,7 @@ export async function QuoteSection({ lang, dict, heading = true, index, classNam
   ];
 
   return (
-    <section id="cotizar" className={cn("relative isolate overflow-hidden pb-24 sm:pb-32", heading ? "pt-24 sm:pt-32" : "pt-6", className)}>
+    <section id="cotizar" {...cue({ mode: "rigs", intensity: 0.25, veil: 0.7 })} className={cn("relative isolate overflow-hidden pb-24 sm:pb-32", heading ? "pt-24 sm:pt-32" : "pt-6", className)}>
       <div className="pointer-events-none absolute inset-0 -z-10 bg-blueprint mask-radial" />
       <Container>
         {heading && <SectionHeading index={index} eyebrow={q.eyebrow} title={q.title} lead={q.lead} />}

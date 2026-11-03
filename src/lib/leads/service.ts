@@ -13,14 +13,14 @@ export const newReference = () => `TI-${[...randomBytes(8)].map((b) => ALPHABET[
 
 export async function createLead(input: LeadInput, context: { device?: string; attachments?: Lead["attachments"] } = {}, db: Db = defaultDb): Promise<Lead> {
   // Listed one by one so nothing else on the input (the Turnstile token, the honeypot) is stored.
-  const { source, lang, services, methods, quantity, location, city, urgency, description, name, company, email, phone, attribution } = input;
+  const { source, lang, services, methods, industry, component, quantity, location, city, urgency, description, name, company, role, preferredChannel, email, phone, attribution } = input;
   for (let attempt = 0; ; attempt++) {
     try {
       return await db.transaction(async (tx) => {
         const [lead] = await tx
           .insert(schema.lead)
           .values({
-            ...{ source, lang, services, methods, quantity, location, city, urgency, description, name, company, email, phone },
+            ...{ source, lang, services, methods, industry, component, quantity, location, city, urgency, description, name, company, role, preferredChannel, email, phone },
             reference: newReference(),
             attachments: context.attachments ?? [],
             consent: true,

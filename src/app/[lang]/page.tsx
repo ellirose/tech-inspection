@@ -11,7 +11,8 @@ import { PlatformShowcase } from "@/components/home/PlatformShowcase";
 import { FieldGallery } from "@/components/home/FieldGallery";
 import { QuoteSection } from "@/components/quote/QuoteSection";
 
-// One idea per section: promise → what we inspect → how (methods, process) → why trust us → digital record → field → quote.
+// One idea per section: promise → what we inspect → how (methods) → why trust us → the route a part takes → its digital record → field → quote.
+// The two scroll-pinned video sections (methods, process) are kept apart so the page never pins twice in a row.
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
@@ -23,11 +24,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <HomeHero lang={lang} dict={dict} />
       <ServicesGrid lang={lang} dict={dict} />
       <Methods lang={lang} dict={dict} />
-      <ProcessBand lang={lang} process={home.process} />
       <WhyUs lang={lang} dict={dict} className="sheet" />
+      <ProcessBand lang={lang} process={home.process} />
       <PlatformShowcase lang={lang} dict={dict} compact title={home.platform.title[lang]} />
       <FieldGallery dict={dict} />
-      <QuoteSection lang={lang} dict={dict} className="sheet bg-surface" />
+      <QuoteSection lang={lang} dict={dict} className="sheet" />
     </>
   );
 }

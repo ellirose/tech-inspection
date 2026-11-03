@@ -24,7 +24,7 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 |---|---|
 | `npm run db:generate` | Write a new SQL migration after changing `src/db/schema.ts` |
 | `npm run db:migrate` | Apply pending migrations (also run by the deploy job) |
-| `npm run db:seed` | Load `src/content/*.ts` into an empty database; `-- --force` wipes content tables and reloads |
+| `npm run db:seed` | Load `src/content/*.ts` into an empty database; `-- --force` wipes content tables and reloads; `-- --blocks tiqms,home` reloads only those page sections (for a change to their structure) |
 | `npm run db:studio` | Browse the database in Drizzle Studio |
 | `npm run leads:export -- [--since YYYY-MM-DD] [--out file.csv]` | Leads as CSV for Excel, until the admin inbox exists. The file holds personal data: keep it out of the repository |
 | `npm run admin:invite -- --bootstrap` | Create the first super-admin from `ADMIN_BOOTSTRAP_EMAIL` and print its one-time setup link |
@@ -50,9 +50,11 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `src/db/schema.ts`, `src/db/migrations/` | Database tables and their versioned SQL migrations |
 | `src/lib/data/content.ts` | The only way pages read content: cached, tagged queries returning the types the components use |
 | `src/i18n/dictionaries.ts` | All interface copy in the three languages, type-checked against Spanish |
-| `src/content/*.ts` | Seed source and shared types for the content now stored in the database. Edits here reach the site only through `npm run db:seed -- --force` |
+| `src/content/*.ts` | Seed source and shared types for the content now stored in the database. Edits here reach the site only through `npm run db:seed -- --force`, or `-- --blocks <keys>` for page sections |
 | `src/components/home/` | Landing-page sections |
-| `public/media/` | Curated photos and videos (see `scripts/prepare-media.mjs`) |
+| `src/components/scene/` | The fixed 3D background (three.js, desktop only; CSS night sky on phones). Sections steer it with `cue()` from `src/lib/scene.ts` |
+| `src/components/sequence/` | Scroll-scrubbed video sections (methods, process). Storyboard and frame folders in `src/lib/sequences.ts`; prompts in `doc/04-brand/VIDEO-PROMPTS.md` |
+| `public/media/` | Curated photos and videos (see `scripts/prepare-media.mjs`); sequence frames go in `public/media/sequences/<key>/` |
 | `public/docs/` | HSEQ PDFs migrated from Wix |
 
 Old Wix URLs are redirected from the `redirect` table (seeded from `src/db/seed/redirects.ts`, editable under Redirecciones).
@@ -101,15 +103,28 @@ The quote form takes up to three PDF, JPG or PNG files, 10 MB in total (design d
 
 Before launch: a Resend account with `send.tech-inspection.com` verified (DNS records added by the domain owner), the real Turnstile keys, and the mailbox list for `LEAD_NOTIFY_TO`.
 
+## Chatbot
+
+With `ANTHROPIC_API_KEY` set (at build time and at run time), the chat button opens an AI assistant (design document §12); without it, the guided rule-based assistant stays. Both create leads through `/api/leads` with the same checks as the quote form.
+
+- **Flow:** greeting with four options (TI-QMS and "talk to an advisor" are answered without the model), questions answered from the site content, qualification one question at a time with quick replies, then a summary card with the data-processing consent checkbox and Turnstile. The lead is stored only when the visitor confirms that card; the model cannot store one by itself. Asking for a person, a refusal or an API failure shows WhatsApp and phone buttons.
+- **Model:** `claude-opus-5-5` at effort `low` by default (`CHAT_MODEL`, `CHAT_EFFORT`). Tools: `get_service_info` (full text of a service or method), `create_lead` (shows the summary card; input validated with Zod) and `show_contact`. The system prompt (the rules of §12.4 plus a knowledge base written from the published content in the visitor's language) is cached, and follows content changes, since it is read through the same cached functions as the pages.
+- **History:** the browser keeps the conversation for the session (sessionStorage) and sends its visible text with each request. Earlier turns go back as plain text, so no thinking block is replayed outside the conversation that produced it; within one answer, the model's output goes back unchanged with the tool results.
+- **Limits:** same-origin requests only; 1,000 characters per message and 30 visitor messages per conversation; 20 messages per 10 minutes and 120 per day per visitor; `CHAT_DAILY_LIMIT` (2,000) messages per day for the whole site, which caps the API bill. Answers stream as one JSON event per line (`src/lib/chat/protocol.ts`); Nginx must not buffer `/api/chat` (the route sends `X-Accel-Buffering: no`).
+- **Conversaciones** (admin, roles that see leads): each conversation as the visitor saw it, its lead when one was confirmed, and the tokens used, with a 30-day token total on the list. Conversations are deleted `CHAT_RETENTION_DAYS` (90) days after their last message. The table holds what the visitor typed, but no IP address or browser details; the data-protection policy should mention this log.
+- **Tests without a key:** point `ANTHROPIC_BASE_URL` at a stand-in that speaks the Messages streaming format. No test calls the real API.
+
 ## Pending client input
 
 - **Certification seals:** the site uses text badges (`components/visuals/Seal.tsx`) until the client sends the brand-usage manual for each mark.
 - **New field photos and video:** replace files in `public/media/` and update `scripts/prepare-media.mjs`. Current field footage is 360p (the only version Wix had stored).
 - **Tank inspection** (`needs_review` in the `service` table; seeded from `draft: true` in `content/services.ts`): the old site showed the structural-inspection text, so this copy is a draft and needs confirming.
-- **TI-QMS features:** the platform section's feature list and dashboard mock are illustrative and need confirming against the real system.
+- **TI-QMS features:** rewritten from screenshots of the live client portal (`../../doc/02-client-materials/ti-qms/`, 2026-11-03). Competence and calibration certificates and HD photos come from the client deck and are not visible in those screenshots: confirm they are inside each request.
+- **Policies PL-07 and PL-08** (alcohol prevention; workplace and sexual harassment): listed in TI-QMS but not published on the site. Ask for the PDFs.
+- **Brand files:** vector logo, the black-and-white versions and clear-space rules (see `../../doc/04-brand/BRAND-GUIDELINES.md`).
 - **Contact directory:** confirm the emails flagged in `../../doc/03-diagnostic/SITE-AUDIT.md` §6 (`gerenciaoperaciones@` vs `gerencia-operaciones@`, and `dadministracion@`).
 - **WhatsApp number:** `company.whatsapp` in the `site_settings` table (currently the main commercial line, 321 828 4129).
-- **Assistant:** a guided, rule-based flow (intent detection, method recommendation, lead capture, WhatsApp hand-off). Its leads go through `/api/leads` with the same checks as the form, after the visitor consents in the chat. The LLM chatbot (stage 6) will use the same lead service.
+- **Chatbot name and avatar:** the design document leaves both to confirm (mascot if approved); the widget says "Asistente Tech-Inspection" for now.
 
 ## Credits
 
