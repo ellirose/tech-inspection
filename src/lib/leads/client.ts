@@ -39,13 +39,20 @@ export function recordLanding() {
 
 const attribution = (): LeadAttributionInput => ({ ...read<LeadAttributionInput>(LANDING_KEY), submittedFrom: location.pathname });
 
-export async function submitLead(payload: Record<string, unknown>): Promise<LeadResponse> {
+/** Sends JSON, or multipart form data when files are attached (see app/api/leads/route.ts). */
+export async function submitLead(payload: Record<string, unknown>, files: File[] = []): Promise<LeadResponse> {
+  const json = JSON.stringify({ ...payload, attribution: attribution() });
+  let body: BodyInit = json;
+  if (files.length) {
+    const form = new FormData();
+    form.append("payload", json);
+    for (const file of files) form.append("files", file);
+    body = form;
+  }
   try {
-    const res = await fetch("/api/leads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, attribution: attribution() }),
-    });
+    const res = await fetch("/api/leads", { method: "POST", headers: files.length ? undefined : { "Content-Type": "application/json" }, body });
+    // A body over the web server's limit is refused before it reaches the app, without our JSON.
+    if (res.status === 413) return { ok: false, error: "files" };
     return (await res.json()) as LeadResponse;
   } catch {
     return { ok: false, error: "server" };

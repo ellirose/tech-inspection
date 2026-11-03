@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "@phosphor-icons/react/ssr";
+import { ArrowLeft, DownloadSimple } from "@phosphor-icons/react/ssr";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/auth/roles";
 import { getMethods, getServices } from "@/lib/data/content";
 import { getLead, leadAssignees, sourceLabels, statusLabels, urgencyLabel } from "@/lib/leads/admin";
-import { labelFor, locationKeys, quantityKeys } from "@/lib/leads/options";
+import { formatBytes, labelFor, locationKeys, quantityKeys } from "@/lib/leads/options";
 import { getDictionary } from "@/i18n/dictionaries";
 import { Card } from "@/components/admin/ui";
 import { formatBogota } from "@/components/admin/format";
@@ -127,6 +127,25 @@ export default async function LeadPage({ params }: PageProps<"/admin/leads/[refe
               ]}
             />
           </Card>
+
+          {lead.attachments.length > 0 && (
+            <Card title="Adjuntos">
+              {/* Plain links, not <Link>: prefetching would download (and log) every file. */}
+              <ul className="divide-y divide-line">
+                {lead.attachments.map((f, i) => (
+                  <li key={f.key} className="flex flex-wrap items-center justify-between gap-3 py-2.5">
+                    <span className="min-w-0 break-words text-ink">
+                      {f.name} <span className="text-sm text-mute">· {f.mime === "application/pdf" ? "PDF" : "Imagen"} · {formatBytes(f.size)}</span>
+                    </span>
+                    <a href={`/admin/leads/${lead.reference}/adjuntos/${i + 1}`} className="inline-flex items-center gap-2 font-bold text-accent">
+                      <DownloadSimple weight="bold" className="size-4" /> Descargar
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-sm text-mute">Cada descarga queda en el historial de actividad. El enlace de descarga caduca a los pocos minutos.</p>
+            </Card>
+          )}
 
           <Card title="Origen">
             <Rows

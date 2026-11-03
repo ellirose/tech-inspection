@@ -15,6 +15,7 @@ const columns: [header: string, value: (l: Lead) => string | null | undefined][]
   ["city", (l) => l.city],
   ["urgency", (l) => l.urgency],
   ["description", (l) => l.description],
+  ["attachments", (l) => l.attachments.map((a) => a.name).join("; ")],
   ["name", (l) => l.name],
   ["company", (l) => l.company],
   ["email", (l) => l.email],

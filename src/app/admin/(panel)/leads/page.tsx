@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Paperclip } from "@phosphor-icons/react/ssr";
 import { requireUser } from "@/lib/auth/session";
 import { getServices } from "@/lib/data/content";
 import { leadAssignees, listLeads, parseLeadFilters, sourceLabels, statusLabels, urgencyLabel, type LeadFilters } from "@/lib/leads/admin";
@@ -120,7 +121,16 @@ export default async function LeadsPage({ searchParams }: PageProps<"/admin/lead
                   <span className="block font-bold text-ink">{r.name}</span>
                   {r.company && <span className="block text-mute">{r.company}</span>}
                 </td>
-                <td className="px-4 py-3 text-ink-soft">{r.services.map((s) => serviceName[s] ?? s).join(", ") || <span className="italic">{r.description?.slice(0, 60)}</span>}</td>
+                <td className="px-4 py-3 text-ink-soft">
+                  {r.services.map((s) => serviceName[s] ?? s).join(", ") || <span className="italic">{r.description?.slice(0, 60)}</span>}
+                  {r.files > 0 && (
+                    <span className="ml-2 inline-flex items-center gap-0.5 whitespace-nowrap text-sm text-mute" title={`${r.files} adjunto${r.files > 1 ? "s" : ""}`}>
+                      <Paperclip weight="bold" className="size-3.5" aria-hidden />
+                      {r.files}
+                      <span className="sr-only"> adjunto{r.files > 1 ? "s" : ""}</span>
+                    </span>
+                  )}
+                </td>
                 <td className={cn("px-4 py-3", r.urgency === "urgent" && "font-bold text-pt")}>{urgencyLabel(r.urgency)}</td>
                 <td className="px-4 py-3 text-ink-soft">{sourceLabels[r.source]}</td>
                 <td className="px-4 py-3">

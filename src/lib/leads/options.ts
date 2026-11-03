@@ -47,4 +47,11 @@ export type LeadAttributionInput = {
 };
 
 /** Response body of POST /api/leads. */
-export type LeadResponse = { ok: true; reference: string } | { ok: false; error: "invalid" | "rate_limited" | "captcha" | "server" };
+export type LeadResponse = { ok: true; reference: string } | { ok: false; error: "invalid" | "files" | "rate_limited" | "captcha" | "server" };
+
+/** Drawings, specs or photos sent with a quote request (design document §11.2), checked on both sides. */
+export const ATTACHMENTS = { maxFiles: 3, maxBytes: 10 * 1024 * 1024, accept: "application/pdf,image/jpeg,image/png", extensions: /\.(pdf|jpe?g|png)$/i };
+
+/** File size for people: "640 KB", "2,4 MB" (decimal separator of the language). */
+export const formatBytes = (n: number, lang = "es") =>
+  n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${new Intl.NumberFormat(lang, { maximumFractionDigits: 1 }).format(n / 1024 / 1024)} MB`;

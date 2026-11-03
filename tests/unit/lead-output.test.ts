@@ -67,6 +67,20 @@ describe("lead emails", () => {
     expect(mail.text).toContain("Tubulars, BHA components");
     expect(mail.text).toContain("At our base (Vía Siberia)");
   });
+
+  it("lists attachments and sends the team to the panel for them, never attaching the files", () => {
+    const withFiles = { ...lead, attachments: [{ key: "leads/2026/11/0123456789abcdef-plano.pdf", name: "Plano <rev B>.pdf", size: 2_516_582, mime: "application/pdf" }] };
+    const team = teamEmail(withFiles, ctx, ["ventas@example.com"]);
+    expect(team.text).toContain("Archivos adjuntos: Plano <rev B>.pdf (2,4 MB)");
+    expect(team.html).toContain("Plano &lt;rev B&gt;.pdf");
+    expect(team.html).toContain("/admin/leads/TI-ABCD2345");
+    expect(team).not.toHaveProperty("attachments");
+    expect(team.html).not.toContain("leads/2026/11");
+    const confirmation = confirmationEmail({ ...withFiles, email: "jane@example.com" }, ctx);
+    expect(confirmation.text).toContain("Attached files: Plano <rev B>.pdf (2.4 MB)");
+    expect(confirmation.html).not.toContain("/admin/");
+    expect(teamEmail(lead, ctx, ["ventas@example.com"]).text).not.toContain("Archivos adjuntos");
+  });
 });
 
 describe("leads CSV", () => {
@@ -81,5 +95,6 @@ describe("leads CSV", () => {
     expect(csv.startsWith("﻿reference,created_at,status")).toBe(true);
     expect(csv).toContain("TI-ABCD2345,2026-11-01T15:30:00.000Z,new,form_quote,en,");
     expect(csv).toContain(`"'=HYPERLINK(""x"")"`);
+    expect(leadsToCsv([{ ...lead, attachments: [{ key: "k", name: "a.pdf", size: 1, mime: "application/pdf" }, { key: "k2", name: "b.jpg", size: 1, mime: "image/jpeg" }] }])).toContain(`,"a.pdf; b.jpg",`);
   });
 });

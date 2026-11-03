@@ -4,8 +4,8 @@
 import type { L10n, Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { escapeHtml as esc, type Email } from "@/lib/email";
-import { whatsappLink } from "@/lib/site";
-import { labelFor, locationKeys, quantityKeys, urgencyKeys } from "./options";
+import { SITE_URL, whatsappLink } from "@/lib/site";
+import { formatBytes, labelFor, locationKeys, quantityKeys, urgencyKeys } from "./options";
 import type { Lead } from "./service";
 
 export type EmailContext = {
@@ -25,6 +25,7 @@ const copy = {
   reference: { es: "Referencia", pt: "Referência", en: "Reference" },
   methods: { es: "Métodos", pt: "Métodos", en: "Methods" },
   place: { es: "Lugar", pt: "Local", en: "Location" },
+  files: { es: "Archivos adjuntos", pt: "Arquivos anexados", en: "Attached files" },
   summary: { es: "Resumen de su solicitud", pt: "Resumo da sua solicitação", en: "Summary of your request" },
   urgent: {
     es: "¿Es urgente? Escríbanos por WhatsApp citando su referencia.",
@@ -46,8 +47,8 @@ const sourceLabel: Record<Lead["source"], string> = {
 
 type Row = [label: string, value: string | undefined, href?: string];
 
-/** The request itself, labelled in `lang`. */
-function requestRows(lead: Lead, ctx: EmailContext, lang: Locale): Row[] {
+/** The request itself, labelled in `lang`; `filesHref` links the attachments (team email: the admin page). */
+function requestRows(lead: Lead, ctx: EmailContext, lang: Locale, filesHref?: string): Row[] {
   const q = getDictionary(lang).quote;
   const methods = lead.methods.map((m) => (m === "unsure" ? q.unsure : (ctx.methodNames[m]?.[lang] ?? m)));
   return [
@@ -58,6 +59,7 @@ function requestRows(lead: Lead, ctx: EmailContext, lang: Locale): Row[] {
     [q.city, lead.city ?? undefined],
     [q.urgency, labelFor(urgencyKeys, q.urgencies, lead.urgency)],
     [q.notes, lead.description ?? undefined],
+    [copy.files[lang], lead.attachments.map((f) => `${f.name} (${formatBytes(f.size, lang)})`).join("\n") || undefined, filesHref],
   ];
 }
 
@@ -118,9 +120,12 @@ export function teamEmail(lead: Lead, ctx: EmailContext, to: string[]): Email {
     ["Referente", a.referrer],
     ["Dispositivo", a.device],
   ];
-  const request = requestRows(lead, ctx, "es");
+  const panel = `${SITE_URL}/admin/leads/${lead.reference}`;
+  const request = requestRows(lead, ctx, "es", lead.attachments.length ? panel : undefined);
   const h2 = (s: string) => `<h2 style="margin:24px 0 8px;font-size:16px;color:#1f37d6">${s}</h2>`;
   const replyHint = lead.email ? "Responda a este correo para escribir directamente al solicitante." : "El solicitante no dejó correo: contáctelo por teléfono o WhatsApp.";
+  // Files are not attached to the email: they hold client data and stay in private storage.
+  const filesHint = lead.attachments.length ? `Los archivos adjuntos se descargan desde el panel: ${panel}` : "";
 
   return {
     to,
@@ -129,10 +134,10 @@ export function teamEmail(lead: Lead, ctx: EmailContext, to: string[]): Email {
     idempotencyKey: `lead-${lead.reference}-team`,
     html: layout(
       "Nueva solicitud de cotización",
-      `${h2("Contacto")}${table(contact)}${h2("Solicitud")}${table(request)}${h2("Registro")}${table(meta)}<p style="margin:20px 0 0;color:#5b6b7a;font-size:14px">${esc(replyHint)}</p>`,
+      `${h2("Contacto")}${table(contact)}${h2("Solicitud")}${table(request)}${h2("Registro")}${table(meta)}${filesHint ? `<p style="margin:20px 0 0;color:#5b6b7a;font-size:14px">${esc(filesHint)}</p>` : ""}<p style="margin:20px 0 0;color:#5b6b7a;font-size:14px">${esc(replyHint)}</p>`,
       esc(`${ctx.company.name} · Notificación automática del sitio web`),
     ),
-    text: `Nueva solicitud de cotización\n\n${textTable(contact)}\n\n${textTable(request)}\n\n${textTable(meta)}\n\n${replyHint}\n`,
+    text: `Nueva solicitud de cotización\n\n${textTable(contact)}\n\n${textTable(request)}\n\n${textTable(meta)}\n\n${filesHint ? `${filesHint}\n\n` : ""}${replyHint}\n`,
   };
 }
 

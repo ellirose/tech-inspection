@@ -12,14 +12,13 @@ const LONG_EDGE = 2400;
 
 export type PreparedUpload = { key: string; mime: string; body: Uint8Array; width: number | null; height: number | null };
 
-type Kind = "image" | "pdf";
-
-function sniff(b: Uint8Array): Kind | null {
+/** The type of a file read from its first bytes, for the formats uploads accept. */
+export function detectFile(b: Uint8Array): { ext: "jpg" | "png" | "webp" | "pdf"; mime: string } | null {
   const ascii = (from: number, to: number) => String.fromCharCode(...b.subarray(from, to));
-  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image"; // JPEG
-  if (b[0] === 0x89 && ascii(1, 4) === "PNG") return "image";
-  if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return "image";
-  if (ascii(0, 5) === "%PDF-") return "pdf";
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return { ext: "jpg", mime: "image/jpeg" };
+  if (b[0] === 0x89 && ascii(1, 4) === "PNG") return { ext: "png", mime: "image/png" };
+  if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return { ext: "webp", mime: "image/webp" };
+  if (ascii(0, 5) === "%PDF-") return { ext: "pdf", mime: "application/pdf" };
   return null;
 }
 
@@ -40,12 +39,12 @@ export function slugifyName(name: string) {
 
 export async function prepareUpload(file: File, now = new Date()): Promise<PreparedUpload | { error: string }> {
   const input = new Uint8Array(await file.arrayBuffer());
-  const kind = sniff(input);
-  if (!kind) return { error: "Formato no admitido. Use JPG, PNG o WebP para imágenes y PDF para documentos (las fotos HEIC del iPhone se pueden exportar como JPG)." };
+  const type = detectFile(input);
+  if (!type) return { error: "Formato no admitido. Use JPG, PNG o WebP para imágenes y PDF para documentos (las fotos HEIC del iPhone se pueden exportar como JPG)." };
   const name = `${slugifyName(file.name)}-${randomBytes(4).toString("hex")}`;
   const year = now.getUTCFullYear();
 
-  if (kind === "pdf") {
+  if (type.ext === "pdf") {
     if (input.byteLength > MAX_PDF_BYTES) return { error: "El PDF supera 20 MB." };
     return { key: `docs/uploads/${year}/${name}.pdf`, mime: "application/pdf", body: input, width: null, height: null };
   }

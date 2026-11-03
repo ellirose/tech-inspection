@@ -1,6 +1,7 @@
 import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { photo } from "@/lib/media";
+import { readAttachments } from "@/lib/leads/attachments";
 import { prepareUpload, slugifyName } from "@/lib/media-upload";
 import { previewPath } from "@/lib/preview";
 import { isStorageKey } from "@/lib/storage";
@@ -59,6 +60,29 @@ describe("uploads", () => {
   it("lays out uploads from the size in their name", () => {
     expect(photo("/media/uploads/2026/foto-1a2b3c4d-1600x900.webp")).toMatchObject({ w: 1600, h: 900 });
     expect(photo("/media/unknown.jpg")).toMatchObject({ w: 1600, h: 1200 });
+  });
+});
+
+describe("quote attachments", () => {
+  const pdf = (name: string, size = 100) => fileOf(Buffer.concat([Buffer.from("%PDF-1.7\n"), Buffer.alloc(size)]), name);
+
+  it("keeps files as sent under a private folder with an unguessable name", async () => {
+    const png = await sharp({ create: { width: 20, height: 10, channels: 3, background: "#000" } }).png().toBuffer();
+    const out = await readAttachments([pdf("Plano tubería.PDF"), fileOf(png, "foto.png")], now);
+    expect(out).toHaveLength(2);
+    expect(out![0]).toMatchObject({ name: "Plano tubería.PDF", mime: "application/pdf", size: 109 });
+    expect(out![0].key).toMatch(/^leads\/2026\/11\/[0-9a-f]{16}-plano-tuberia\.pdf$/);
+    expect(out![1].key).toMatch(/\.png$/);
+    expect(Buffer.from(out![1].body).equals(png)).toBe(true);
+    for (const f of out!) expect(isStorageKey(f.key)).toBe(true);
+  });
+
+  it("refuses other formats, more than three files or more than 10 MB in total", async () => {
+    expect(await readAttachments([fileOf(Buffer.from("PK\x03\x04"), "lista.xlsx")], now)).toBeNull();
+    expect(await readAttachments([fileOf(Buffer.from("RIFF0000WEBPVP8 "), "a.webp")], now)).toBeNull();
+    expect(await readAttachments([pdf("1.pdf"), pdf("2.pdf"), pdf("3.pdf"), pdf("4.pdf")], now)).toBeNull();
+    expect(await readAttachments([pdf("a.pdf", 6_000_000), pdf("b.pdf", 5_000_000)], now)).toBeNull();
+    expect(await readAttachments([pdf("a.pdf", 5_000_000), pdf("b.pdf", 5_000_000)], now)).toHaveLength(2);
   });
 });
 

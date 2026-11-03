@@ -28,6 +28,7 @@ const actions: Record<string, string> = {
   lead_note: "Agregó una nota a un lead",
   lead_assigned: "Asignó un lead",
   leads_exported: "Exportó leads a CSV",
+  lead_attachment_downloaded: "Descargó un adjunto de un lead",
   settings_updated: "Cambió la configuración",
   redirect_created: "Creó una redirección",
   redirect_enabled: "Activó una redirección",
