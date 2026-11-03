@@ -5,6 +5,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
+import { hasDatabase } from "@/db";
 import { locales } from "@/i18n/config";
 import { knowledgeBase, topicInfo } from "@/lib/chat/knowledge";
 import { pruneConversations, saveConversation, type ChatUsage } from "@/lib/chat/log";
@@ -46,7 +47,8 @@ export async function POST(request: NextRequest) {
   // Only the site's own pages may use the bot (and spend its API budget).
   const origin = request.headers.get("origin");
   if (!origin || new URL(origin).host !== request.headers.get("host")) return fail("invalid", 403);
-  if (!process.env.ANTHROPIC_API_KEY) return fail("disabled", 503);
+  // The bot needs its key, and the database for limits and the conversation log.
+  if (!process.env.ANTHROPIC_API_KEY || !hasDatabase) return fail("disabled", 503);
   if (Number(request.headers.get("content-length") ?? 0) > 128 * 1024) return fail("invalid", 413);
 
   const parsed = chatRequest.safeParse(await request.json().catch(() => null));

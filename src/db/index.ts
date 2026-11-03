@@ -5,6 +5,12 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
 
+/**
+ * False on a frontend-only deployment (a Vercel preview without a database): the public pages then read
+ * the content bundled in src/content (lib/data/bundled.ts) and the features that store data are off.
+ */
+export const hasDatabase = Boolean(process.env.DATABASE_URL);
+
 export function createDb(url = process.env.DATABASE_URL) {
   if (!url) throw new Error("DATABASE_URL is not set");
   const pool = new Pool({ connectionString: url, max: 10 });

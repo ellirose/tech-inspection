@@ -1,13 +1,14 @@
 // Public-site content reads. Every function is cached and tagged; admin mutations call updateTag()
 // with the same tags so the site refreshes in seconds without a rebuild. Only published rows are returned
 // (drafts too in preview, see visible()), in the editors' order, shaped exactly like the types the components
-// already use.
+// already use. Without a database (frontend-only deployment) each one returns the bundled content instead.
 import "server-only";
 import { and, asc, eq, gte, isNull, or, sql } from "drizzle-orm";
 import type { PgColumn } from "drizzle-orm/pg-core";
 import { cacheLife, cacheTag } from "next/cache";
 import { draftMode } from "next/headers";
-import { db, schema as s } from "@/db";
+import { db, hasDatabase, schema as s } from "@/db";
+import { bundled } from "./bundled";
 import type { PageBlockKey, PageBlocks } from "@/db/seed/blocks";
 import type { L10n } from "@/i18n/config";
 import type { Method, MethodKey } from "@/content/methods";
@@ -43,6 +44,7 @@ export async function getSite() {
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.site);
+  if (!hasDatabase) return bundled.site();
   const [row] = await db.select().from(s.siteSettings).limit(1);
   if (!row) throw new Error("site_settings is empty: run `npm run db:seed`");
   return row.data;
@@ -52,6 +54,7 @@ export async function getMethods(): Promise<Method[]> {
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.methods);
+  if (!hasDatabase) return bundled.methods();
   const rows = await db.select().from(s.method).where(await visible(s.method)).orderBy(asc(s.method.sortOrder));
   return rows.map((m) => ({
     key: m.key as MethodKey,
@@ -74,6 +77,7 @@ export async function getServices(): Promise<Service[]> {
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.services, tags.methods);
+  if (!hasDatabase) return bundled.services();
   const [rows, links] = await Promise.all([
     db.select().from(s.service).where(await visible(s.service)).orderBy(asc(s.service.sortOrder)),
     db
@@ -104,6 +108,10 @@ export async function getService(slug: string): Promise<(Service & { seo: SeoOve
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.services, tags.methods);
+  if (!hasDatabase) {
+    const svc = bundled.services().find((x) => x.slug === slug);
+    return svc ? { ...svc, seo: { title: null, description: null } } : null;
+  }
   const [row] = await db
     .select()
     .from(s.service)
@@ -135,6 +143,7 @@ export async function getCertifications() {
   "use cache";
   cacheLife("days");
   cacheTag(tags.all, tags.certifications);
+  if (!hasDatabase) return bundled.certifications();
   const rows = await db
     .select()
     .from(s.certification)
@@ -154,6 +163,7 @@ export async function getClients(): Promise<{ name: string; logo: string; square
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.clients);
+  if (!hasDatabase) return bundled.clients();
   const rows = await db
     .select()
     .from(s.client)
@@ -166,6 +176,7 @@ export async function getStats(): Promise<{ value: number; prefix?: string; labe
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.stats);
+  if (!hasDatabase) return bundled.stats();
   const rows = await db.select().from(s.stat).where(await visible(s.stat)).orderBy(asc(s.stat.sortOrder));
   return rows.map((r) => ({ value: r.value, ...(r.prefix ? { prefix: r.prefix } : {}), label: r.label }));
 }
@@ -174,6 +185,7 @@ export async function getLeadership() {
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.team);
+  if (!hasDatabase) return bundled.leadership();
   const rows = await db
     .select()
     .from(s.teamMember)
@@ -186,6 +198,7 @@ export async function getChannels() {
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.channels);
+  if (!hasDatabase) return bundled.channels();
   const rows = await db
     .select()
     .from(s.contactChannel)
@@ -200,6 +213,7 @@ export async function getDocuments(kind: "policy" | "accountability"): Promise<C
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.documents);
+  if (!hasDatabase) return bundled.documents(kind);
   const rows = await db
     .select()
     .from(s.companyDocument)
@@ -221,7 +235,11 @@ export async function getSeoOverrides(): Promise<{ services: Record<string, SeoO
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.services, tags.methods);
-  const pick = { slug: s.service.slug, title: s.service.seoTitle, description: s.service.seoDescription };
+  if (!hasDatabase) {
+    const none = (items: { slug: string }[]) => Object.fromEntries(items.map((x) => [x.slug, { title: null, description: null }]));
+    return { services: none(bundled.services()), methods: none(bundled.methods()) };
+  }
+  const pick ={ slug: s.service.slug, title: s.service.seoTitle, description: s.service.seoDescription };
   const [services, methods] = await Promise.all([
     db.select(pick).from(s.service),
     db.select({ slug: s.method.slug, title: s.method.seoTitle, description: s.method.seoDescription }).from(s.method),
@@ -234,6 +252,7 @@ export async function getBlock<K extends PageBlockKey>(key: K): Promise<PageBloc
   "use cache";
   cacheLife("max");
   cacheTag(tags.all, tags.block(key));
+  if (!hasDatabase) return bundled.block(key);
   const [row] = await db
     .select({ data: s.pageBlock.data })
     .from(s.pageBlock)

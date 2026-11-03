@@ -20,6 +20,8 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 
 `npm run build` prerenders pages from the database, so the database must be running and seeded for builds too.
 
+**Frontend-only deployments** (such as a Vercel preview): with no `DATABASE_URL`, the public pages are built from the content bundled in `src/content` (`src/lib/data/bundled.ts`, the same content `db:seed` loads) and the old Wix redirects still apply. The quote form answers "continue on WhatsApp", the chatbot falls back to the guided assistant, and `/admin` shows that the panel is unavailable.
+
 | Command | Does |
 |---|---|
 | `npm run db:generate` | Write a new SQL migration after changing `src/db/schema.ts` |

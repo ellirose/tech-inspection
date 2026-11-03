@@ -1,7 +1,8 @@
 // Redirect lookup for src/proxy.ts. Active rows of the `redirect` table are kept in memory and
 // reloaded at most once a minute, so admin edits apply within a minute without a query per request.
 import { eq } from "drizzle-orm";
-import { db, schema } from "@/db";
+import { db, hasDatabase, schema } from "@/db";
+import { legacyRedirects } from "@/db/seed/redirects";
 
 type Target = { to: string; status: number };
 const TTL = 60_000;
@@ -9,6 +10,8 @@ let cache: { at: number; map: Map<string, Target> } | undefined;
 let loading: Promise<Map<string, Target>> | undefined;
 
 async function load() {
+  // Frontend-only deployment: the old Wix URLs as seeded, with the seed's 308
+  if (!hasDatabase) return new Map(legacyRedirects.map(([from, to]) => [normalisePath(from), { to, status: 308 }]));
   const rows = await db
     .select({ from: schema.redirect.fromPath, to: schema.redirect.toPath, status: schema.redirect.statusCode })
     .from(schema.redirect)

@@ -3,6 +3,7 @@
 // The wizard sends multipart form data when files are attached (a "payload" field with the JSON, plus
 // "files"); everything else sends JSON. This path is outside the proxy, so its body limit does not apply.
 import { after, userAgent, type NextRequest } from "next/server";
+import { hasDatabase } from "@/db";
 import { getServices } from "@/lib/data/content";
 import { linkLead } from "@/lib/chat/log";
 import { readAttachments, removeAttachments, storeAttachments, type Attachment } from "@/lib/leads/attachments";
@@ -36,6 +37,8 @@ async function readBody(request: NextRequest): Promise<{ body: unknown; files: F
 }
 
 export async function POST(request: NextRequest) {
+  // Frontend-only deployment: nowhere to store the lead, so the form offers WhatsApp with the summary.
+  if (!hasDatabase) return reply({ ok: false, error: "server" }, 503);
   // Room for the files plus the form itself.
   if (Number(request.headers.get("content-length") ?? 0) > ATTACHMENTS.maxBytes + 256 * 1024) return reply({ ok: false, error: "files" }, 413);
   const read = await readBody(request);

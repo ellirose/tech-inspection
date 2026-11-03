@@ -7,6 +7,7 @@ import { hasLocale, htmlLang, locales, ogLocale, type Locale } from "@/i18n/conf
 import { getDictionary } from "@/i18n/dictionaries";
 import { getDocuments, getMethods, getServices, getSite } from "@/lib/data/content";
 import { SITE_URL } from "@/lib/site";
+import { hasDatabase } from "@/db";
 import { Header, type NavData } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
@@ -96,8 +97,9 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
           <Footer lang={lang} dict={dict} />
           <FloatingActions
             whatsappLabel={dict.cta.whatsapp}
-            // Read at build time: the chatbot needs ANTHROPIC_API_KEY both when the site is built and when it runs.
-            ai={Boolean(process.env.ANTHROPIC_API_KEY)}
+            // Read at build time: the chatbot needs ANTHROPIC_API_KEY both when the site is built and when it runs,
+            // and a database (without one the guided assistant stays).
+            ai={Boolean(process.env.ANTHROPIC_API_KEY) && hasDatabase}
             assistant={{
               lang,
               t: dict.chat,
