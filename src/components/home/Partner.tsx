@@ -22,7 +22,7 @@ export async function Partner({ lang, dict, index = "08", intro = true }: { lang
           <div className="mb-5 sm:hidden">
             <Eyebrow index={index}>{dict.ui.partnerSince}</Eyebrow>
             <h2 className="mt-5 text-balance text-[2rem] font-extrabold leading-[1.05] tracking-[-0.035em] text-ink">
-              {partner.titleA[lang]}. <span className="text-accent">{partner.titleB[lang]}.</span>
+              {partner.titleA[lang]}. <span className="mark-corp">{partner.titleB[lang]}.</span>
             </h2>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2.5rem] shadow-float sm:aspect-[16/9] sm:rounded-[3.5rem] lg:aspect-[16/7.5]">
@@ -31,7 +31,7 @@ export async function Partner({ lang, dict, index = "08", intro = true }: { lang
           <div className="glass absolute bottom-6 left-6 hidden max-w-[34rem] rounded-[2rem] p-7 shadow-float ring-1 ring-white/50 sm:block lg:bottom-8 lg:left-8">
             <Eyebrow index={index}>{dict.ui.partnerSince}</Eyebrow>
             <h2 className="mt-5 text-balance text-[clamp(2rem,3.4vw,3.1rem)] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink">
-              {partner.titleA[lang]}. <span className="text-accent">{partner.titleB[lang]}.</span>
+              {partner.titleA[lang]}. <span className="mark-corp">{partner.titleB[lang]}.</span>
             </h2>
           </div>
         </Reveal>

@@ -108,7 +108,7 @@ export function Header({ data }: { data: NavData }) {
             <LangMenu lang={lang} label={nav.language} className="hidden sm:block" />
             <Link
               href={`${base}/contacto#cotizar`}
-              className="group hidden h-12 items-center gap-3 whitespace-nowrap rounded-full bg-brand-600 pl-5 pr-1.5 text-[1.02rem] font-bold text-white shadow-[0_12px_26px_-12px_rgb(31_55_214/0.8)] transition hover:bg-brand-500 md:flex dark:bg-neon dark:text-[#071a2e]"
+              className="group hidden h-12 items-center gap-3 whitespace-nowrap rounded-full bg-brand-600 pl-5 pr-1.5 text-[1.02rem] font-bold text-white shadow-[0_12px_26px_-12px_rgb(31_55_214/0.8)] transition hover:bg-brand-500 md:flex dark:bg-corp-blue dark:text-white dark:ring-1 dark:ring-white/20 dark:hover:bg-corp-steel"
             >
               {nav.quote}
               <span className="grid size-9 place-items-center rounded-full bg-white/15 transition group-hover:translate-x-0.5 group-hover:bg-lime group-hover:text-[#071a2e] dark:bg-[#071a2e]/10">
@@ -215,7 +215,7 @@ export function Header({ data }: { data: NavData }) {
                 <div className="flex items-center gap-2">
                   <LangMenu lang={lang} label={nav.language} placement="up" />
                 </div>
-                <Link href={`${base}/contacto#cotizar`} className="flex h-14 items-center justify-center gap-2 rounded-full bg-brand-600 text-lg font-bold text-white dark:bg-neon dark:text-[#071a2e]">
+                <Link href={`${base}/contacto#cotizar`} className="flex h-14 items-center justify-center gap-2 rounded-full bg-brand-600 text-lg font-bold text-white dark:bg-corp-blue dark:text-white">
                   {nav.quote}
                   <ArrowRight weight="bold" className="size-5" />
                 </Link>

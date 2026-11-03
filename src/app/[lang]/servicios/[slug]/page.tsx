@@ -66,7 +66,7 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
         image={s.image}
         caption={s.methods.map((k) => methodByKey(k).code).join(" · ")}
       >
-        <span className="mt-8 grid size-20 place-items-center rounded-3xl bg-brand-600 text-white shadow-float dark:bg-neon dark:text-[#071a2e]">
+        <span className="mt-8 grid size-20 place-items-center rounded-3xl bg-brand-600 text-white shadow-float dark:bg-corp-blue dark:text-white">
           <ServiceGlyph name={s.icon} className="size-11" />
         </span>
       </PageHero>

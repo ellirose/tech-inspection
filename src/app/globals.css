@@ -35,6 +35,13 @@
   --color-vt: #f5a524;
   --color-whatsapp: #25d366;
 
+  /* Corporate colours from the identity manual (doc/04-brand/BRAND-GUIDELINES.md) */
+  --color-corp-blue: #030a8c;
+  --color-corp-gray: #403e3f;
+  --color-corp-light: #d9d9d9;
+  --color-corp-steel: #105486;
+  --color-corp-mid: #8a8b8a;
+
   --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px -12px rgb(0 0 0 / 0.5);
   --shadow-card: 0 2px 6px rgb(0 0 0 / 0.3), 0 24px 50px -24px rgb(0 0 0 / 0.65);
   --shadow-float: 0 40px 80px -30px rgb(0 0 0 / 0.75), 0 12px 28px -14px rgb(0 0 0 / 0.45);
@@ -112,14 +119,15 @@
   --surface-2: rgb(12 30 49 / 0.92);
   --tint: rgb(16 52 82 / 0.5);
   --mist: rgb(18 42 66 / 0.7);
-  --ink: #eef7fd;
-  --ink-soft: #b3c7d8;
-  --mute: #7f98ad;
-  --line: rgb(120 190 240 / 0.15);
-  /* Text blues: tints of the logo's institutional blue #030A8C (same hue, 237°), which itself is unreadable
-     on this background; ~6.3:1 and ~8.5:1 on --canvas. See doc/04-brand/BRAND-GUIDELINES.md */
-  --accent: #8086fa;
-  --accent-ink: #a6aafd;
+  /* Text in the corporate neutrals: white, light gray #D9D9D9 and the complementary gray #8A8B8A. The
+     institutional blue #030A8C is too dark to be a letter colour on this background (~1.4:1), so it
+     appears as a fill instead: buttons, and highlighted words set in blue on a light-gray band (mark-corp). */
+  --ink: #ffffff;
+  --ink-soft: #d9d9d9;
+  --mute: #8a8b8a;
+  --line: rgb(217 217 217 / 0.14);
+  --accent: #ffffff;
+  --accent-ink: #d9d9d9;
   --glass: rgb(6 18 31 / 0.66);
   --grid: rgb(92 194 255 / 0.06);
   --dot: rgb(63 214 255 / 0.14);
@@ -198,6 +206,15 @@
 @utility band {
   background-color: rgb(4 13 23 / 0.62);
   box-shadow: inset 0 1px 0 rgb(92 194 255 / 0.1), inset 0 -1px 0 rgb(92 194 255 / 0.1);
+}
+/* Highlighted words in the corporate colours: institutional blue letters on a light-gray band, one band per line */
+@utility mark-corp {
+  background-color: var(--color-corp-light);
+  color: var(--color-corp-blue);
+  padding-inline: 0.14em;
+  border-radius: 0.12em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 @utility text-stroke {
   -webkit-text-stroke: 2px currentColor;

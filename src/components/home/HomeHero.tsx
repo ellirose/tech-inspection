@@ -7,7 +7,7 @@ import { Container, Eyebrow } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { Counter } from "@/components/ui/Counter";
-import { LineReveal, Underline } from "@/components/ui/LineReveal";
+import { LineReveal } from "@/components/ui/LineReveal";
 import { RotatingWord } from "@/components/ui/RotatingWord";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 import { cn } from "@/lib/cn";
@@ -36,17 +36,16 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
 
           <h1 className="mt-[3vh] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink [font-size:clamp(2.6rem,min(4.75vw,8.6vh),4.75rem)]">
             <LineReveal delay={0.05}>{h.titleA[lang]}</LineReveal>
-            <LineReveal delay={0.15} className="text-balance text-accent">
-              {h.titleB[lang].slice(0, lastSpace)}{" "}
-              <span className="relative z-0 whitespace-nowrap">
-                {tail}.
-                <Underline className="right-[0.32em] w-auto" />
+            {/* The promise in the corporate colours: institutional blue on the light-gray band */}
+            <LineReveal delay={0.15} className="mt-[0.12em] text-balance leading-[1.14]">
+              <span className="mark-corp">
+                {h.titleB[lang].slice(0, lastSpace)} <span className="whitespace-nowrap">{tail}.</span>
               </span>
             </LineReveal>
           </h1>
 
           <Reveal delay={0.35} y={16} className="mt-[3vh] flex items-center gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-ink text-neon dark:bg-neon dark:text-[#071a2e]">
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-ink text-neon dark:bg-corp-blue dark:text-white">
               <Crosshair weight="duotone" className="size-6 animate-spin-slow motion-reduce:animate-none" />
             </span>
             <span className="text-[clamp(1.1rem,1.6vw,1.45rem)] font-bold text-ink-soft">

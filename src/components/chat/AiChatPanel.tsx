@@ -239,7 +239,7 @@ export default function AiChatPanel(props: AiAssistantProps & { open: boolean; o
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="fixed bottom-[8.5rem] right-4 z-[60] flex h-[min(40rem,calc(100svh-11rem))] w-[min(26rem,calc(100vw-2rem))] origin-bottom-right flex-col overflow-hidden rounded-[2rem] bg-canvas shadow-float ring-1 ring-line sm:bottom-[10.5rem] sm:right-6"
     >
-      <div className="relative overflow-hidden bg-brand-600 px-5 pb-4 pt-5 text-white">
+      <div className="relative overflow-hidden bg-corp-blue px-5 pb-4 pt-5 text-white">
         <div className="absolute inset-0 bg-network opacity-50" />
         <div className="relative flex items-center gap-3">
           <Mascot className="size-11 shrink-0 rounded-full ring-1 ring-white/25" />

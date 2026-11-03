@@ -167,7 +167,7 @@ export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
                       <span className="block font-mono text-xs font-medium tracking-widest text-mute">{doc.code}</span>
                       <span className="block text-xl font-extrabold text-ink">{doc.title[lang]}</span>
                     </span>
-                    <span className="ml-auto grid size-12 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition group-hover:translate-y-0.5 dark:bg-neon dark:text-[#071a2e]">
+                    <span className="ml-auto grid size-12 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition group-hover:translate-y-0.5 dark:bg-corp-blue dark:text-white">
                       <ArrowDown weight="bold" className="size-5" />
                     </span>
                   </a>

@@ -38,7 +38,7 @@ export function ServiceExplorer({ items, featured, cta }: { items: ExplorerItem[
                 >
                   {on && <motion.span layoutId="svc-active" transition={{ type: "spring", stiffness: 360, damping: 34 }} className="absolute inset-0 -z-10 rounded-[1.75rem] bg-surface shadow-card ring-1 ring-line" />}
                   <span className="w-7 font-mono text-sm font-medium text-mute">{String(i + 1).padStart(2, "0")}</span>
-                  <span className={cn("grid size-14 shrink-0 place-items-center rounded-2xl transition duration-300", on ? "bg-brand-600 text-white shadow-[0_12px_26px_-10px_rgb(10_100_191/0.7)] dark:bg-neon dark:text-[#071a2e]" : "bg-mist text-accent")}>
+                  <span className={cn("grid size-14 shrink-0 place-items-center rounded-2xl transition duration-300", on ? "bg-brand-600 text-white shadow-[0_12px_26px_-10px_rgb(10_100_191/0.7)] dark:bg-corp-blue dark:text-white" : "bg-mist text-accent")}>
                     <ServiceGlyph name={it.icon} className="size-8" />
                   </span>
                   <span className="min-w-0 flex-1 text-[1.4rem] font-extrabold leading-tight tracking-tight">{it.name}</span>
@@ -69,7 +69,7 @@ export function ServiceExplorer({ items, featured, cta }: { items: ExplorerItem[
                         <p className="text-[1.75rem] font-extrabold leading-tight tracking-tight text-ink">{s.name}</p>
                         <p className="mt-1.5 text-[1.05rem] leading-relaxed text-ink-soft">{s.short}</p>
                       </div>
-                      <Link href={s.href} aria-label={`${cta}: ${s.name}`} className="grid size-14 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition hover:rotate-45 dark:bg-neon dark:text-[#071a2e]">
+                      <Link href={s.href} aria-label={`${cta}: ${s.name}`} className="grid size-14 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition hover:rotate-45 dark:bg-corp-blue dark:text-white">
                         <ArrowUpRight weight="bold" className="size-6" />
                       </Link>
                     </div>

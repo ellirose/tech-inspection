@@ -33,7 +33,7 @@ function Choice({ on, onClick, children, className }: { on: boolean; onClick: ()
       aria-pressed={on}
       className={cn(
         "relative rounded-2xl px-4 py-3 text-left text-[1rem] font-bold transition",
-        on ? "bg-brand-600 text-white ring-1 ring-brand-600 shadow-[0_12px_26px_-12px_rgb(31_55_214/0.7)] dark:bg-neon dark:text-[#071a2e] dark:ring-neon" : "bg-surface text-ink ring-1 ring-inset ring-line hover:ring-accent/40",
+        on ? "bg-brand-600 text-white ring-1 ring-brand-600 shadow-[0_12px_26px_-12px_rgb(31_55_214/0.7)] dark:bg-corp-blue dark:text-white dark:ring-corp-steel" : "bg-surface text-ink ring-1 ring-inset ring-line hover:ring-accent/40",
         className,
       )}
     >
@@ -145,7 +145,7 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
               onClick={() => i < step && go(i)}
               className={cn(
                 "grid size-11 shrink-0 place-items-center rounded-full font-mono text-sm font-bold transition",
-                i < step ? "bg-lime text-[#071a2e]" : i === step ? "bg-brand-600 text-white ring-4 ring-neon/30 dark:bg-neon dark:text-[#071a2e]" : "bg-surface text-mute ring-1 ring-line",
+                i < step ? "bg-lime text-[#071a2e]" : i === step ? "bg-brand-600 text-white ring-4 ring-neon/30 dark:bg-corp-blue dark:text-white" : "bg-surface text-mute ring-1 ring-line",
               )}
               aria-current={i === step ? "step" : undefined}
             >
@@ -342,7 +342,7 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
         {/* Separate keys: if React reused one element for both, the click on "next" that reaches the last step
             would turn it into the submit button mid-click and send the form at once. */}
         {step < 2 ? (
-          <button key="next" type="button" onClick={() => go(step + 1)} className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand-600 pl-6 pr-5 font-bold text-white transition hover:bg-brand-500 dark:bg-neon dark:text-[#071a2e]">
+          <button key="next" type="button" onClick={() => go(step + 1)} className="group inline-flex h-14 items-center gap-3 rounded-full bg-brand-600 pl-6 pr-5 font-bold text-white transition hover:bg-brand-500 dark:bg-corp-blue dark:text-white">
             {t.next}
             <ArrowRight weight="bold" className="size-4 transition group-hover:translate-x-0.5" />
           </button>

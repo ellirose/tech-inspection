@@ -6,8 +6,8 @@ type Variant = "primary" | "neon" | "ghost" | "light" | "whatsapp";
 
 const styles: Record<Variant, { btn: string; dot: string }> = {
   primary: {
-    btn: "bg-brand-600 text-white shadow-[0_14px_30px_-12px_rgb(31_55_214/0.75)] hover:bg-brand-500 dark:bg-neon dark:text-[#071a2e] dark:shadow-neon dark:hover:bg-white",
-    dot: "bg-white/15 group-hover:bg-lime group-hover:text-[#071a2e] dark:bg-[#071a2e]/10",
+    btn: "bg-brand-600 text-white shadow-[0_14px_30px_-12px_rgb(31_55_214/0.75)] hover:bg-brand-500 dark:bg-corp-blue dark:text-white dark:ring-1 dark:ring-white/20 dark:shadow-[0_14px_34px_-12px_rgb(16_84_134/0.9)] dark:hover:bg-corp-steel",
+    dot: "bg-white/15 group-hover:bg-lime group-hover:text-[#071a2e]",
   },
   neon: { btn: "bg-neon text-[#071a2e] shadow-neon hover:bg-[#5fd9fa]", dot: "bg-[#071a2e]/10" },
   ghost: { btn: "bg-surface text-ink shadow-soft ring-1 ring-line hover:ring-accent/40", dot: "bg-tint text-accent" },

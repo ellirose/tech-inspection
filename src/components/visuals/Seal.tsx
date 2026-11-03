@@ -19,7 +19,7 @@ export function Seal({ ring, code, className, spin = false }: { ring: string; co
           </textPath>
         </text>
       </svg>
-      <div className="absolute inset-[25%] grid place-items-center rounded-full bg-brand-600 text-white shadow-[0_10px_24px_-8px_rgb(10_100_191/0.7)] dark:bg-neon dark:text-[#071a2e]">
+      <div className="absolute inset-[25%] grid place-items-center rounded-full bg-brand-600 text-white shadow-[0_10px_24px_-8px_rgb(10_100_191/0.7)] dark:bg-corp-blue dark:text-white">
         <span className="px-1 text-center text-[clamp(0.85rem,1.6vw,1.25rem)] font-extrabold leading-none tracking-tight">{code}</span>
       </div>
     </div>
