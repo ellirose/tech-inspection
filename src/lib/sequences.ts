@@ -2,8 +2,8 @@ import type { MethodKey } from "@/content/methods";
 
 /**
  * Scroll-scrubbed video sections (components/sequence). Each video is exported as numbered WebP
- * frames (`f_001.webp` …) in `public/media/sequences/<key>/`; until then `src` is null and the
- * section draws a placeholder that names the scene the video must show at that scroll position.
+ * frames (`f_001.webp` …) in `public/media/sequences/<key>/`. With `src` null the section draws
+ * moving lines in each scene's accent instead, which the client prefers to the rendered films (Nov 2026).
  *
  * The scenes below are the storyboard the videos are produced from (doc/04-brand/VIDEO-1-METHODS.md, VIDEO-2-PROCESS.md):
  * keep both in step. Scene boundaries are equal shares of the scroll.
@@ -13,7 +13,7 @@ export type Scene = { label: string; shot: string; accent: string };
 export type SequenceSpec = {
   key: string;
   title: string;
-  /** Frame folder once produced, e.g. "/media/sequences/methods"; null shows the placeholder. */
+  /** Frame folder, e.g. "/media/sequences/methods"; null draws the moving lines. */
   src: string | null;
   /** Frames in the full sequence (24 fps: 240 = 10 s). */
   frames: number;
@@ -30,7 +30,7 @@ export const sequences = {
   methods: {
     key: "methods",
     title: "Cuatro métodos, un mismo acero",
-    src: "/media/sequences/methods",
+    src: null,
     frames: 240,
     mobileFrames: 48,
     scroll: 3.2,
@@ -44,7 +44,7 @@ export const sequences = {
   process: {
     key: "process",
     title: "El recorrido de una broca",
-    src: "/media/sequences/process",
+    src: null,
     frames: 240,
     mobileFrames: 48,
     scroll: 3.6,

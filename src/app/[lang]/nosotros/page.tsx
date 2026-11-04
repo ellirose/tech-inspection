@@ -15,6 +15,7 @@ import { Closing } from "@/components/home/Closing";
 import { Clients } from "@/components/home/Clients";
 import { Certifications } from "@/components/home/Certifications";
 import { CtaBand } from "@/components/ui/CtaBand";
+import { ButtonLink } from "@/components/ui/Button";
 import { Mosaic } from "@/components/media/Mosaic";
 import { photo } from "@/lib/media";
 import { Email } from "@/components/ui/Email";
@@ -82,7 +83,11 @@ export default async function AboutPage({ params }: PageProps<"/[lang]/nosotros"
       {/* Team */}
       <section className="band py-24 sm:py-32">
         <Container>
-          <SectionHeading index="05" eyebrow={a.team} title={a.teamTitle} lead={a.teamLead} />
+          <SectionHeading index="05" eyebrow={a.team} title={a.teamTitle} lead={a.teamLead}>
+            <ButtonLink href={`/${lang}/trabaja-con-nosotros`} variant="ghost" className="mt-6">
+              {d.nav.careers}
+            </ButtonLink>
+          </SectionHeading>
           <Mosaic className="mt-14" items={team} alt={a.team} />
         </Container>
       </section>

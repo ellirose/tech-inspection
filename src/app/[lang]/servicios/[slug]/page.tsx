@@ -12,6 +12,7 @@ import { Container, Eyebrow } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
 import { CtaBand } from "@/components/ui/CtaBand";
+import { ButtonLink } from "@/components/ui/Button";
 import { Showcase } from "@/components/media/Showcase";
 import { WhyBit } from "@/components/home/WhyBit";
 import { Standards } from "@/components/home/Standards";
@@ -55,6 +56,8 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
   const others = services.filter((x) => x.slug !== s.slug);
   const bits = s.slug === "brocas";
   const gallery = s.gallery.filter((g) => g !== s.image);
+  // Services with their own brochure on /portafolio
+  const brochure = ({ brocas: "ndt", "aseguramiento-calidad": "qaqc" } as Record<string, string>)[s.slug];
 
   return (
     <>
@@ -77,6 +80,11 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
             <Eyebrow index="01">{s.name[lang]}</Eyebrow>
             <p className="text-balance text-[clamp(1.6rem,2.4vw,2.2rem)] font-extrabold leading-snug tracking-[-0.02em] text-ink">{s.body[0][lang]}</p>
             <p className="text-lg leading-relaxed text-ink-soft sm:text-xl">{s.body[1][lang]}</p>
+            {brochure && (
+              <ButtonLink href={`/${lang}/portafolio#${brochure}-1`} variant="ghost">
+                {d.pages.portfolio.cta}
+              </ButtonLink>
+            )}
           </Reveal>
           <Reveal delay={0.1} className="lg:col-span-5">
             <div className="relative overflow-hidden rounded-[2.5rem] rounded-tr-[5rem] bg-brand-600 p-8 text-white shadow-float sm:p-10 dark:bg-brand-700">

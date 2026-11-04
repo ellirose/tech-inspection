@@ -70,6 +70,8 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
                   <li><Link className={link} href={`${base}/nosotros`}>{dict.nav.about}</Link></li>
                   <li><Link className={link} href={`${base}/hseq`}>{dict.nav.hseq}</Link></li>
                   <li><Link className={link} href={`${base}/plataforma`}>{dict.nav.platform}</Link></li>
+                  <li><Link className={link} href={`${base}/portafolio`}>{dict.nav.portfolio}</Link></li>
+                  <li><Link className={link} href={`${base}/trabaja-con-nosotros`}>{dict.nav.careers}</Link></li>
                   <li><Link className={link} href={`${base}/contacto`}>{dict.nav.contact}</Link></li>
                 </ul>
               </div>

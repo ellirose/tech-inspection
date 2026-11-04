@@ -4,7 +4,7 @@ import type { SequenceSpec } from "@/lib/sequences";
  * Draws a frame sequence on a canvas. Desktop scrubs it with scroll (`scrub`); phones loop a subset
  * at 8 fps while on screen; reduced motion holds the first frame. Frames load coarse-to-fine once the
  * section is near, and the nearest loaded frame stands in for one still on its way, so a fast scroll
- * never shows a blank. Without `spec.src` it paints the storyboard placeholder instead.
+ * never shows a blank. Without `spec.src` it paints moving lines in the scene's accent instead.
  */
 export type FramePlayer = { scrub(p: number): void; dispose(): void };
 
@@ -42,7 +42,7 @@ export function createFramePlayer(canvas: HTMLCanvasElement, spec: SequenceSpec,
 
   function draw(slot: number) {
     if (!width || !height) return;
-    if (!spec.src) return placeholder(ctx, spec, indices[slot], width, height);
+    if (!spec.src) return lines(ctx, spec, indices[slot], width, height);
     const img = nearestLoaded(slot);
     if (!img) {
       ctx.fillStyle = "#02070d";
@@ -129,12 +129,11 @@ export function createFramePlayer(canvas: HTMLCanvasElement, spec: SequenceSpec,
   };
 }
 
-/** Storyboard stand-in: scene accent, a moving floor grid and a label naming what the video shows here. */
-function placeholder(ctx: CanvasRenderingContext2D, spec: SequenceSpec, frame: number, w: number, h: number) {
+/** Scene accent glow and a floor grid that rushes toward the camera as the scroll advances. */
+function lines(ctx: CanvasRenderingContext2D, spec: SequenceSpec, frame: number, w: number, h: number) {
   const n = spec.scenes.length;
   const s = frame / Math.max(1, spec.frames - 1);
   const stage = Math.min(n - 1, Math.floor(s * n));
-  const local = s * n - stage;
   const scene = spec.scenes[stage];
   const vx = w * 0.68;
   const horizon = h * 0.6;
@@ -163,50 +162,6 @@ function placeholder(ctx: CanvasRenderingContext2D, spec: SequenceSpec, frame: n
     ctx.lineTo(w, y);
   }
   ctx.stroke();
-
-  // Label (desktop only: on phones the canvas sits dimmed behind flowing text)
-  if (w < 1024) return;
-  const x = Math.max(w * 0.56, w - 560);
-  let y = h * 0.2;
-  const maxW = Math.min(w - x - 40, 520);
-  ctx.textBaseline = "top";
-  ctx.font = "600 12px ui-monospace, monospace";
-  ctx.fillStyle = hexA(scene.accent, 0.95);
-  ctx.fillText(`VIDEO PENDIENTE · ${spec.title.toUpperCase()}`, x, y);
-  y += 28;
-  ctx.font = "800 26px system-ui, sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.92)";
-  ctx.fillText(`Escena ${stage + 1}/${n} · ${scene.label}`, x, y);
-  y += 42;
-  ctx.font = "400 15px system-ui, sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.66)";
-  for (const line of wrap(ctx, scene.shot, maxW)) {
-    ctx.fillText(line, x, y);
-    y += 22;
-  }
-  y += 14;
-  ctx.fillStyle = "rgba(255,255,255,0.12)";
-  ctx.fillRect(x, y, maxW, 3);
-  ctx.fillStyle = scene.accent;
-  ctx.fillRect(x, y, maxW * local, 3);
-  y += 14;
-  ctx.font = "500 12px ui-monospace, monospace";
-  ctx.fillStyle = "rgba(255,255,255,0.45)";
-  ctx.fillText(`frame ${String(frame + 1).padStart(3, "0")} / ${spec.frames}`, x, y);
-}
-
-function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number) {
-  const lines: string[] = [];
-  let line = "";
-  for (const word of text.split(" ")) {
-    const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width > maxW && line) {
-      lines.push(line);
-      line = word;
-    } else line = test;
-  }
-  if (line) lines.push(line);
-  return lines;
 }
 
 function hexA(hex: string, a: number) {

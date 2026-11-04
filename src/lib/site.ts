@@ -4,3 +4,6 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tech-in
 /** WhatsApp click-to-chat link with a prefilled message. `number` is in international format without "+". */
 export const whatsappLink = (number: string, text: string) =>
   `https://wa.me/${number}?text=${encodeURIComponent(text)}`;
+
+/** Mailbox that receives CVs from the careers page (pending the client's confirmation). */
+export const CAREERS_EMAIL = "gestion.integral@tech-inspection.com";

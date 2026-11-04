@@ -15,6 +15,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/hseq",
     "/plataforma",
     "/contacto",
+    "/portafolio",
+    "/trabaja-con-nosotros",
   ];
   return paths.map((p) => ({
     url: `${SITE_URL}/es${p}`,
