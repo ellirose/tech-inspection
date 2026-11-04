@@ -1,0 +1,8 @@
+# Deploys main once its CI run has passed (`ti auto`); started by ti-autodeploy.timer.
+[Unit]
+Description=Tech-Inspection: deploy main when CI has passed
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ti auto

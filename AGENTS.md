@@ -7,3 +7,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Deploying
+
+Production is one DigitalOcean server (165.245.163.217) driven by the `ti` command; see `deploy/README.md`.
+
+- To deploy, push to `main`: the server deploys each new commit on `main` once its CI run has passed (within about 2 minutes of CI finishing).
+- With SSH access: `ssh root@165.245.163.217 ti status | ti deploy | ti rollback | ti logs`.
+- Settings live only on the server (`ti env`, `ti set KEY=VALUE`); never commit secrets.

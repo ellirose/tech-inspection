@@ -1,0 +1,229 @@
+#!/usr/bin/env bash
+# ti: run the Tech-Inspection site on this server (deploy/README.md). Installed as /usr/local/bin/ti by
+# provision.sh and refreshed from each release. Run as root:
+#   ti status                     what is live, what main is, health
+#   ti deploy [REF] [--force]     build REF (default: origin/main) and switch to it; --force skips the CI check
+#   ti rollback                   back to the previous release
+#   ti logs [N]                   last N lines of the app log (default 100)
+#   ti restart                    restart the app (after `ti set` of a run-time setting)
+#   ti env                        settings, with secret values masked
+#   ti set KEY=VALUE [...]        change settings in shared/.env
+#   ti domain HOST [--email E]    serve the site at HOST with a Let's Encrypt certificate, then rebuild
+#   ti index on|off               let search engines index the site (off until the real domain is live)
+#   ti backup                     database dump now (a timer also runs one daily)
+#   ti admin-invite ARGS          npm run admin:invite -- ARGS, e.g. --bootstrap or --email x --name "Y" --role sales
+#   ti auto                       what the timer runs: deploy main once its CI run has passed
+set -euo pipefail
+
+ROOT=/srv/tech-inspection
+REPO=$ROOT/repo
+RELEASES=$ROOT/releases
+SHARED=$ROOT/shared
+ENV_FILE=$SHARED/.env
+LOG=$SHARED/deploy.log
+APP_USER=app
+SERVICE=tech-inspection
+GITHUB_REPO=ellirose/tech-inspection
+BRANCH=main
+KEEP=5
+HEALTH=http://127.0.0.1:3000/api/health
+NGINX_SITE=/etc/nginx/sites-available/tech-inspection
+
+say() { printf '%s %s\n' "$(date -u +%FT%TZ)" "$*" | tee -a "$LOG" >&2; }
+die() { say "ERROR: $*"; exit 1; }
+[ "$(id -u)" = 0 ] || { echo "run ti as root" >&2; exit 1; }
+
+# Commands as the app user, with the site's settings loaded (the build reads NEXT_PUBLIC_* and others).
+as_app() { runuser -u "$APP_USER" -- env -i HOME="$ROOT" PATH=/usr/local/bin:/usr/bin:/bin bash -c "set -a; . '$ENV_FILE'; set +a; $1"; }
+git_app() { runuser -u "$APP_USER" -- git -C "$REPO" "$@"; }
+env_get() { sed -n "s/^$1=\"\{0,1\}\([^\"]*\)\"\{0,1\}$/\1/p" "$ENV_FILE" | tail -1; }
+live_sha() { cat "$ROOT/current/.release-sha" 2>/dev/null || true; }
+
+# CI result of a commit from GitHub's public API: success, pending, failure or none.
+ci_state() {
+  local json
+  json=$(curl -fsS -m 20 -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$GITHUB_REPO/commits/$1/check-runs") || { echo unknown; return; }
+  jq -r 'if .total_count == 0 then "none"
+    elif any(.check_runs[]; .status != "completed") then "pending"
+    elif all(.check_runs[]; .conclusion == "success" or .conclusion == "skipped" or .conclusion == "neutral") then "success"
+    else "failure" end' <<<"$json"
+}
+
+healthy() { # waits up to 90 s for the app to answer with version $1
+  local i body
+  for i in $(seq 1 45); do
+    body=$(curl -fsS -m 5 "$HEALTH" 2>/dev/null || true)
+    if [ -n "$body" ] && [ "$(jq -r .version <<<"$body" 2>/dev/null)" = "$1" ] && [ "$(jq -r .status <<<"$body")" = ok ]; then return 0; fi
+    sleep 2
+  done
+  return 1
+}
+
+switch_to() { # atomically point current at release dir $1 and restart
+  ln -sfn "$1" "$ROOT/current.new" && mv -Tf "$ROOT/current.new" "$ROOT/current"
+  systemctl restart "$SERVICE"
+}
+
+cmd_deploy() {
+  local ref="origin/$BRANCH" force=0 auto=0
+  for a in "$@"; do case "$a" in --force) force=1 ;; --auto) auto=1 ;; -*) die "unknown option $a" ;; *) ref=$a ;; esac; done
+  exec 9>/run/ti-deploy.lock
+  flock -n 9 || { [ $auto = 1 ] && exit 0; die "another deploy is running"; }
+
+  git_app fetch --quiet --prune origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" || die "git fetch failed"
+  local sha; sha=$(git_app rev-parse --verify --quiet "$ref^{commit}") || die "unknown ref $ref"
+  local short=${sha:0:7}
+  if [ "$sha" = "$(live_sha)" ] && [ $force = 0 ]; then [ $auto = 1 ] || say "$short is already live"; return 0; fi
+  if [ $auto = 1 ] && [ "$sha" = "$(cat "$SHARED/.failed-sha" 2>/dev/null)" ]; then return 0; fi
+
+  if [ $force = 0 ]; then
+    local ci; ci=$(ci_state "$sha")
+    case "$ci" in
+      success) ;;
+      pending|unknown) [ $auto = 1 ] && return 0; die "CI for $short is $ci; wait for it, or use --force" ;;
+      *) [ $auto = 1 ] && { echo "$sha" >"$SHARED/.failed-sha"; say "skipping $short: CI $ci"; return 0; }; die "CI for $short is $ci; fix it, or use --force" ;;
+    esac
+  fi
+
+  local subject; subject=$(git_app log -1 --format=%s "$sha")
+  local dir; dir="$RELEASES/$(date -u +%Y%m%d%H%M%S)-$short"
+  say "deploying $short ($subject)"
+  runuser -u "$APP_USER" -- mkdir -p "$dir"
+  git_app archive "$sha" | runuser -u "$APP_USER" -- tar -x -C "$dir"
+  runuser -u "$APP_USER" -- bash -c "echo '$sha' >'$dir/.release-sha'; echo 'APP_VERSION=$short' >'$dir/.release.env'; ln -s '$SHARED/data' '$dir/.data'"
+
+  # Migrations run before the switch, so they must keep the live release working (add, don't rename).
+  if ! as_app "cd '$dir' && npm ci --no-audit --no-fund --loglevel=error && npm run --silent db:migrate && npm run --silent db:seed && NODE_OPTIONS=--max-old-space-size=2560 npm run build" >>"$LOG" 2>&1; then
+    echo "$sha" >"$SHARED/.failed-sha"
+    rm -rf "$dir"
+    die "build of $short failed; the live site is unchanged (details: tail -n 80 $LOG)"
+  fi
+
+  local previous; previous=$(readlink -f "$ROOT/current" 2>/dev/null || true)
+  switch_to "$dir"
+  if ! healthy "$short"; then
+    echo "$sha" >"$SHARED/.failed-sha"
+    if [ -n "$previous" ] && [ -d "$previous" ]; then
+      switch_to "$previous"
+      die "$short did not pass the health check; rolled back to $(cat "$previous/.release-sha" | cut -c1-7)"
+    fi
+    die "$short did not pass the health check and there is no previous release"
+  fi
+  rm -f "$SHARED/.failed-sha"
+  # Newer copies of this script and the timers ship with the code.
+  install -m 755 "$dir/deploy/ti" /usr/local/bin/ti 2>/dev/null || true
+
+  # Keep the newest releases (and always the live one).
+  local live; live=$(readlink -f "$ROOT/current")
+  ls -1d "$RELEASES"/*/ 2>/dev/null | sed 's:/$::' | sort | head -n -$KEEP | while read -r old; do [ "$old" = "$live" ] || rm -rf "$old"; done
+  say "live: $short ($subject)"
+}
+
+cmd_rollback() {
+  local live; live=$(readlink -f "$ROOT/current")
+  local previous; previous=$(ls -1d "$RELEASES"/*/ | sed 's:/$::' | sort | grep -B1 -x "$live" | head -1)
+  [ -n "$previous" ] && [ "$previous" != "$live" ] || die "no earlier release to go back to"
+  local short; short=$(cut -c1-7 "$previous/.release-sha")
+  switch_to "$previous"
+  healthy "$short" || die "$short did not pass the health check either; see ti logs"
+  # Stop the timer from redeploying the commit just rolled back from.
+  cp "$live/.release-sha" "$SHARED/.failed-sha"
+  say "rolled back to $short; the timer skips $(cut -c1-7 "$live/.release-sha") until main moves on"
+}
+
+cmd_status() {
+  local live; live=$(live_sha)
+  git_app fetch --quiet origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" || true
+  local main; main=$(git_app rev-parse "origin/$BRANCH")
+  echo "site:     $(env_get NEXT_PUBLIC_SITE_URL)"
+  echo "live:     ${live:0:7} $(git_app log -1 --format='%s (%cr)' "$live" 2>/dev/null) [$(basename "$(readlink -f "$ROOT/current")")]"
+  echo "main:     ${main:0:7} $(git_app log -1 --format='%s (%cr)' "$main"), CI $(ci_state "$main")"
+  [ -f "$SHARED/.failed-sha" ] && echo "skipped:  $(cut -c1-7 "$SHARED/.failed-sha") (failed build, CI or rollback)"
+  echo "app:      $(systemctl is-active "$SERVICE"), health $(curl -fsS -m 5 "$HEALTH" 2>/dev/null || echo unreachable)"
+  echo "timer:    $(systemctl is-active ti-autodeploy.timer) (checks main every 2 minutes)"
+  echo "disk:     $(df -h / | awk 'NR==2{print $4" free"}'), memory $(free -m | awk 'NR==2{print $7" MB available"}')"
+  echo "last log:"; tail -n 5 "$LOG" 2>/dev/null | sed 's/^/  /'
+}
+
+cmd_set() {
+  [ $# -gt 0 ] || die "usage: ti set KEY=VALUE [...]"
+  local pair key value escaped
+  for pair in "$@"; do
+    key=${pair%%=*}; value=${pair#*=}
+    [[ "$key" =~ ^[A-Z][A-Z0-9_]*$ ]] && [ "$key" != "$pair" ] || die "not KEY=VALUE: $pair"
+    escaped=$(printf '%s' "$value" | sed 's/[\\"$`]/\\&/g')
+    if grep -q "^$key=" "$ENV_FILE"; then
+      KEY="$key" LINE="$key=\"$escaped\"" perl -0pi -e 's/^\Q$ENV{KEY}\E=.*$/$ENV{LINE}/m' "$ENV_FILE"
+    else
+      printf '%s="%s"\n' "$key" "$escaped" >>"$ENV_FILE"
+    fi
+    say "setting $key changed"
+  done
+  echo "Run-time settings take effect with 'ti restart'. Build-time ones (NEXT_PUBLIC_*, ANTHROPIC_API_KEY) need 'ti deploy --force'." >&2
+}
+
+# The noindex header is one line marked "ti-noindex" in the nginx site; on/off comments it in or out.
+set_noindex() {
+  if [ "$1" = 1 ]; then sed -i -E 's/^(\s*)# (add_header X-Robots-Tag.*ti-noindex)/\1\2/' "$NGINX_SITE"
+  else sed -i -E 's/^(\s*)(add_header X-Robots-Tag.*ti-noindex)/\1# \2/' "$NGINX_SITE"; fi
+}
+noindex_on() { grep -qE '^\s*add_header X-Robots-Tag.*ti-noindex' "$NGINX_SITE" 2>/dev/null; }
+
+write_nginx() { # host, scheme, noindex (1/0)
+  sed -e "s/__HOST__/$1/g" -e "s/__SCHEME__/$2/g" "$ROOT/current/deploy/nginx.conf" >"$NGINX_SITE"
+  set_noindex "$3"
+}
+
+cmd_domain() {
+  local host=${1:-} email=""
+  [ -n "$host" ] || die "usage: ti domain HOST [--email you@example.com]"
+  shift; [ "${1:-}" = --email ] && email=${2:-}
+  local noindex; noindex=$(noindex_on && echo 1 || echo 0)
+  write_nginx "$host" http "$noindex"
+  nginx -t && systemctl reload nginx
+  local account=(--register-unsafely-without-email); [ -n "$email" ] && account=(-m "$email")
+  if certbot --nginx -d "$host" --redirect --non-interactive --agree-tos --keep-until-expiring "${account[@]}"; then
+    sed -i "s#return 301 http://#return 301 https://#" "$NGINX_SITE"; nginx -t && systemctl reload nginx
+    cmd_set "NEXT_PUBLIC_SITE_URL=https://$host" "AUTH_URL=https://$host"
+  else
+    say "no certificate for $host (is its DNS pointing here?); serving plain HTTP"
+    cmd_set "NEXT_PUBLIC_SITE_URL=http://$host" "AUTH_URL=http://$host"
+  fi
+  cmd_deploy --force
+}
+
+cmd_index() {
+  local host; host=$(env_get NEXT_PUBLIC_SITE_URL | sed 's#^https\{0,1\}://##')
+  case "${1:-}" in
+    on) set_noindex 0 ;;
+    off) set_noindex 1 ;;
+    *) die "usage: ti index on|off" ;;
+  esac
+  nginx -t && systemctl reload nginx && say "indexing $1 for $host"
+}
+
+cmd_backup() {
+  mkdir -p "$SHARED/backups"
+  local file; file="$SHARED/backups/db-$(date -u +%Y%m%d-%H%M).dump"
+  runuser -u postgres -- pg_dump -Fc techinspection >"$file"
+  chmod 600 "$file"
+  find "$SHARED/backups" -name 'db-*.dump' -mtime +14 -delete
+  say "backup $(basename "$file") ($(du -h "$file" | cut -f1))"
+}
+
+case "${1:-status}" in
+  status) cmd_status ;;
+  deploy) shift; cmd_deploy "$@" ;;
+  auto) cmd_deploy --auto ;;
+  rollback) cmd_rollback ;;
+  logs) journalctl -u "$SERVICE" -n "${2:-100}" --no-pager ;;
+  restart) systemctl restart "$SERVICE"; healthy "$(cut -c1-7 "$ROOT/current/.release-sha")" && say "restarted" ;;
+  env) sed -E 's/^([A-Z0-9_]*(SECRET|KEY|PASSWORD|TOKEN|DATABASE_URL)[A-Z0-9_]*=).*/\1"***"/' "$ENV_FILE" ;;
+  set) shift; cmd_set "$@" ;;
+  domain) shift; cmd_domain "$@" ;;
+  index) cmd_index "${2:-}" ;;
+  backup) cmd_backup ;;
+  admin-invite) shift; as_app "cd '$ROOT/current' && npm run --silent admin:invite -- $(printf '%q ' "$@")" ;;
+  -h|--help|help) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *) die "unknown command $1 (ti help)" ;;
+esac

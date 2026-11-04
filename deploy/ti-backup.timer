@@ -1,0 +1,9 @@
+[Unit]
+Description=Tech-Inspection: daily database backup at 03:30 Bogotá
+
+[Timer]
+OnCalendar=*-*-* 08:30:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

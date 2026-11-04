@@ -1,0 +1,6 @@
+[Unit]
+Description=Tech-Inspection: database backup (kept 14 days)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ti backup

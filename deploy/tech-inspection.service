@@ -1,0 +1,23 @@
+# The website (Next.js). The live release is /srv/tech-inspection/current; `ti deploy` switches it.
+[Unit]
+Description=Tech-Inspection website
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=app
+Group=app
+WorkingDirectory=/srv/tech-inspection/current
+EnvironmentFile=/srv/tech-inspection/shared/.env
+# APP_VERSION of the live release, reported by /api/health.
+EnvironmentFile=-/srv/tech-inspection/current/.release.env
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
