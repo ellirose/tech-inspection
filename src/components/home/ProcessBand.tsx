@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { AnimatePresence, motion, useMotionValueEvent } from "motion/react";
 import { Broom, ClipboardText, MagnifyingGlass, Scales, SealCheck } from "@phosphor-icons/react/ssr";
 import { Eyebrow } from "@/components/ui/Section";
-import { FieldMonitor } from "@/components/visuals/FieldMonitor";
 import { ScrollSequence, useSequence } from "@/components/sequence/ScrollSequence";
 import type { PageBlocks } from "@/db/seed/blocks";
 import type { Locale } from "@/i18n/config";
@@ -14,17 +13,11 @@ import { cn } from "@/lib/cn";
 const icons = [ClipboardText, Broom, MagnifyingGlass, Scales, SealCheck];
 const ease = [0.16, 1, 0.3, 1] as const;
 
-type Text = { eyebrow: string; title: string; lead: string; recMt: string; recPt: string; steps: { t: string; d: string }[] };
-
-// Real field footage shown beside the scenes it proves (inspection: MT, evaluation: PT)
-const monitors: Record<number, { src: string; poster: string; label: keyof Pick<Text, "recMt" | "recPt">; tone?: string }> = {
-  2: { src: "/media/video/mt-field.mp4", poster: "/media/methods/mt-6.jpg", label: "recMt" },
-  3: { src: "/media/video/pt-field.mp4", poster: "/media/methods/pt-1.jpg", label: "recPt", tone: "#ff8796" },
-};
+type Text = { eyebrow: string; title: string; lead: string; steps: { t: string; d: string }[] };
 
 /** The inspection route over the process video: one step per scene, the route track filling as the part moves on. */
 export function ProcessBand({ lang, process: p }: { lang: Locale; process: PageBlocks["home"]["process"] }) {
-  const t: Text = { eyebrow: p.eyebrow[lang], title: p.title[lang], lead: p.lead[lang], recMt: p.recMt[lang], recPt: p.recPt[lang], steps: p.steps.map((s) => ({ t: s.t[lang], d: s.d[lang] })) };
+  const t: Text = { eyebrow: p.eyebrow[lang], title: p.title[lang], lead: p.lead[lang], steps: p.steps.map((s) => ({ t: s.t[lang], d: s.d[lang] })) };
   return (
     <ScrollSequence spec={sequences.process} id="proceso">
       <Stage t={t} />
@@ -42,7 +35,6 @@ function Stage({ t }: { t: Text }) {
     if (track.current) track.current.style.transform = `scaleX(${p})`;
   });
   const step = t.steps[Math.min(stage, t.steps.length - 1)];
-  const monitor = monitors[stage];
 
   return (
     <div className="relative mx-auto hidden h-full w-full max-w-[90rem] flex-col justify-between px-12 pb-[6vh] pt-[16vh] lg:flex">
@@ -63,15 +55,6 @@ function Stage({ t }: { t: Text }) {
                 <h3 className="mt-3 text-[clamp(2rem,min(3.4vw,6vh),3.1rem)] font-extrabold leading-[1.02] tracking-[-0.03em] text-white">{step.t}</h3>
                 <p className="mt-3 max-w-[42ch] text-[1.1rem] leading-relaxed text-white/75">{step.d}</p>
               </motion.div>
-            </AnimatePresence>
-          </div>
-          <div className="col-span-4 col-start-9 min-h-px">
-            <AnimatePresence mode="wait">
-              {monitor && (
-                <motion.div key={monitor.src} initial={{ opacity: 0, y: 24, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }} transition={{ duration: 0.55, ease }}>
-                  <FieldMonitor src={monitor.src} poster={monitor.poster} label={t[monitor.label]} tone={monitor.tone} className="bg-black/40 backdrop-blur-md" />
-                </motion.div>
-              )}
             </AnimatePresence>
           </div>
         </div>
@@ -118,10 +101,6 @@ function Stacked({ t }: { t: Text }) {
       <Eyebrow tone="onImage">{t.eyebrow}</Eyebrow>
       <h2 className="mt-6 text-balance text-[clamp(2.3rem,7vw,3.4rem)] font-extrabold leading-[1.02] tracking-[-0.035em] text-white">{t.title}</h2>
       <p className="mt-5 text-lg leading-relaxed text-white/80">{t.lead}</p>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2">
-        <FieldMonitor src={monitors[2].src} poster={monitors[2].poster} label={t.recMt} />
-        <FieldMonitor src={monitors[3].src} poster={monitors[3].poster} label={t.recPt} tone={monitors[3].tone} />
-      </div>
       <ol className="relative mt-12 space-y-7">
         <span aria-hidden className="absolute bottom-6 left-8 top-6 w-0.5 bg-gradient-to-b from-neon via-neon to-lime" />
         {t.steps.map((s, i) => {

@@ -111,6 +111,10 @@
   --color-mist: var(--mist);
 }
 
+html:has(#top-strip) {
+  --header-top: var(--top-strip);
+}
+
 /* Near-black night with the brand blues as light sources. Surfaces are slightly translucent so the
    3D scene behind the page (SceneBackground) reads through cards without hurting legibility. */
 :root {
@@ -129,6 +133,8 @@
   --accent: #ffffff;
   --accent-ink: #d9d9d9;
   --glass: rgb(6 18 31 / 0.66);
+  /* Client-logo strip above the header on the home page (HomeHero); the header starts below it */
+  --top-strip: 4.75rem;
   --grid: rgb(92 194 255 / 0.06);
   --dot: rgb(63 214 255 / 0.14);
   --contour: rgb(63 214 255 / 0.14);

@@ -49,7 +49,7 @@ const es = {
   servicesSection: {
     eyebrow: "Qué inspeccionamos",
     title: "Del pozo al patio de tubería.",
-    lead: "Nueve líneas de servicio pensadas para la operación real del sector energético e industrial.",
+    lead: "Diez líneas de servicio pensadas para la operación real del sector energético e industrial.",
     methodsUsed: "Métodos aplicados",
     scope: "Alcance",
   },
@@ -269,7 +269,7 @@ const es = {
     },
     services: {
       title: "Servicios de inspección.",
-      lead: "Nueve líneas de servicio para componentes críticos de perforación, producción e industria.",
+      lead: "Diez líneas de servicio: componentes críticos de perforación, producción e industria, y aseguramiento de calidad QA/QC.",
       others: "Otros servicios",
       gallery: "Registro fotográfico",
     },
@@ -356,7 +356,7 @@ const pt: Dictionary = {
   servicesSection: {
     eyebrow: "O que inspecionamos",
     title: "Do poço ao pátio de tubos.",
-    lead: "Nove linhas de serviço pensadas para a operação real do setor energético e industrial.",
+    lead: "Dez linhas de serviço pensadas para a operação real do setor energético e industrial.",
     methodsUsed: "Métodos aplicados",
     scope: "Escopo",
   },
@@ -576,7 +576,7 @@ const pt: Dictionary = {
     },
     services: {
       title: "Serviços de inspeção.",
-      lead: "Nove linhas de serviço para componentes críticos de perfuração, produção e indústria.",
+      lead: "Dez linhas de serviço: componentes críticos de perfuração, produção e indústria, e garantia da qualidade QA/QC.",
       others: "Outros serviços",
       gallery: "Registro fotográfico",
     },
@@ -661,7 +661,7 @@ const en: Dictionary = {
   servicesSection: {
     eyebrow: "What we inspect",
     title: "From the well to the pipe yard.",
-    lead: "Nine service lines built around real operations in energy and industry.",
+    lead: "Ten service lines built around real operations in energy and industry.",
     methodsUsed: "Methods applied",
     scope: "Scope",
   },
@@ -881,7 +881,7 @@ const en: Dictionary = {
     },
     services: {
       title: "Inspection services.",
-      lead: "Nine service lines for critical drilling, production and industrial components.",
+      lead: "Ten service lines: critical drilling, production and industrial components, plus QA/QC quality assurance.",
       others: "Other services",
       gallery: "Photo record",
     },

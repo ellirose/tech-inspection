@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { cue } from "@/lib/scene";
 import { ServiceExplorer } from "./ServiceExplorer";
 
-/** The nine service lines as an interactive explorer. */
+/** The service lines as an interactive explorer. */
 export async function ServicesGrid({ lang, dict, heading = true, className }: { lang: Locale; dict: Dictionary; heading?: boolean; className?: string }) {
   const [home, services, methods] = await Promise.all([getBlock("home"), getServices(), getMethods()]);
   const methodByKey = (key: string) => methods.find((m) => m.key === key)!;

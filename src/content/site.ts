@@ -25,12 +25,12 @@ export const company = {
   // WhatsApp stays on the management line published on the original site
   whatsapp: "573218284129",
   whatsappDisplay: "+57 321 828 4129",
-  email: "gerencia-operaciones@tech-inspection.com",
+  email: "gerencia.estrategica@tech-inspection.com",
   emailHseq: "gestion.integral@tech-inspection.com",
   hours: {
-    es: "Lun–Vie 8:00–18:00 · Sáb 8:00–12:00",
-    pt: "Seg–Sex 8h–18h · Sáb 8h–12h",
-    en: "Mon–Fri 8:00–18:00 · Sat 8:00–12:00",
+    es: "Lun–Vie 8:00–18:00",
+    pt: "Seg–Sex 8h–18h",
+    en: "Mon–Fri 8:00–18:00",
   } satisfies L10n,
 };
 
@@ -157,23 +157,23 @@ export const leadership = [
 // Customer-service directory as published on the current Contact page.
 export const channels = [
   {
-    role: { es: "Gerencia", pt: "Gerência", en: "Management" },
+    role: { es: "Comercial", pt: "Comercial", en: "Sales" },
     scope: {
-      es: "Procesos comerciales, requisiciones de alto valor, PQRS mayores",
-      pt: "Processos comerciais, requisições de alto valor, reclamações maiores",
-      en: "Commercial processes, high-value requisitions, major claims",
+      es: "Procesos comerciales y requisiciones de alto valor",
+      pt: "Processos comerciais e requisições de alto valor",
+      en: "Commercial processes and high-value requisitions",
     },
     phone: "321 828 4129",
     email: "gerencia-operaciones@tech-inspection.com",
   },
   {
-    role: { es: "Coordinación operacional", pt: "Coordenação operacional", en: "Operations coordination" },
+    role: { es: "Operaciones", pt: "Operações", en: "Operations" },
     scope: {
-      es: "Programación de servicios, informes, soporte técnico",
-      pt: "Programação de serviços, relatórios, suporte técnico",
-      en: "Service scheduling, reports, technical support",
+      es: "Programación de servicios e informes",
+      pt: "Programação de serviços e relatórios",
+      en: "Service scheduling and reports",
     },
-    phone: "301 426 9701",
+    phone: "318 986 8672",
     email: "operaciones@tech-inspection.com",
   },
   {
@@ -189,32 +189,32 @@ export const channels = [
   {
     role: { es: "Gestión integral (HSEQ)", pt: "Gestão integrada (HSEQ)", en: "Integrated management (HSEQ)" },
     scope: {
-      es: "Auditorías, documentación, PQRS de SST y HSEQ",
-      pt: "Auditorias, documentação, reclamações de SST e HSEQ",
-      en: "Audits, documentation, OHS & HSEQ claims",
+      es: "Auditorías, documentación, PQRS de HSEQ",
+      pt: "Auditorias, documentação, reclamações de HSEQ",
+      en: "Audits, documentation, HSEQ claims",
     },
-    phone: "313 403 2592",
+    phone: "313 804 6625",
     email: "gestion.integral@tech-inspection.com",
   },
   {
-    role: { es: "Administrativa y financiera", pt: "Administrativa e financeira", en: "Administration & finance" },
+    role: { es: "Administrativa y contable", pt: "Administrativa e contábil", en: "Administration & accounting" },
     scope: {
-      es: "Cartera, documentación y procedimientos",
-      pt: "Carteira, documentação e procedimentos",
-      en: "Accounts receivable, documentation and procedures",
+      es: "Cartera, documentación, procedimientos y certificados de retenciones",
+      pt: "Carteira, documentação, procedimentos e certificados de retenções",
+      en: "Accounts receivable, documentation, procedures and withholding certificates",
     },
     phone: "310 602 2075",
     email: "gerencia-operaciones@tech-inspection.com",
   },
   {
-    role: { es: "Contabilidad", pt: "Contabilidade", en: "Accounting" },
+    role: { es: "Dirección técnica", pt: "Direção técnica", en: "Technical direction" },
     scope: {
-      es: "Certificados de retenciones",
-      pt: "Certificados de retenções",
-      en: "Withholding certificates",
+      es: "Soporte técnico, asesoría y criterios de aceptación y rechazo según DS-1, API y ASTM",
+      pt: "Suporte técnico, assessoria e critérios de aceitação e rejeição segundo DS-1, API e ASTM",
+      en: "Technical support, advisory and DS-1, API and ASTM acceptance and rejection criteria",
     },
-    phone: "312 434 3444",
-    email: "dadministracion@tech-inspection.com",
+    phone: "312 270 0719",
+    email: "direcciontecnica@tech-inspection.com",
   },
 ];
 

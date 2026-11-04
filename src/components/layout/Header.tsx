@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight, CaretDown, List, X } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
@@ -34,13 +34,24 @@ export function Header({ data }: { data: NavData }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState<null | "methods" | "services">(null);
   const [drawer, setDrawer] = useState(false);
+  const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
+    // The home page opens with a strip above the header (#top-strip): follow it up as it scrolls away
+    const strip = document.getElementById("top-strip");
+    const onScroll = () => {
+      setScrolled(window.scrollY > 16);
+      if (strip) ref.current?.style.setProperty("--header-top", `${Math.max(0, strip.offsetHeight - window.scrollY)}px`);
+      else ref.current?.style.removeProperty("--header-top");
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [pathname]);
 
   // Close menus when the route changes (derived during render, no effect needed).
   const [lastPath, setLastPath] = useState(pathname);
@@ -67,7 +78,7 @@ export function Header({ data }: { data: NavData }) {
   const isActive = (href: string, exact?: boolean) => (exact ? pathname === href : pathname.startsWith(href));
 
   return (
-    <header className={cn("fixed inset-x-0 top-0 pt-3 transition-[padding] duration-300 sm:pt-4", drawer ? "z-[70]" : "z-50", scrolled && "sm:pt-3")} onMouseLeave={() => setOpen(null)}>
+    <header ref={ref} className={cn("fixed inset-x-0 top-[var(--header-top,0px)] pt-3 transition-[padding] duration-300 sm:pt-4", drawer ? "z-[70]" : "z-50", scrolled && "sm:pt-3")} onMouseLeave={() => setOpen(null)}>
       <div className="mx-auto w-full max-w-[90rem] px-3 sm:px-6 lg:px-10">
         <div
           className={cn(

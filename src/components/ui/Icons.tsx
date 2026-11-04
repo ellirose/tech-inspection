@@ -10,6 +10,7 @@ import {
   Magnet,
   Pipe,
   Ruler,
+  SealCheck,
   Waveform,
   Wrench,
 } from "@phosphor-icons/react/ssr";
@@ -27,6 +28,7 @@ const serviceIcons: Record<ServiceIcon, React.ComponentType<IconProps>> = {
   crane: Crane,
   tank: Database,
   buildings: Buildings,
+  quality: SealCheck,
 };
 
 const methodIcons: Record<MethodKey, React.ComponentType<IconProps>> = {

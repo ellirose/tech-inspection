@@ -21,7 +21,7 @@ export const home = {
     stats: [
       { value: 10, prefix: "+", label: { es: "años en Oil & Gas", pt: "anos em Oil & Gas", en: "years in Oil & Gas" } },
       { value: 4, label: { es: "métodos NDT", pt: "métodos END", en: "NDT methods" } },
-      { value: 9, label: { es: "líneas de servicio", pt: "linhas de serviço", en: "service lines" } },
+      { value: 10, label: { es: "líneas de servicio", pt: "linhas de serviço", en: "service lines" } },
     ] satisfies { value: number; prefix?: string; label: L10n }[],
     clients: { es: "Confían en nosotros", pt: "Confiam em nós", en: "Trusted by" } satisfies L10n,
     wall: { es: "Espesor de pared", pt: "Espessura de parede", en: "Wall thickness" } satisfies L10n,
@@ -32,7 +32,7 @@ export const home = {
 
   services: {
     eyebrow: { es: "Qué inspeccionamos", pt: "O que inspecionamos", en: "What we inspect" } satisfies L10n,
-    title: { es: "Nueve líneas de servicio. Un mismo rigor.", pt: "Nove linhas de serviço. O mesmo rigor.", en: "Nine service lines. One standard of rigour." } satisfies L10n,
+    title: { es: "Diez líneas de servicio. Un mismo rigor.", pt: "Dez linhas de serviço. O mesmo rigor.", en: "Ten service lines. One standard of rigour." } satisfies L10n,
     lead: {
       es: "De la broca al tanque de almacenamiento: elija el componente y vea cómo lo inspeccionamos.",
       pt: "Da broca ao tanque de armazenamento: escolha o componente e veja como o inspecionamos.",

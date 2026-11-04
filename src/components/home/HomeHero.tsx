@@ -22,13 +22,36 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
   const tail = h.titleB[lang].slice(lastSpace + 1).replace(/[.]$/, "");
 
   return (
-    <section {...cue({ mode: "yard", intensity: 0.8, veil: 0.12 })} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden pt-28 lg:min-h-[max(100svh,44rem)]">
+    <section {...cue({ mode: "yard", intensity: 0.8, veil: 0.12 })} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden lg:min-h-[max(100svh,44rem)]">
       {/* Background: the inspection-yard scene behind the page, ultrasonic rings centred on the visual, a soft glow, and a wash that keeps the text column readable */}
       <div className="pointer-events-none absolute inset-0 -z-20 bg-rings opacity-60 [--rx:72%] [--ry:58%] mask-radial" />
       <div className="pointer-events-none absolute -right-48 -top-48 -z-20 size-[44rem] rounded-full bg-neon/10 blur-[130px]" />
       <div className="pointer-events-none absolute inset-y-0 left-0 -z-20 hidden w-[58%] bg-gradient-to-r from-[#030a12]/80 via-[#030a12]/40 to-transparent lg:block" />
 
-      <Container className="grid flex-1 items-center gap-10 lg:grid-cols-12 lg:gap-6">
+      {/* Who trusts us, first thing on the page: the header sits below it until it scrolls away (Header.tsx) */}
+      <div id="top-strip" className="relative h-[var(--top-strip)] border-b border-line/80 bg-[#030a12]/60 backdrop-blur-sm">
+        <Container className="flex h-full items-center gap-6">
+          <p className="hidden shrink-0 font-mono text-xs font-medium uppercase tracking-[0.16em] text-mute sm:block">{h.clients[lang]}</p>
+          <div className="min-w-0 flex-1 overflow-hidden mask-fade-x">
+            <div className="flex w-max animate-marquee items-center gap-8 [animation-duration:40s] motion-reduce:animate-none">
+              {[...clients, ...clients, ...clients].map((c, i) => (
+                <span key={i} className="flex h-12 shrink-0 items-center rounded-xl px-3 dark:bg-white/95">
+                  <Image
+                    src={c.logo}
+                    alt={i < clients.length ? c.name : ""}
+                    width={200}
+                    height={100}
+                    loading="eager"
+                    className={cn("w-auto object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0", c.square ? "h-10" : "h-8")}
+                  />
+                </span>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </div>
+
+      <Container className="grid flex-1 items-center gap-10 pt-28 lg:grid-cols-12 lg:gap-6">
         <div className="lg:col-span-6 xl:col-span-6">
           <Reveal y={14}>
             <Eyebrow>{h.eyebrow[lang]}</Eyebrow>
@@ -91,29 +114,6 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
           <HeroVisual t={{ wall: h.wall[lang], indication: h.indication[lang], live: h.live[lang], personnel: h.personnel[lang], bitAlt: dict.ui.bitService }} />
         </div>
       </Container>
-
-      {/* Who trusts us, still inside the first screen */}
-      <div className="relative mt-10 border-t border-line/80 bg-[#030a12]/60 backdrop-blur-sm lg:mt-4">
-        <Container className="flex items-center gap-6 py-3.5">
-          <p className="hidden shrink-0 font-mono text-xs font-medium uppercase tracking-[0.16em] text-mute sm:block">{h.clients[lang]}</p>
-          <div className="min-w-0 flex-1 overflow-hidden mask-fade-x">
-            <div className="flex w-max animate-marquee items-center gap-8 [animation-duration:40s] motion-reduce:animate-none">
-              {[...clients, ...clients, ...clients].map((c, i) => (
-                <span key={i} className="flex h-12 shrink-0 items-center rounded-xl px-3 dark:bg-white/95">
-                  <Image
-                    src={c.logo}
-                    alt={i < clients.length ? c.name : ""}
-                    width={200}
-                    height={100}
-                    loading="eager"
-                    className={cn("w-auto object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0", c.square ? "h-10" : "h-8")}
-                  />
-                </span>
-              ))}
-            </div>
-          </div>
-        </Container>
-      </div>
     </section>
   );
 }

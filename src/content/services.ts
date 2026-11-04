@@ -1,7 +1,7 @@
 import type { L10n, L10nList } from "@/i18n/config";
 import type { MethodKey } from "./methods";
 
-export type ServiceIcon = "bit" | "pipe" | "drill" | "gauge" | "wrench" | "cylinder" | "crane" | "tank" | "buildings";
+export type ServiceIcon = "bit" | "pipe" | "drill" | "gauge" | "wrench" | "cylinder" | "crane" | "tank" | "buildings" | "quality";
 
 export type Service = {
   slug: string;
@@ -50,7 +50,7 @@ export const services: Service[] = [
     slug: "tuberia",
     icon: "pipe",
     image: "/media/photos/pipe-bore.jpg",
-    gallery: ["/media/photos/pipe-bore.jpg", "/media/photos/thread-closeup.jpg", "/media/photos/pipe-bore-2.jpg", "/media/methods/mt-8.jpg", "/media/methods/ut-3.jpg", "/media/methods/vt-1.jpg", "/media/photos/crew-yard.jpg"],
+    gallery: ["/media/photos/pipe-bore.jpg", "/media/photos/thread-closeup.jpg"],
     name: { es: "Tubería", pt: "Tubulações", en: "Pipe & OCTG" },
     short: { es: "Drill pipe, casing, tubing y tubería de cementación.", pt: "Drill pipe, casing, tubing e tubulação de cimentação.", en: "Drill pipe, casing, tubing and cementing pipe." },
     body: [
@@ -62,7 +62,7 @@ export const services: Service[] = [
       pt: ["Tubo de perfuração (drill pipe)", "Tubo de revestimento (casing)", "Tubo de produção (tubing)", "Tubulação de cimentação"],
       en: ["Drill pipe", "Casing", "Tubing", "Cementing pipe"],
     },
-    methods: ["ut", "mt", "vt"],
+    methods: ["ut", "mt", "pt", "vt"],
   },
   {
     slug: "componentes-bha",
@@ -190,6 +190,26 @@ export const services: Service[] = [
       en: ["Bridges", "Platforms", "Industrial buildings", "Welded joints"],
     },
     methods: ["vt", "ut", "mt", "pt"],
+  },
+  // A business line of its own (client request, Nov 2026), not an NDT inspection of a component.
+  {
+    slug: "aseguramiento-calidad",
+    icon: "quality",
+    image: "/media/photos/engineering-tools.jpg",
+    gallery: ["/media/photos/engineering-tools.jpg", "/media/photos/tool-measure.jpg", "/media/deck/bit-report.jpg", "/media/photos/workshop-team.jpg"],
+    name: { es: "Aseguramiento de calidad QA/QC", pt: "Garantia da qualidade QA/QC", en: "Quality assurance QA/QC" },
+    short: { es: "Control de calidad en fabricación, reparación y recepción de equipos.", pt: "Controle de qualidade na fabricação, reparo e recebimento de equipamentos.", en: "Quality control in manufacturing, repair and equipment receipt." },
+    body: [
+      { es: "Acompañamos a fabricantes, talleres y operadores para que cada equipo cumpla la especificación antes de salir a operación.", pt: "Acompanhamos fabricantes, oficinas e operadores para que cada equipamento atenda à especificação antes de entrar em operação.", en: "We support manufacturers, workshops and operators so every piece of equipment meets its specification before it goes into service." },
+      { es: "Verificamos procesos, materiales y producto terminado contra el plan de inspección y los criterios DS-1, API y ASTM, y entregamos la evidencia documentada para su dossier de calidad.", pt: "Verificamos processos, materiais e produto acabado contra o plano de inspeção e os critérios DS-1, API e ASTM, e entregamos a evidência documentada para o seu dossiê de qualidade.", en: "We verify processes, materials and finished product against the inspection plan and DS-1, API and ASTM criteria, and hand over documented evidence for your quality dossier." },
+    ],
+    scope: {
+      es: ["Planes de inspección y ensayo (ITP)", "Inspección en fábrica y recepción", "Verificación dimensional y de materiales", "Dossier y liberación de calidad"],
+      pt: ["Planos de inspeção e teste (ITP)", "Inspeção em fábrica e recebimento", "Verificação dimensional e de materiais", "Dossiê e liberação de qualidade"],
+      en: ["Inspection and test plans (ITP)", "Shop and receiving inspection", "Dimensional and material verification", "Quality dossier and release"],
+    },
+    methods: ["vt", "ut", "mt", "pt"],
+    draft: true,
   },
 ];
 
