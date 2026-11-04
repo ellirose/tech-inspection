@@ -5,7 +5,7 @@ import type { MethodKey } from "@/content/methods";
  * frames (`f_001.webp` …) in `public/media/sequences/<key>/`; until then `src` is null and the
  * section draws a placeholder that names the scene the video must show at that scroll position.
  *
- * The scenes below are the storyboard the videos are produced from (doc/04-brand/VIDEO-PROMPTS.md):
+ * The scenes below are the storyboard the videos are produced from (doc/04-brand/VIDEO-1-METHODS.md, VIDEO-2-PROCESS.md):
  * keep both in step. Scene boundaries are equal shares of the scroll.
  */
 export type Scene = { label: string; shot: string; accent: string };
@@ -30,30 +30,30 @@ export const sequences = {
   methods: {
     key: "methods",
     title: "Cuatro métodos, un mismo acero",
-    src: null,
+    src: "/media/sequences/methods",
     frames: 240,
     mobileFrames: 48,
     scroll: 3.2,
     scenes: [
-      { label: "VT · Visual y dimensional", shot: "Macro de un cordón de soldadura en acero. Luz rasante ámbar recorre el cordón; una línea de medición fina cruza la superficie.", accent: "#f5a524" },
-      { label: "MT · Partículas magnéticas", shot: "La luz se apaga a UV. Partículas verdes fluorescentes se agrupan sobre una grieta fina a lo largo del cordón.", accent: "#7ad62a" },
-      { label: "PT · Líquidos penetrantes", shot: "La misma zona cubierta de revelador blanco mate. Una línea roja de penetrante aflora desde la grieta.", accent: "#ef3e57" },
-      { label: "UT · Ultrasonido", shot: "El acero se vuelve corte transversal. Un pulso azul viaja hacia dentro y rebota en un defecto interno; ecos concéntricos.", accent: "#1fb3ee" },
+      { label: "VT · Visual y dimensional", shot: "Broca PDC de 12¼ pulgadas, cara de corte arriba: luz rasante blanca revela aletas, cortadores, boquillas y gauge.", accent: "#f5a524" },
+      { label: "MT · Partículas magnéticas", shot: "Sub de perforación sobre bloques en V, yugo sobre la rosca del pin: bajo luz UV-A la rosca brilla en verde fluorescente.", accent: "#7ad62a" },
+      { label: "PT · Líquidos penetrantes", shot: "Segunda broca PDC cubierta de penetrante rojo brillante durante el tiempo de permanencia.", accent: "#ef3e57" },
+      { label: "UT · Ultrasonido", shot: "Drill collar con palpador de ultrasonido sobre acoplante y detector de fallas con onda verde. La luz se apaga.", accent: "#1fb3ee" },
     ],
   },
   process: {
     key: "process",
-    title: "El recorrido de una pieza",
-    src: null,
+    title: "El recorrido de una broca",
+    src: "/media/sequences/process",
     frames: 240,
     mobileFrames: 48,
     scroll: 3.6,
     scenes: [
-      { label: "Solicitud y recepción", shot: "Taller de noche. Una tubería de perforación llega a un rack; una línea de luz cian recorre su contorno y la identifica.", accent: "#1fc8f5" },
-      { label: "Puesta a punto", shot: "Niebla de agua a presión sobre la tubería; gotas iluminadas en cian, el acero queda limpio y brillante.", accent: "#1fc8f5" },
-      { label: "Inspección visual y NDT", shot: "Un anillo de luz cian avanza a lo largo de la tubería; aparecen indicaciones fluorescentes en la rosca.", accent: "#1fc8f5" },
-      { label: "Evaluación", shot: "Primer plano del extremo roscado; líneas de medición holográficas comparan el perfil con la norma.", accent: "#3a98f0" },
-      { label: "Reporte y conformidad", shot: "La tubería recibe su banda de color de inspección; la luz se calma y el plano se oscurece.", accent: "#86e33a" },
+      { label: "Solicitud y recepción", shot: "Broca recién llegada del pozo, con lodo seco, sobre un pallet; etiqueta de identificación con código de barras.", accent: "#1fc8f5" },
+      { label: "Puesta a punto", shot: "Chorro de agua a presión en cámara lenta lava el pin y las aletas; queda el acero limpio.", accent: "#1fc8f5" },
+      { label: "Inspección visual y NDT", shot: "Bajo luz UV-A, la conexión roscada de la broca brilla con partículas magnéticas fluorescentes, con el yugo encima.", accent: "#1fc8f5" },
+      { label: "Evaluación", shot: "Galga de perfil de rosca asentada en el pin, calibrador al lado y el estándar técnico cerrado.", accent: "#3a98f0" },
+      { label: "Reporte y conformidad", shot: "Broca aprobada sobre un pedestal con protector en el pin, tablet con el reporte y un taladro al atardecer al fondo.", accent: "#86e33a" },
     ],
   },
 } satisfies Record<string, SequenceSpec>;

@@ -55,7 +55,7 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 | `src/content/*.ts` | Seed source and shared types for the content now stored in the database. Edits here reach the site only through `npm run db:seed -- --force`, or `-- --blocks <keys>` for page sections |
 | `src/components/home/` | Landing-page sections |
 | `src/components/scene/` | The fixed 3D background (three.js, desktop only; CSS night sky on phones). Sections steer it with `cue()` from `src/lib/scene.ts` |
-| `src/components/sequence/` | Scroll-scrubbed video sections (methods, process). Storyboard and frame folders in `src/lib/sequences.ts`; prompts in `doc/04-brand/VIDEO-PROMPTS.md` |
+| `src/components/sequence/` | Scroll-scrubbed video sections (methods, process). Storyboard and frame folders in `src/lib/sequences.ts`; prompts in `doc/04-brand/VIDEO-1-METHODS.md` and `VIDEO-2-PROCESS.md` |
 | `public/media/` | Curated photos and videos (see `scripts/prepare-media.mjs`); sequence frames go in `public/media/sequences/<key>/` |
 | `public/docs/` | HSEQ PDFs migrated from Wix |
 
