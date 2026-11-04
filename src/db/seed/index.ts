@@ -140,6 +140,8 @@ async function main() {
           ring: c.ring,
           title: c.title,
           body: c.body,
+          certifier: c.certifier ?? null,
+          certificateNumber: c.certificateNumber ?? null,
         })),
         ...personnelCredentials.map((c, i) => ({
           sortOrder: i,

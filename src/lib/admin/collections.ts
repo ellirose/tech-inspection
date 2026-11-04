@@ -154,7 +154,7 @@ export const collections: Collection[] = [
       { name: "title", label: "Título", type: "l10n", max: 120 },
       { name: "body", label: "Descripción", type: "l10n", multiline: true },
       { name: "certifier", label: "Organismo certificador", type: "text", max: 120 },
-      { name: "certificateNumber", label: "Número de certificado", type: "text", max: 60 },
+      { name: "certificateNumber", label: "Número de certificado", type: "text", max: 60, hint: "El sello oficial del CCS solo se muestra con este código (GC-… para ISO 9001, GS-… para ISO 45001)." },
       { name: "issueDate", label: "Fecha de emisión", type: "date" },
       { name: "expiryDate", label: "Fecha de vencimiento", type: "date", hint: "El panel avisa 60 días antes; al vencer se oculta del sitio." },
       { name: "pdfUrl", label: "Certificado en PDF (opcional)", type: "path", prefixes: ["/docs/"], nullable: true },

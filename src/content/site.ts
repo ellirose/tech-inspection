@@ -43,14 +43,29 @@ export type Certification = {
   ring: string;
   title: L10n;
   body: L10n;
+  certifier?: string;
+  /** Code the certifier assigned (CCS: GC-… for ISO 9001, GS-… for ISO 45001). */
+  certificateNumber?: string;
 };
 
-// Text badges only: official seals stay off the site until the client shares each brand-usage manual.
+export const CCS = "Consejo Colombiano de Seguridad (CCS)";
+
+// Official CCS seals as published (transparent margin trimmed only), fixed in code because the manuals
+// forbid altering the mark. They always carry the certificate code, so a seal renders only once
+// certificateNumber is set. Rules: reference/ccs-certification/README.md.
+export const officialSeals: Record<string, { src: string; width: number; height: number; alt: string }> = {
+  iso9001: { src: "/media/certifications/ccs-iso-9001.png", width: 342, height: 342, alt: "Sello Certificación ISO 9001 del Consejo Colombiano de Seguridad" },
+  iso45001: { src: "/media/certifications/ccs-iso-45001.png", width: 791, height: 790, alt: "Sello Certificación ISO 45001 del Consejo Colombiano de Seguridad" },
+};
+
+// ISO 9001 and 45001 certified by the CCS since 2022 (Bureau Veritas before; Rendición de Cuentas 2021).
+// Text badges until the client sends the certificate codes.
 export const certifications: Certification[] = [
   {
     id: "iso9001",
     code: "ISO 9001",
     ring: "ISO 9001:2015 · QUALITY · ",
+    certifier: CCS,
     title: { es: "Gestión de calidad", pt: "Gestão da qualidade", en: "Quality management" },
     body: {
       es: "Certificados desde 2018: procesos controlados y mejora continua en cada inspección e informe.",
@@ -62,6 +77,7 @@ export const certifications: Certification[] = [
     id: "iso45001",
     code: "ISO 45001",
     ring: "ISO 45001:2018 · OH&S · ",
+    certifier: CCS,
     title: { es: "Seguridad y salud en el trabajo", pt: "Saúde e segurança ocupacional", en: "Occupational health & safety" },
     body: {
       es: "Certificados desde 2018: personal protegido en base y en campo, con riesgos identificados y controlados.",

@@ -151,7 +151,7 @@ export async function getCertifications() {
     .orderBy(asc(s.certification.sortOrder));
   const system: Certification[] = rows
     .filter((r) => r.kind === "system")
-    .map((r) => ({ id: r.key, code: r.code, ring: r.ring ?? "", title: r.title, body: r.body }));
+    .map((r) => ({ id: r.key, code: r.code, ring: r.ring ?? "", title: r.title, body: r.body, certifier: r.certifier ?? undefined, certificateNumber: r.certificateNumber ?? undefined }));
   const personnel = rows
     .filter((r) => r.kind === "personnel")
     .map((r) => ({ code: r.code, title: r.title, body: r.body }));

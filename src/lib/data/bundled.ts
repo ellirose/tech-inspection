@@ -31,7 +31,7 @@ export const bundled = {
   methods: () => methods,
   services: () => services,
   certifications: () => ({
-    system: certifications.map((c) => ({ id: c.id, code: c.code, ring: c.ring ?? "", title: c.title, body: c.body })),
+    system: certifications.map((c) => ({ id: c.id, code: c.code, ring: c.ring ?? "", title: c.title, body: c.body, certifier: c.certifier, certificateNumber: c.certificateNumber })),
     personnel: personnelCredentials.map((c) => ({ code: c.code, title: c.title, body: c.body })),
   }),
   clients: () => clients.map((c) => ({ name: c.name, logo: c.logo, ...(c.square ? { square: true } : {}) })),

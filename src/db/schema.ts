@@ -160,7 +160,7 @@ export const certification = pgTable("certification", {
   scope: jsonb("scope").$type<L10n | null>(),
   issueDate: date("issue_date"),
   expiryDate: date("expiry_date"),
-  /** Official seal; stays empty until the certifier's usage manual has been followed. */
+  /** Unused for CCS seals: those are fixed in code (officialSeals in content/site.ts) so nobody can alter the mark. */
   sealMediaId: uuid("seal_media_id").references(() => media.id, { onDelete: "set null" }),
   pdfUrl: text("pdf_url"),
   usageNotes: text("usage_notes"),

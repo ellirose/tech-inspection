@@ -1,5 +1,7 @@
+import Image from "next/image";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
+import { officialSeals } from "@/content/site";
 import { getCertifications } from "@/lib/data/content";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
@@ -12,8 +14,14 @@ export async function Certifications({ lang, dict, index }: { lang: Locale; dict
   const { system: certifications, personnel: personnelCredentials } = await getCertifications();
   const c = dict.certs;
   const rows = [
-    ...certifications.map((x) => ({ code: x.code === "1072" ? "1072" : x.code, title: x.title[lang], body: x.body[lang] })),
-    ...personnelCredentials.map((x) => ({ code: x.code === "ASNT-TC-1A" ? "ASNT" : x.code, title: x.title[lang], body: x.body[lang] })),
+    ...certifications.map((x) => ({
+      code: x.code === "1072" ? "1072" : x.code,
+      title: x.title[lang],
+      body: x.body[lang],
+      // The CCS manuals require the certificate code with the seal: no code, no seal
+      official: x.certificateNumber && officialSeals[x.id] ? { ...officialSeals[x.id], number: x.certificateNumber } : undefined,
+    })),
+    ...personnelCredentials.map((x) => ({ code: x.code === "ASNT-TC-1A" ? "ASNT" : x.code, title: x.title[lang], body: x.body[lang], official: undefined })),
   ];
   return (
     <section id="certificaciones" className="relative isolate overflow-hidden py-24 sm:py-32">
@@ -21,7 +29,22 @@ export async function Certifications({ lang, dict, index }: { lang: Locale; dict
       <Container>
         <SectionHeading index={index} eyebrow={c.eyebrow} title={c.title} lead={c.lead} />
         <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map((r, i) => (
+          {rows.map((r, i) =>
+            r.official ? (
+              // CCS seal as published, upright, at the 210 px digital minimum, on a white plate so its white
+              // border holds in dark mode. Clear space of 3u (≈63 px): plate padding plus the gap below, and
+              // plate plus card padding plus grid gap to the side. Full row on sm, where two columns are too narrow.
+              <RevealItem key={r.code} className="flex flex-col items-center gap-12 rounded-[2rem] bg-surface p-6 text-center shadow-soft ring-1 ring-line sm:max-md:col-span-2">
+                <figure className="rounded-[1.5rem] bg-white p-4 ring-1 ring-line">
+                  <Image src={r.official.src} width={r.official.width} height={r.official.height} alt={r.official.alt} sizes="210px" className="size-[210px] max-w-none" />
+                  <figcaption className="mt-3 font-['Helvetica_Neue',Helvetica,Arial,sans-serif] text-base font-medium tracking-wide text-[#00539b]">{r.official.number}</figcaption>
+                </figure>
+                <div>
+                  <h3 className="text-xl font-extrabold leading-tight tracking-tight text-ink">{r.title}</h3>
+                  <p className="mt-2 leading-relaxed text-ink-soft">{r.body}</p>
+                </div>
+              </RevealItem>
+            ) : (
             <RevealItem key={r.code} className={cn("group flex items-start gap-5 bg-surface p-6 shadow-soft ring-1 ring-line transition hover:-translate-y-1 hover:shadow-card sm:p-7", i % 2 ? "rounded-[2rem]" : "rounded-[2rem] rounded-tr-[4rem]")}>
               <span className="relative grid size-24 shrink-0 place-items-center">
                 <span aria-hidden className="absolute inset-0 animate-orbit rounded-full border-2 border-dashed border-neon/50 transition group-hover:border-neon" />
@@ -32,7 +55,8 @@ export async function Certifications({ lang, dict, index }: { lang: Locale; dict
                 <p className="mt-2 leading-relaxed text-ink-soft">{r.body}</p>
               </div>
             </RevealItem>
-          ))}
+            ),
+          )}
         </RevealGroup>
 
         {/* Projects: kept apart from the certifications above so nothing reads as held before it is */}
