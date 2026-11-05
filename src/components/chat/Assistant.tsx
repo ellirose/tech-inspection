@@ -11,6 +11,7 @@ import type { MethodKey } from "@/content/methods";
 import { Turnstile } from "@/components/leads/Turnstile";
 import { ChatLauncher } from "./ChatLauncher";
 import { submitLead } from "@/lib/leads/client";
+import { track } from "@/lib/analytics";
 import { quantityKeys, splitContact, type QuantityKey } from "@/lib/leads/options";
 import { cn } from "@/lib/cn";
 
@@ -68,6 +69,7 @@ export function Assistant(props: AssistantProps) {
   ];
 
   const toggle = () => {
+    if (!open) track({ event: "chat_open", page: location.pathname });
     // Greet on first open.
     if (!open && msgs.length === 0) setMsgs([{ id: nextId(), from: "bot", text: t.hello, options: menu }]);
     setOpen((o) => !o);
@@ -140,6 +142,7 @@ export function Assistant(props: AssistantProps) {
       consent: true,
       turnstileToken: used ?? undefined,
     });
+    if (res.ok) track({ event: "chat_lead", services: f.service?.slug ?? "", urgency: "" });
     // Only claim the request is logged when the server stored it; otherwise hand off to WhatsApp.
     const text = res.ok ? t.thanks.replace("{ref}", res.reference) : res.error === "rate_limited" ? t.rateLimited : t.error;
     say({
@@ -293,7 +296,7 @@ export function Assistant(props: AssistantProps) {
                       rel={m.link.external ? "noopener" : undefined}
                       className={cn(
                         "mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold",
-                        m.link.whatsapp ? "bg-whatsapp text-white" : "bg-neon text-[#071a2e]",
+                        m.link.whatsapp ? "bg-whatsapp text-whatsapp-ink" : "bg-neon text-[#071a2e]",
                       )}
                     >
                       {m.link.whatsapp && <WhatsappLogo weight="fill" className="size-5" />}

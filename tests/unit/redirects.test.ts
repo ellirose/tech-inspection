@@ -16,9 +16,9 @@ describe("normalisePath", () => {
 });
 
 describe("legacy Wix redirects", () => {
-  it("are unique once normalised and point at localized pages", () => {
+  it("are unique once normalised and point at localized pages (or, for old PDFs, the documents)", () => {
     const from = legacyRedirects.map(([f]) => normalisePath(f));
     expect(new Set(from).size).toBe(from.length);
-    for (const [, to] of legacyRedirects) expect(to).toMatch(/^\/es(\/|$|#)/);
+    for (const [, to] of legacyRedirects) expect(to).toMatch(/^\/es(\/|$|#)|^\/docs\/[^/]+\.pdf$/);
   });
 });

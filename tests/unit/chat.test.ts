@@ -40,15 +40,15 @@ describe("create_lead", () => {
   });
 
   it("declares the same fields to the model as it validates", () => {
-    const tool = chatTools.find((t) => t.name === "create_lead")!;
-    expect(Object.keys(tool.input_schema.properties!).sort()).toEqual(Object.keys(leadDraftInput.shape).sort());
+    const tool = chatTools.find((t) => t.function.name === "create_lead")!.function;
+    expect(Object.keys((tool.parameters as { properties: object }).properties).sort()).toEqual(Object.keys(leadDraftInput.shape).sort());
   });
 });
 
 describe("chat tools and prompt", () => {
   it("defines each tool once, closed to extra fields", () => {
-    expect(chatTools.map((t) => t.name)).toEqual(["get_service_info", "create_lead", "show_contact"]);
-    for (const t of chatTools) expect(t.input_schema.additionalProperties).toBe(false);
+    expect(chatTools.map((t) => t.function.name)).toEqual(["get_service_info", "create_lead", "show_contact"]);
+    for (const t of chatTools) expect(t.type === "function" && t.function.parameters?.additionalProperties).toBe(false);
   });
 
   it("states the rules of the design document in the visitor's language", () => {

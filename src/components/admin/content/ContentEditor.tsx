@@ -18,6 +18,8 @@ export type EditorProps = {
   values: Values;
   files: { images: string[]; videos: string[]; docs: string[] };
   methods: { id: string; label: string }[];
+  /** Options of each "refs" field, by field name. */
+  refs: Record<string, { id: string; label: string }[]>;
   readOnly: boolean;
 };
 
@@ -102,7 +104,7 @@ function Steps({ name, value }: { name: string; value: unknown }) {
   );
 }
 
-function FieldInput({ field, value, methods }: { field: Field; value: unknown; methods: EditorProps["methods"] }) {
+function FieldInput({ field, value, methods, refs }: { field: Field; value: unknown; methods: EditorProps["methods"]; refs: EditorProps["refs"] }) {
   switch (field.type) {
     case "text":
       return <input name={field.name} defaultValue={String(value ?? "")} maxLength={field.max} className={fieldClass} />;
@@ -174,6 +176,19 @@ function FieldInput({ field, value, methods }: { field: Field; value: unknown; m
         </div>
       );
     }
+    case "refs": {
+      const selected = new Set((value as string[] | null) ?? []);
+      return (
+        <div className="flex flex-wrap gap-3">
+          {(refs[field.name] ?? []).map((o) => (
+            <label key={o.id} className="flex items-center gap-2 rounded-xl bg-surface-2 px-3 py-2 ring-1 ring-inset ring-line">
+              <input type="checkbox" name={field.name} value={o.id} defaultChecked={selected.has(o.id)} className="size-4 accent-brand-600" />
+              <span className="text-sm font-bold">{o.label}</span>
+            </label>
+          ))}
+        </div>
+      );
+    }
     case "methods": {
       const selected = new Set((value as string[] | null) ?? []);
       return (
@@ -191,7 +206,7 @@ function FieldInput({ field, value, methods }: { field: Field; value: unknown; m
 }
 
 /** Form for one content item, generated from its field definitions. */
-export function ContentEditor({ collection, id, updatedAt, fields, values, files, methods, readOnly }: EditorProps) {
+export function ContentEditor({ collection, id, updatedAt, fields, values, files, methods, refs, readOnly }: EditorProps) {
   const [state, onSubmit, pending] = useFormAction<SaveState>(saveContent, {});
   // The save result current when the form was last edited: still dirty until a later save succeeds.
   const [editedAt, setEditedAt] = useState<SaveState | null>(null);
@@ -222,7 +237,7 @@ export function ContentEditor({ collection, id, updatedAt, fields, values, files
             <Card key={field.name} className={cn(error && "ring-2 ring-pt/60")}>
               <div className={cn(field.type === "bool" && "flex flex-row-reverse items-center justify-end gap-3")}>
                 <p className={cn(labelClass, field.type === "bool" && "mb-0")}>{field.label}</p>
-                {locked ? <p className="font-mono text-sm text-ink">{String(values[field.name])}</p> : <FieldInput field={field} value={values[field.name]} methods={methods} />}
+                {locked ? <p className="font-mono text-sm text-ink">{String(values[field.name])}</p> : <FieldInput field={field} value={values[field.name]} methods={methods} refs={refs} />}
               </div>
               {field.hint && !locked && <p className="mt-2 text-xs text-mute">{field.hint}</p>}
               {(field.type === "path" || field.type === "paths") && !readOnly && (

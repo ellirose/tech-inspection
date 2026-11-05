@@ -2,9 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { CaretRight } from "@phosphor-icons/react/ssr";
 import { Container, Eyebrow } from "./Section";
-import { Reveal } from "./Reveal";
+import { Rise } from "./Rise";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 import { cue } from "@/lib/scene";
+import { breadcrumbLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 type Crumb = { label: string; href?: string };
 
@@ -36,10 +38,12 @@ export function PageHero({
   return (
     <section {...cue({ mode: "yard", intensity: 0.7, veil: 0.15 })} className="relative isolate overflow-hidden pb-16 pt-36 sm:pb-24 sm:pt-44">
       <div className="pointer-events-none absolute inset-y-0 left-0 -z-10 hidden w-[60%] bg-gradient-to-r from-[#030a12]/80 via-[#030a12]/35 to-transparent lg:block" />
-      <div className="pointer-events-none absolute -right-24 top-0 -z-10 h-[34rem] w-[42rem] bg-network opacity-60 mask-radial" />
-      <div className="pointer-events-none absolute -right-40 -top-40 -z-10 size-[36rem] rounded-full bg-neon/15 blur-[110px]" />
+      {/* Decoration from sm up only: on phones these large masked and blurred layers cost more to paint than they add. */}
+      <div className="pointer-events-none absolute -right-24 top-0 -z-10 hidden h-[34rem] w-[42rem] bg-network opacity-60 mask-radial sm:block" />
+      <div className="pointer-events-none absolute -right-40 -top-40 -z-10 hidden size-[36rem] rounded-full bg-neon/15 blur-[110px] sm:block" />
       <Container className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
         <div className={image ? "lg:col-span-7" : "lg:col-span-10"}>
+          <JsonLd data={breadcrumbLd(crumbs)} />
           <nav aria-label="breadcrumb" className="mb-7 flex flex-wrap items-center gap-1.5 text-[0.95rem] font-bold text-mute">
             {crumbs.map((c, i) => (
               <span key={c.label} className="flex items-center gap-1.5">
@@ -56,15 +60,15 @@ export function PageHero({
               </span>
             ))}
           </nav>
-          <Reveal>
+          <Rise>
             <Eyebrow>{eyebrow}</Eyebrow>
             <h1 className="mt-6 text-balance text-[clamp(2.6rem,5.6vw,5.2rem)] font-extrabold leading-[1] tracking-[-0.045em] text-ink">{title}</h1>
             {lead && <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-ink-soft sm:text-xl">{lead}</p>}
             {children}
-          </Reveal>
+          </Rise>
         </div>
         {image && (
-          <Reveal delay={0.12} className="lg:col-span-5">
+          <Rise delay={0.12} className="lg:col-span-5">
             <figure className="relative">
               <span aria-hidden className="absolute inset-0 translate-x-4 translate-y-4 rounded-[2.5rem] rounded-tr-[6rem] border-2 border-dashed border-neon/60" />
               <div className="relative aspect-[4/3.3] overflow-hidden rounded-[2.5rem] rounded-tr-[6rem] bg-surface-2 shadow-float">
@@ -80,7 +84,7 @@ export function PageHero({
                 </figcaption>
               )}
             </figure>
-          </Reveal>
+          </Rise>
         )}
       </Container>
     </section>

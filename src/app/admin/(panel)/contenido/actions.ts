@@ -15,6 +15,7 @@ import { findCollection, type Collection } from "@/lib/admin/collections";
 import { readField } from "@/lib/admin/fields";
 import { fileChecker } from "@/lib/admin/files";
 import { refreshPublicPages } from "@/lib/admin/refresh";
+import { refOptions } from "@/lib/admin/refs";
 
 export type SaveState = { ok?: string; error?: string; fieldErrors?: Record<string, string> };
 
@@ -57,6 +58,11 @@ export async function saveContent(_: SaveState, form: FormData): Promise<SaveSta
     const labels = c.fields.filter((f) => fieldErrors[f.name]).map((f) => f.label);
     return { error: `Revise: ${labels.join(", ")}.`, fieldErrors };
   }
+  for (const field of c.fields) {
+    if (field.type !== "refs") continue;
+    const known = new Set((await refOptions(field.source)).map((o) => o.id));
+    if ((values[field.name] as string[]).some((v) => !known.has(v))) return { error: `Revise: ${field.label}.`, fieldErrors: { [field.name]: "Opción no válida" } };
+  }
   if (methodIds) {
     const known = new Set((await db.select({ id: schema.method.id }).from(schema.method)).map((m) => m.id));
     if (methodIds.some((m) => !known.has(m))) return { error: "Método no válido." };
@@ -71,7 +77,7 @@ export async function saveContent(_: SaveState, form: FormData): Promise<SaveSta
           .insert(t)
           .values({ ...values, ...c.onCreate?.(values), status: "draft", sortOrder: (Number(top) || 0) + 1, updatedBy: user.id })
           .returning({ id: t.id })) as { id: string }[];
-        if (methodIds) await tx.insert(schema.serviceMethod).values(methodIds.map((methodId, i) => ({ serviceId: row.id, methodId, sortOrder: i })));
+        if (methodIds?.length) await tx.insert(schema.serviceMethod).values(methodIds.map((methodId, i) => ({ serviceId: row.id, methodId, sortOrder: i })));
         return row.id;
       });
       await audit({ userId: user.id, action: "content_created", entity: c.key, entityId: newId, ip });

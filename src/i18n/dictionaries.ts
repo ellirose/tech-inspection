@@ -12,6 +12,7 @@ const es = {
     about: "Nosotros",
     methods: "Métodos",
     services: "Servicios",
+    qaqc: "Aseguramiento QA/QC",
     hseq: "HSEQ",
     platform: "TI-QMS",
     contact: "Contacto",
@@ -23,6 +24,13 @@ const es = {
     language: "Idioma",
     careers: "Trabaja con nosotros",
     portfolio: "Portafolio",
+    company: "Empresa",
+    companyMenu: {
+      about: "Quiénes somos, trayectoria y equipo",
+      hseq: "Políticas, sistema de gestión y bienestar",
+      portfolio: "Portafolio de servicios y presentaciones",
+      careers: "Vacantes y hoja de vida",
+    },
   },
   cta: {
     quote: "Solicitar cotización",
@@ -333,7 +341,7 @@ const es = {
     },
     portfolio: {
       title: "Nuestro portafolio, página por página.",
-      lead: "Recorra nuestras presentaciones de inspección NDT y de aseguramiento de calidad QA/QC, o descárguelas en PDF para compartirlas con su equipo.",
+      lead: "Recorra nuestro portafolio de servicios y nuestras presentaciones de inspección NDT y de aseguramiento de calidad QA/QC, o descárguelos en PDF para compartirlos con su equipo.",
       pages: "páginas",
       page: "Página",
       download: "Descargar PDF",
@@ -363,6 +371,7 @@ const pt: Dictionary = {
     about: "Sobre nós",
     methods: "Métodos",
     services: "Serviços",
+    qaqc: "Garantia QA/QC",
     hseq: "HSEQ",
     platform: "TI-QMS",
     contact: "Contato",
@@ -374,6 +383,13 @@ const pt: Dictionary = {
     language: "Idioma",
     careers: "Trabalhe conosco",
     portfolio: "Portfólio",
+    company: "Empresa",
+    companyMenu: {
+      about: "Quem somos, trajetória e equipe",
+      hseq: "Políticas, sistema de gestão e bem-estar",
+      portfolio: "Portfólio de serviços e apresentações",
+      careers: "Vagas e currículo",
+    },
   },
   cta: {
     quote: "Solicitar orçamento",
@@ -684,7 +700,7 @@ const pt: Dictionary = {
     },
     portfolio: {
       title: "Nosso portfólio, página por página.",
-      lead: "Percorra nossas apresentações de inspeção END e de garantia da qualidade QA/QC, ou baixe-as em PDF para compartilhar com sua equipe.",
+      lead: "Percorra nosso portfólio de serviços e nossas apresentações de inspeção END e de garantia da qualidade QA/QC, ou baixe-os em PDF para compartilhar com sua equipe.",
       pages: "páginas",
       page: "Página",
       download: "Baixar PDF",
@@ -712,6 +728,7 @@ const en: Dictionary = {
     about: "About",
     methods: "Methods",
     services: "Services",
+    qaqc: "QA/QC assurance",
     hseq: "HSEQ",
     platform: "TI-QMS",
     contact: "Contact",
@@ -723,6 +740,13 @@ const en: Dictionary = {
     language: "Language",
     careers: "Careers",
     portfolio: "Portfolio",
+    company: "Company",
+    companyMenu: {
+      about: "Who we are, our track record and team",
+      hseq: "Policies, management system and wellbeing",
+      portfolio: "Service portfolio and presentations",
+      careers: "Openings and your CV",
+    },
   },
   cta: {
     quote: "Request a quote",
@@ -1033,7 +1057,7 @@ const en: Dictionary = {
     },
     portfolio: {
       title: "Our portfolio, page by page.",
-      lead: "Browse our NDT inspection and QA/QC quality assurance presentations, or download them as PDFs to share with your team.",
+      lead: "Browse our service portfolio and our NDT inspection and QA/QC quality assurance presentations, or download them as PDFs to share with your team.",
       pages: "pages",
       page: "Page",
       download: "Download PDF",

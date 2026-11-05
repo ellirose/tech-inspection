@@ -43,13 +43,13 @@ export async function QuoteSection({ lang, dict, heading = true, index, classNam
             <div className="relative min-h-56 flex-1 overflow-hidden rounded-[2.5rem] rounded-tl-[5rem] shadow-card">
               <Image src="/media/photos/inspector-logo.jpg" alt="" fill sizes="(min-width:1024px) 30vw, 100vw" className="object-cover object-[50%_25%]" />
             </div>
-            <a href={whatsappLink(company.whatsapp, q.waIntro)} target="_blank" rel="noopener" className="group flex items-center gap-4 rounded-[1.75rem] bg-whatsapp p-4 text-white shadow-[0_18px_36px_-16px_rgb(37_211_102/0.8)] transition hover:-translate-y-0.5">
+            <a href={whatsappLink(company.whatsapp, q.waIntro)} target="_blank" rel="noopener" className="group flex items-center gap-4 rounded-[1.75rem] bg-whatsapp p-4 text-whatsapp-ink shadow-[0_18px_36px_-16px_rgb(37_211_102/0.8)] transition hover:-translate-y-0.5">
               <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-white/20">
                 <WhatsappLogo weight="fill" className="size-8" />
               </span>
               <span>
                 <span className="block text-lg font-extrabold leading-tight">{dict.cta.whatsapp}</span>
-                <span className="font-semibold text-white/85">{company.whatsappDisplay}</span>
+                <span className="font-semibold text-whatsapp-ink/80">{company.whatsappDisplay}</span>
               </span>
             </a>
             <ul className="space-y-1 rounded-[2rem] bg-surface p-3 shadow-soft ring-1 ring-line">

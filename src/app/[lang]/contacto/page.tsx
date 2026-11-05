@@ -62,7 +62,7 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
                       <a href={`tel:+${digits}`} className="inline-flex h-12 flex-1 items-center gap-2 rounded-full bg-surface px-4 font-bold text-ink ring-1 ring-line transition hover:ring-accent/40">
                         <Phone weight="duotone" className="size-6 text-accent" /> {c.phone}
                       </a>
-                      <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener" aria-label={`WhatsApp ${c.role[lang]}`} className="grid size-12 place-items-center rounded-full bg-whatsapp text-white">
+                      <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener" aria-label={`WhatsApp ${c.role[lang]}`} className="grid size-12 place-items-center rounded-full bg-whatsapp text-whatsapp-ink">
                         <WhatsappLogo weight="fill" className="size-6" />
                       </a>
                     </div>

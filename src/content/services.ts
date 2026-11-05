@@ -1,5 +1,6 @@
 import type { L10n, L10nList } from "@/i18n/config";
 import type { MethodKey } from "./methods";
+import { QAQC_SLUG } from "./modules";
 
 export type ServiceIcon = "bit" | "pipe" | "drill" | "gauge" | "wrench" | "cylinder" | "crane" | "tank" | "buildings" | "quality";
 
@@ -191,25 +192,26 @@ export const services: Service[] = [
     },
     methods: ["vt", "ut", "mt", "pt"],
   },
-  // A business line of its own (client request, Nov 2026), not an NDT inspection of a component.
+  // A business line of its own, independent of NDT inspection and the methods, with its own logo.
+  // Copy from the client's QA/QC presentation (doc/New file/Presentación Jaime.pdf, Nov 2026).
   {
-    slug: "aseguramiento-calidad",
+    slug: QAQC_SLUG,
     icon: "quality",
     image: "/media/photos/engineering-tools.jpg",
     gallery: ["/media/photos/engineering-tools.jpg", "/media/photos/tool-measure.jpg", "/media/deck/bit-report.jpg", "/media/photos/workshop-team.jpg"],
     name: { es: "Aseguramiento de calidad QA/QC", pt: "Garantia da qualidade QA/QC", en: "Quality assurance QA/QC" },
-    short: { es: "Control de calidad en fabricación, reparación y recepción de equipos.", pt: "Controle de qualidade na fabricação, reparo e recebimento de equipamentos.", en: "Quality control in manufacturing, repair and equipment receipt." },
+    short: { es: "Aseguramiento, asesoría y control de calidad de los procesos internos de mantenimiento e inspección de equipos y herramientas de Oil & Gas.", pt: "Garantia, assessoria e controle da qualidade dos processos internos de manutenção e inspeção de equipamentos e ferramentas de Oil & Gas.", en: "Quality assurance, advice and control for the in-house maintenance and inspection processes of oil and gas equipment and tools." },
     body: [
-      { es: "Acompañamos a fabricantes, talleres y operadores para que cada equipo cumpla la especificación antes de salir a operación.", pt: "Acompanhamos fabricantes, oficinas e operadores para que cada equipamento atenda à especificação antes de entrar em operação.", en: "We support manufacturers, workshops and operators so every piece of equipment meets its specification before it goes into service." },
-      { es: "Verificamos procesos, materiales y producto terminado contra el plan de inspección y los criterios DS-1, API y ASTM, y entregamos la evidencia documentada para su dossier de calidad.", pt: "Verificamos processos, materiais e produto acabado contra o plano de inspeção e os critérios DS-1, API e ASTM, e entregamos a evidência documentada para o seu dossiê de qualidade.", en: "We verify processes, materials and finished product against the inspection plan and DS-1, API and ASTM criteria, and hand over documented evidence for your quality dossier." },
+      { es: "Somos su aliado estratégico en aseguramiento y control de calidad, con especialistas de hasta 25 años de experiencia en herramientas de la industria Oil & Gas.", pt: "Somos seu aliado estratégico em garantia e controle da qualidade, com especialistas de até 25 anos de experiência em ferramentas da indústria de Oil & Gas.", en: "We are your strategic partner in quality assurance and control, with specialists who have up to 25 years of experience with oil and gas tools." },
+      { es: "Desde hace más de 2 años acompañamos a compañías prestadoras de servicios en sus procesos de mantenimiento e inspección: asignamos un especialista por tipo de herramienta, alineamos el proceso con el suyo y entregamos reportes en tiempo real, apoyados en un algoritmo de QA/QC propio con inteligencia artificial.", pt: "Há mais de 2 anos acompanhamos empresas prestadoras de serviços em seus processos de manutenção e inspeção: designamos um especialista por tipo de ferramenta, alinhamos o processo ao seu e entregamos relatórios em tempo real, apoiados em um algoritmo de QA/QC próprio com inteligência artificial.", en: "For over 2 years we have supported service companies in their maintenance and inspection processes: we assign a specialist per tool type, align our process with theirs and deliver real-time reports, backed by our own AI-based QA/QC algorithm." },
     ],
     scope: {
-      es: ["Planes de inspección y ensayo (ITP)", "Inspección en fábrica y recepción", "Verificación dimensional y de materiales", "Dossier y liberación de calidad"],
-      pt: ["Planos de inspeção e teste (ITP)", "Inspeção em fábrica e recebimento", "Verificação dimensional e de materiais", "Dossiê e liberação de qualidade"],
-      en: ["Inspection and test plans (ITP)", "Shop and receiving inspection", "Dimensional and material verification", "Quality dossier and release"],
+      es: ["Reportes en tiempo real", "Completa disponibilidad", "Especialista por tipo de herramienta", "Algoritmo especializado en QA/QC", "Procesos alineados con las prestadoras de servicio"],
+      pt: ["Relatórios em tempo real", "Disponibilidade total", "Especialista por tipo de ferramenta", "Algoritmo especializado em QA/QC", "Processos alinhados com as prestadoras de serviço"],
+      en: ["Real-time reports", "Full availability", "A specialist per tool type", "Purpose-built QA/QC algorithm", "Processes aligned with service companies"],
     },
-    methods: ["vt", "ut", "mt", "pt"],
-    draft: true,
+    // Not an NDT method service: no methods are linked
+    methods: [],
   },
 ];
 

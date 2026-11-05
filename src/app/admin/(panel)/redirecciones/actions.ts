@@ -3,7 +3,7 @@
 // Redirects (design document §14.2, Redirecciones). The proxy reloads the list within a minute.
 import { refresh } from "next/cache";
 import { headers } from "next/headers";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
 import { audit, requestIp } from "@/lib/audit";
@@ -43,6 +43,8 @@ export async function createRedirect(_: ActionState, form: FormData): Promise<Ac
   if (existing) return { error: "Ya hay una redirección para esa ruta." };
   const [row] = await db.insert(r).values({ fromPath: from, toPath: to, statusCode, updatedBy: user.id }).returning({ id: r.id });
   await audit({ userId: user.id, action: "redirect_created", entity: "redirect", entityId: row.id, diff: { from, to }, ip: requestIp(await headers()) });
+  // The address is handled now: take it off the list of pages not found.
+  await db.delete(schema.notFoundHit).where(sql`lower(${schema.notFoundHit.path}) = ${from.toLowerCase()}`);
   refresh();
   return { ok: "Redirección creada. Se aplica en menos de un minuto." };
 }
@@ -70,4 +72,14 @@ export async function deleteRedirect(_: ActionState, form: FormData): Promise<Ac
   await audit({ userId: user.id, action: "redirect_deleted", entity: "redirect", entityId: row.id, diff: { from: row.fromPath, to: row.toPath }, ip: requestIp(await headers()) });
   refresh();
   return { ok: "Eliminada." };
+}
+
+/** Takes an address off the list of pages not found (it will reappear if it is asked for again). */
+export async function dismissNotFound(_: ActionState, form: FormData): Promise<ActionState> {
+  await authorize("settings:manage");
+  const path = z.string().min(1).max(300).safeParse(form.get("path"));
+  if (!path.success) return { error: "Dirección no válida." };
+  await db.delete(schema.notFoundHit).where(eq(schema.notFoundHit.path, path.data));
+  refresh();
+  return { ok: "Descartada." };
 }

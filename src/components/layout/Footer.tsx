@@ -4,6 +4,8 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { getBlock, getDocuments, getMethods, getServices, getSite } from "@/lib/data/content";
 import { whatsappLink } from "@/lib/site";
+import { getExtra } from "@/i18n/extra";
+import { CookieSettings } from "@/components/analytics/Analytics";
 import { Logo } from "@/components/ui/Logo";
 import { Container, Swoosh } from "@/components/ui/Section";
 import { Email } from "@/components/ui/Email";
@@ -16,6 +18,7 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
     getServices(),
     getBlock("cover"),
   ]);
+  const x = getExtra(lang);
   const base = `/${lang}`;
   const col = "text-sm font-extrabold uppercase tracking-[0.12em] text-ink";
   const link = "text-[1.02rem] font-semibold text-ink-soft transition hover:text-accent";
@@ -32,7 +35,7 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
               <p className="mt-6 max-w-sm text-lg font-semibold leading-relaxed text-ink-soft">{cover.lead[lang]}</p>
               <p className="mt-3 max-w-sm font-bold text-accent-ink">{cover.motto[lang]}</p>
               <div className="mt-7 flex flex-wrap gap-2">
-                <a href={whatsappLink(company.whatsapp, dict.quote.waIntro)} target="_blank" rel="noopener" className="inline-flex h-12 items-center gap-2 rounded-full bg-whatsapp px-5 font-bold text-white">
+                <a href={whatsappLink(company.whatsapp, dict.quote.waIntro)} target="_blank" rel="noopener" className="inline-flex h-12 items-center gap-2 rounded-full bg-whatsapp px-5 font-bold text-whatsapp-ink">
                   <WhatsappLogo weight="fill" className="size-6" /> WhatsApp
                 </a>
                 <a href={company.phoneHref} className="inline-flex h-12 items-center gap-2 rounded-full bg-tint px-5 font-bold text-ink ring-1 ring-neon/25">
@@ -68,10 +71,14 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
                 <p className={`${col} mt-9`}>{dict.footer.company}</p>
                 <ul className="mt-5 space-y-2.5">
                   <li><Link className={link} href={`${base}/nosotros`}>{dict.nav.about}</Link></li>
+                  <li><Link className={link} href={`${base}/industrias`}>{x.nav.industries}</Link></li>
+                  <li><Link className={link} href={`${base}/certificaciones`}>{x.nav.certifications}</Link></li>
+                  <li><Link className={link} href={`${base}/clientes`}>{x.nav.clients}</Link></li>
                   <li><Link className={link} href={`${base}/hseq`}>{dict.nav.hseq}</Link></li>
                   <li><Link className={link} href={`${base}/plataforma`}>{dict.nav.platform}</Link></li>
                   <li><Link className={link} href={`${base}/portafolio`}>{dict.nav.portfolio}</Link></li>
                   <li><Link className={link} href={`${base}/trabaja-con-nosotros`}>{dict.nav.careers}</Link></li>
+                  <li><Link className={link} href={`${base}/preguntas-frecuentes`}>{x.nav.faq}</Link></li>
                   <li><Link className={link} href={`${base}/contacto`}>{dict.nav.contact}</Link></li>
                 </ul>
               </div>
@@ -111,6 +118,11 @@ export async function Footer({ lang, dict }: { lang: Locale; dict: Dictionary })
           <p>
             © {company.name} · {dict.footer.rights}
           </p>
+          <nav aria-label={x.nav.legal} className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href={`${base}/politica-de-privacidad`} className="hover:text-accent">{x.nav.privacy}</Link>
+            <Link href={`${base}/terminos`} className="hover:text-accent">{x.nav.terms}</Link>
+            <CookieSettings label={x.nav.cookies} className="font-semibold hover:text-accent" />
+          </nav>
           <p className="font-mono text-xs tracking-wider">ISO 9001:2015 · ISO 45001:2018 · RUC · ASNT · DS-1</p>
         </div>
       </Container>

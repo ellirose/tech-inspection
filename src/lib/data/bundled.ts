@@ -1,11 +1,13 @@
 // The public-site content as bundled in the code (src/content and the seed's page blocks), shaped like
-// the database reads in content.ts. Used when no database is configured, e.g. a frontend-only Vercel
-// preview; it mirrors what `npm run db:seed` loads, so such a deployment shows the seeded site.
+// the database reads in content.ts. Used when no database is configured (a frontend-only build); it
+// mirrors what `npm run db:seed` loads, so such a build shows the seeded site.
 import "server-only";
 import type { SiteSettings } from "@/db/schema";
 import type { PageBlockKey, PageBlocks } from "@/db/seed/blocks";
 import { blocks, homeBlock } from "@/db/seed/blocks";
 import { home } from "@/content/home";
+import { faqs } from "@/content/faqs";
+import { industries } from "@/content/industries";
 import { methods } from "@/content/methods";
 import { services } from "@/content/services";
 import {
@@ -42,5 +44,8 @@ export const bundled = {
     kind === "policy"
       ? policyDocs.map((d) => ({ code: d.code, title: d.title, file: d.file, ...(docThumbnails[d.code] ? { thumbnail: docThumbnails[d.code] } : {}) }))
       : accountabilityDocs.map((d) => ({ code: d.code, title: d.title, file: d.file, ...(d.year ? { year: d.year } : {}) })),
+  faqs: () => faqs.map((f) => ({ category: f.category, question: f.question, answer: f.answer, methods: f.methods ?? [], services: f.services ?? [], home: f.home ?? false })),
+  industries: () =>
+    industries.map((i) => ({ slug: i.slug, name: i.name, intro: i.intro, components: i.components, image: i.image, services: i.services, methods: i.methods, seo: { title: null, description: null } })),
   block: <K extends PageBlockKey>(key: K) => ((key === "home" ? homeBlock : blocks[key as Exclude<PageBlockKey, "home">]) as PageBlocks[K]),
 };

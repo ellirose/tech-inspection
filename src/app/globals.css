@@ -34,6 +34,8 @@
   --color-ut: #1fb3ee;
   --color-vt: #f5a524;
   --color-whatsapp: #25d366;
+  /* Text on WhatsApp green: white fails contrast (2:1), this passes (7.6:1). */
+  --color-whatsapp-ink: #052e16;
 
   /* Corporate colours from the identity manual (doc/04-brand/BRAND-GUIDELINES.md) */
   --color-corp-blue: #030a8c;
@@ -59,6 +61,25 @@
   --animate-sonar: sonar 4.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
   --animate-spin-slow: spin 28s linear infinite;
   --animate-kenburns: kenburns 18s ease-in-out infinite alternate;
+
+  /* Entrance of above-the-fold content: CSS, so it plays from the first paint without waiting for
+     JavaScript (the largest paint is never held back by hydration). Delay per element via style. */
+  --animate-rise: rise 0.8s var(--ease-out-expo) both;
+  --animate-line-up: line-up 0.95s var(--ease-out-expo) both;
+  --animate-sweep: sweep 0.8s var(--ease-out-expo) both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(var(--rise-y, 16px)); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes line-up {
+    from { transform: translateY(105%); }
+    to { transform: none; }
+  }
+  @keyframes sweep {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
 
   @keyframes sonar {
     0% { transform: scale(0.35); opacity: 0; }
@@ -159,6 +180,31 @@ html:has(#top-strip) {
     outline: 2px solid var(--color-neon);
     outline-offset: 3px;
     border-radius: 0.5rem;
+  }
+  /* Scrollbars in the site's colours: a slim cyan thumb on the night background, for the page and for
+     every scrolling panel (chat, menus, galleries). Firefox and Chromium read scrollbar-*; Safari the
+     ::-webkit-scrollbar rules. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(31 200 245 / 0.45) transparent;
+  }
+  html {
+    scrollbar-color: rgb(31 200 245 / 0.55) var(--canvas);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: rgb(31 200 245 / 0.45) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(31 200 245 / 0.75);
   }
 }
 

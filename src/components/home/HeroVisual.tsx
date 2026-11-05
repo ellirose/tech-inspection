@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
-import { Certificate, HardHat, ShieldCheck } from "@phosphor-icons/react/ssr";
+import { HardHat } from "@phosphor-icons/react/ssr";
+import type { SealId } from "@/content/site";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
+import { CcsSeal } from "@/components/visuals/CcsSeal";
 import { MethodOverlay } from "@/components/visuals/MethodOverlay";
 import { Waveform } from "@/components/visuals/Waveform";
 import { Seal } from "@/components/visuals/Seal";
@@ -21,7 +23,7 @@ export type HeroVisualText = { wall: string; indication: string; live: string; p
  * An arch-shaped rig video with an "inspection lens" over a PDC bit: the lens draws a glowing
  * MT indication while ultrasonic rings pulse out from it. Readouts float at different depths.
  */
-export function HeroVisual({ t }: { t: HeroVisualText }) {
+export function HeroVisual({ t, certificates }: { t: HeroVisualText; certificates: Partial<Record<SealId, string>> }) {
   const reduce = useReducedMotion();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -131,25 +133,24 @@ export function HeroVisual({ t }: { t: HeroVisualText }) {
         <Seal ring={`ASNT · ${t.personnel.toUpperCase()} · `} code="ASNT" spin />
       </motion.div>
 
-      {/* Management system and safety badges (only what is held today: ISO/IEC 17020 is a 2027 project) */}
-      <motion.ul
+      {/* Management system and safety credentials (only what is held today: ISO/IEC 17020 is a 2027 project).
+          The official CCS seals, upright and unaltered, a 3u gap apart as the CCS manuals ask between seals;
+          they only translate with the pointer, never rotate */}
+      <motion.div
         style={mid}
         initial={{ opacity: 0, x: 30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 0.7, ease }}
-        className="glass absolute -right-2 top-[44%] flex flex-col gap-1.5 rounded-[1.5rem] p-2.5 shadow-float ring-1 ring-line/70"
+        className="glass absolute -right-2 top-[30%] flex flex-col items-center gap-7 rounded-[1.75rem] px-4 pb-3 pt-5 shadow-float ring-1 ring-line/70 2xl:gap-8"
       >
-        {[
-          { icon: Certificate, label: "ISO 9001" },
-          { icon: ShieldCheck, label: "ISO 45001" },
-          { icon: HardHat, label: "RUC · CCS" },
-        ].map(({ icon: Icon, label }) => (
-          <li key={label} className="flex items-center gap-2.5 rounded-xl bg-surface px-3 py-2 font-mono text-[0.8rem] font-bold text-ink">
-            <Icon weight="duotone" className="size-6 text-accent" />
-            {label}
-          </li>
+        {(["iso9001", "iso45001"] as const).map((id) => (
+          <CcsSeal key={id} id={id} number={certificates[id]} sizes="(min-width:1536px) 104px, 88px" preload className="w-[5.5rem] 2xl:w-[6.5rem]" />
         ))}
-      </motion.ul>
+        <p className="flex items-center gap-2 rounded-xl bg-surface px-3 py-2 font-mono text-[0.8rem] font-bold text-ink">
+          <HardHat weight="duotone" className="size-6 text-accent" />
+          RUC · CCS
+        </p>
+      </motion.div>
     </div>
   );
 }

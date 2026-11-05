@@ -4,7 +4,7 @@
 # existing settings, database and releases are kept. Run as root from a copy of this folder:
 #   scp -r deploy root@SERVER:/root/ti-deploy && ssh root@SERVER bash /root/ti-deploy/provision.sh [HOST]
 # HOST is the name the site answers to (default: <ip>.sslip.io until the real domain points here).
-# Then: ti deploy --force, and ti domain HOST for HTTPS.
+# Then, from code/web on a developer machine: npm run deploy, and on the server ti domain HOST for HTTPS.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=/srv/tech-inspection
@@ -73,15 +73,12 @@ fi
 chown app:app "$ENV_FILE" "$ROOT/shared/deploy.log" 2>/dev/null || true
 chmod 600 "$ENV_FILE"
 
-echo "== source code (public repository, read over HTTPS)"
-[ -d "$ROOT/repo/.git" ] || runuser -u app -- git clone --quiet --branch main https://github.com/ellirose/tech-inspection.git "$ROOT/repo"
-
 echo "== ti command, services and timers"
 install -m 755 "$HERE/ti" /usr/local/bin/ti
-install -m 644 "$HERE"/tech-inspection.service "$HERE"/ti-*.service "$HERE"/ti-*.timer /etc/systemd/system/
+install -m 644 "$HERE"/tech-inspection.service "$HERE"/ti-backup.service "$HERE"/ti-backup.timer "$HERE"/ti-watchdog.service "$HERE"/ti-watchdog.timer /etc/systemd/system/
 systemctl daemon-reload
 systemctl enable tech-inspection >/dev/null 2>&1
-systemctl enable --now ti-backup.timer >/dev/null 2>&1
+systemctl enable --now ti-backup.timer ti-watchdog.timer >/dev/null 2>&1
 
 echo "== nginx"
 if [ ! -f /etc/nginx/sites-available/tech-inspection ]; then
@@ -91,4 +88,4 @@ ln -sfn /etc/nginx/sites-available/tech-inspection /etc/nginx/sites-enabled/tech
 rm -f /etc/nginx/sites-enabled/default
 nginx -t -q && systemctl reload nginx
 
-echo "== done. Next: ti deploy --force; ti domain $HOST; systemctl enable --now ti-autodeploy.timer"
+echo "== done. Next: npm run deploy (from code/web on a developer machine), then ti domain $HOST"

@@ -1,8 +1,10 @@
 // Chatbot endpoint (design document §12.3). The browser sends the visible conversation; the answer streams
 // back as one JSON event per line (lib/chat/protocol.ts). Order: same-origin check, size and shape, turn
 // limit, rate limits (per visitor and a daily cap for the whole site, which bounds the API bill), then the
-// model. The API key stays on the server. Logs carry no conversation text.
-import Anthropic from "@anthropic-ai/sdk";
+// model (OpenAI Chat Completions). The API key stays on the server. Logs carry no conversation text.
+import OpenAI from "openai";
+import type { ChatCompletionMessageFunctionToolCall, ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import type { ReasoningEffort } from "openai/resources/shared";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { hasDatabase } from "@/db";
@@ -15,8 +17,10 @@ import { chatTools, getServiceInfoInput, leadDraftInput, toDraft } from "@/lib/c
 import { getServices } from "@/lib/data/content";
 import { hit, visitorKey } from "@/lib/rate-limit";
 
-const MODEL = process.env.CHAT_MODEL || "claude-opus-5-5";
-const EFFORT = (process.env.CHAT_EFFORT || "low") as Anthropic.OutputConfig["effort"];
+const MODEL = process.env.CHAT_MODEL || "gpt-5.4-mini";
+/** Reasoning effort, for the models that take one (GPT-5 and later, o-series). "off" leaves it out. */
+const EFFORT = process.env.CHAT_EFFORT || "low";
+const reasoning = EFFORT !== "off" && /^(gpt-[5-9]|o\d)/.test(MODEL) && !MODEL.includes("chat");
 /** Model calls per visitor message: answers that look something up take two. */
 const MAX_ROUNDS = 4;
 
@@ -41,20 +45,30 @@ const fail = (error: ChatError, status: number, headers?: HeadersInit) =>
 
 const clientIp = (request: NextRequest) => request.headers.get("x-real-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
 
-let client: Anthropic | undefined;
+/** Arguments of a tool call; null when the model produced something that is not a JSON object. */
+const parseArgs = (raw: string): Record<string, unknown> | null => {
+  try {
+    const value: unknown = JSON.parse(raw || "{}");
+    return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+};
+
+let client: OpenAI | undefined;
 
 export async function POST(request: NextRequest) {
   // Only the site's own pages may use the bot (and spend its API budget).
   const origin = request.headers.get("origin");
   if (!origin || new URL(origin).host !== request.headers.get("host")) return fail("invalid", 403);
   // The bot needs its key, and the database for limits and the conversation log.
-  if (!process.env.ANTHROPIC_API_KEY || !hasDatabase) return fail("disabled", 503);
+  if (!process.env.OPENAI_API_KEY || !hasDatabase) return fail("disabled", 503);
   if (Number(request.headers.get("content-length") ?? 0) > 128 * 1024) return fail("invalid", 413);
 
   const parsed = chatRequest.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return fail("invalid", 422);
   const { conversationId, lang, page } = parsed.data;
-  // The API needs the conversation to start with the visitor; the widget's own greeting is not sent.
+  // The conversation starts with the visitor; the widget's own greeting is not sent.
   const history = parsed.data.messages.slice(parsed.data.messages.findIndex((m) => m.role === "user"));
   const userTurns = history.filter((m) => m.role === "user");
   const last = history.at(-1);
@@ -67,46 +81,86 @@ export async function POST(request: NextRequest) {
 
   const [knowledge, services] = await Promise.all([knowledgeBase(lang), getServices()]);
   const knownServices = new Set(services.map((s) => s.slug));
-  client ??= new Anthropic();
-  const anthropic = client;
+  client ??= new OpenAI();
+  const openai = client;
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const send = (event: ChatEvent) => controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
       const usage: ChatUsage = { input: 0, cached: 0, output: 0 };
-      const messages: Anthropic.MessageParam[] = history.map((m) => ({ role: m.role, content: m.content }));
+      // The system prompt comes first and is the same for every visitor in a language, so OpenAI's
+      // automatic prompt caching applies to it.
+      const messages: ChatCompletionMessageParam[] = [
+        { role: "system", content: systemPrompt(lang, knowledge) },
+        ...history.map((m) => ({ role: m.role, content: m.content })),
+      ];
       let answer = "";
       let jsonRetries = 0;
 
       try {
         for (let round = 0; round < MAX_ROUNDS; round++) {
-          const turn = anthropic.messages.stream(
+          const turn = await openai.chat.completions.create(
             {
               model: MODEL,
-              max_tokens: 4000,
-              output_config: { effort: EFFORT },
-              system: [{ type: "text", text: systemPrompt(lang, knowledge), cache_control: { type: "ephemeral" } }],
-              tools: chatTools,
+              max_completion_tokens: 4000,
+              ...(reasoning ? { reasoning_effort: EFFORT as ReasoningEffort } : {}),
               messages,
+              tools: chatTools,
+              stream: true,
+              stream_options: { include_usage: true },
+              prompt_cache_key: `ti-chat-${lang}`,
             },
             { signal: request.signal },
           );
-          let roundText = "";
-          turn.on("text", (delta) => {
-            // Text after a lookup continues the same answer, as a new paragraph.
-            const prefix = !roundText && answer ? "\n\n" : "";
-            roundText += delta;
-            send({ type: "text", text: prefix + delta });
-          });
 
-          let message: Anthropic.Message;
-          try {
-            message = await turn.finalMessage();
-            jsonRetries = 0;
-          } catch (error) {
+          let roundText = "";
+          let refused = false;
+          let finish: string | null = null;
+          const calls: { id: string; name: string; args: string }[] = [];
+          for await (const chunk of turn) {
+            if (chunk.usage) {
+              const cached = chunk.usage.prompt_tokens_details?.cached_tokens ?? 0;
+              usage.input += chunk.usage.prompt_tokens - cached;
+              usage.cached += cached;
+              usage.output += chunk.usage.completion_tokens;
+            }
+            const choice = chunk.choices[0];
+            if (!choice) continue;
+            const delta = choice.delta;
+            if (delta.refusal) refused = true;
+            if (delta.content) {
+              // Text after a lookup continues the same answer, as a new paragraph.
+              const prefix = !roundText && answer ? "\n\n" : "";
+              roundText += delta.content;
+              send({ type: "text", text: prefix + delta.content });
+            }
+            // Tool calls arrive in pieces, keyed by their position.
+            for (const piece of delta.tool_calls ?? []) {
+              const call = (calls[piece.index] ??= { id: "", name: "", args: "" });
+              if (piece.id) call.id = piece.id;
+              if (piece.function?.name) call.name += piece.function.name;
+              if (piece.function?.arguments) call.args += piece.function.arguments;
+            }
+            if (choice.finish_reason) finish = choice.finish_reason;
+          }
+
+          if (refused || finish === "content_filter") {
+            if (roundText) answer += (answer ? "\n\n" : "") + roundText;
+            send({ type: "contact" });
+            break;
+          }
+          const found = calls.filter(Boolean);
+          if (found.length === 0) {
+            if (roundText) answer += (answer ? "\n\n" : "") + roundText;
+            break;
+          }
+          // A tool input cut off by the token limit can still look valid: do not act on it.
+          if (finish === "length") throw new Error("tool input truncated");
+          const inputs = found.map((c) => parseArgs(c.args));
+          if (inputs.some((i) => i === null)) {
             // A tool input that could not be parsed at all: generate the turn again (twice at most).
-            if (error instanceof Anthropic.APIError || request.signal.aborted || jsonRetries++ >= 2) throw error;
+            if (request.signal.aborted || jsonRetries++ >= 2) throw new Error("tool input is not valid JSON");
             if (roundText) {
               send({ type: "reset" });
               if (answer) send({ type: "text", text: answer });
@@ -114,53 +168,45 @@ export async function POST(request: NextRequest) {
             round--;
             continue;
           }
+          jsonRetries = 0;
           if (roundText) answer += (answer ? "\n\n" : "") + roundText;
-          usage.input += message.usage.input_tokens + (message.usage.cache_creation_input_tokens ?? 0);
-          usage.cached += message.usage.cache_read_input_tokens ?? 0;
-          usage.output += message.usage.output_tokens;
-
-          if (message.stop_reason === "refusal") {
-            send({ type: "contact" });
-            break;
-          }
-          const calls = message.content.filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use");
-          if (calls.length === 0) break;
-          // A tool input cut off by the token limit can still look valid: do not act on it.
-          if (message.stop_reason === "max_tokens") throw new Error("tool input truncated");
 
           let shown = false;
-          const results: Anthropic.ToolResultBlockParam[] = [];
-          for (const call of calls) {
+          const results: ChatCompletionMessageParam[] = [];
+          const reply = (id: string, content: string) => results.push({ role: "tool", tool_call_id: id, content });
+          for (const [i, call] of found.entries()) {
+            const args = inputs[i];
             if (call.name === "get_service_info") {
-              const input = getServiceInfoInput.safeParse(call.input);
+              const input = getServiceInfoInput.safeParse(args);
               const info = input.success ? await topicInfo(input.data.topic, lang) : null;
-              results.push({ type: "tool_result", tool_use_id: call.id, content: info ?? "Unknown topic. Use a service slug or method key from the knowledge base.", is_error: !info });
+              reply(call.id, info ?? "Error: unknown topic. Use a service slug or method key from the knowledge base.");
             } else if (call.name === "create_lead") {
-              const input = leadDraftInput.safeParse(call.input);
+              const input = leadDraftInput.safeParse(args);
               if (input.success) {
                 send({ type: "lead", draft: toDraft(input.data, knownServices) });
                 shown = true;
               } else {
-                const problems = input.error.issues.map((i) => `${i.path.join(".") || "input"}: ${i.message}`).join("; ");
-                results.push({ type: "tool_result", tool_use_id: call.id, content: `Not shown to the visitor. Fix or ask for: ${problems}`, is_error: true });
+                const problems = input.error.issues.map((p) => `${p.path.join(".") || "input"}: ${p.message}`).join("; ");
+                reply(call.id, `Error: not shown to the visitor. Fix or ask for: ${problems}`);
               }
             } else if (call.name === "show_contact") {
               send({ type: "contact" });
               shown = true;
             } else {
-              results.push({ type: "tool_result", tool_use_id: call.id, content: "Unknown tool.", is_error: true });
+              reply(call.id, "Error: unknown tool.");
             }
           }
           // A card on screen ends the turn: the visitor acts on it next.
           if (shown) break;
-          messages.push({ role: "assistant", content: message.content });
-          messages.push({ role: "user", content: results });
+          const toolCalls: ChatCompletionMessageFunctionToolCall[] = found.map((c) => ({ id: c.id, type: "function", function: { name: c.name, arguments: c.args || "{}" } }));
+          messages.push({ role: "assistant", content: roundText || null, tool_calls: toolCalls });
+          messages.push(...results);
         }
         send({ type: "done" });
       } catch (error) {
         if (!request.signal.aborted) {
-          const busy = error instanceof Anthropic.RateLimitError || error instanceof Anthropic.InternalServerError || (error instanceof Anthropic.APIError && error.status === 529);
-          console.error("[chat] model call failed:", error instanceof Anthropic.APIError ? `${error.status} ${error.name}` : (error as Error).message);
+          const busy = error instanceof OpenAI.RateLimitError || error instanceof OpenAI.InternalServerError;
+          console.error("[chat] model call failed:", error instanceof OpenAI.APIError ? `${error.status} ${error.name}` : (error as Error).message);
           send({ type: "error", error: busy ? "busy" : "server" });
         }
       } finally {

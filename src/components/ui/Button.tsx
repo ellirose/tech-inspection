@@ -12,7 +12,7 @@ const styles: Record<Variant, { btn: string; dot: string }> = {
   neon: { btn: "bg-neon text-[#071a2e] shadow-neon hover:bg-[#5fd9fa]", dot: "bg-[#071a2e]/10" },
   ghost: { btn: "bg-surface text-ink shadow-soft ring-1 ring-line hover:ring-accent/40", dot: "bg-tint text-accent" },
   light: { btn: "bg-white text-[#071a2e] shadow-soft hover:bg-lime", dot: "bg-[#071a2e]/8" },
-  whatsapp: { btn: "bg-whatsapp text-white shadow-[0_14px_30px_-12px_rgb(37_211_102/0.8)] hover:brightness-105", dot: "bg-white/20" },
+  whatsapp: { btn: "bg-whatsapp text-whatsapp-ink shadow-[0_14px_30px_-12px_rgb(37_211_102/0.8)] hover:brightness-105", dot: "bg-black/10" },
 };
 
 /** Pill action with a round arrow cap; external links get the diagonal arrow. */

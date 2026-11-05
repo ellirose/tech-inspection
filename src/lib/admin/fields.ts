@@ -5,6 +5,9 @@ import { locales, type L10n } from "@/i18n/config";
 
 type Base = { name: string; label: string; hint?: string; required?: boolean };
 
+/** What a "refs" field links to. */
+export type RefSource = "services" | "methods" | "industries";
+
 export type Field = Base &
   (
     | { type: "text"; max?: number; createOnly?: boolean; pattern?: string }
@@ -28,6 +31,8 @@ export type Field = Base &
     | { type: "video" }
     /** Methods linked to a service, in method order. */
     | { type: "methods" }
+    /** Links to services, methods or industries, stored on the row as their slugs or keys. */
+    | { type: "refs"; source: RefSource }
   );
 
 export type FieldError = { field: string; message: string };
@@ -139,5 +144,7 @@ export function readField(field: Field, form: FormData, fileExists: (path: strin
     }
     case "methods":
       return { value: form.getAll(field.name).filter((v): v is string => typeof v === "string") };
+    case "refs":
+      return { value: [...new Set(form.getAll(field.name).filter((v): v is string => typeof v === "string"))] };
   }
 }

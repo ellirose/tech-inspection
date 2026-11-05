@@ -1,10 +1,10 @@
-import Image from "next/image";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { officialSeals } from "@/content/site";
+import { isSealId } from "@/content/site";
 import { getCertifications } from "@/lib/data/content";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { CcsSeal } from "@/components/visuals/CcsSeal";
 import { cn } from "@/lib/cn";
 
 const seal = ["bg-brand-600 text-white dark:bg-brand-500", "bg-lime text-[#071a2e]", "bg-surface text-ink ring-2 ring-line", "bg-neon text-[#071a2e]", "bg-pt text-white", "bg-vt text-[#071a2e]"];
@@ -18,8 +18,7 @@ export async function Certifications({ lang, dict, index }: { lang: Locale; dict
       code: x.code === "1072" ? "1072" : x.code,
       title: x.title[lang],
       body: x.body[lang],
-      // The CCS manuals require the certificate code with the seal: no code, no seal
-      official: x.certificateNumber && officialSeals[x.id] ? { ...officialSeals[x.id], number: x.certificateNumber } : undefined,
+      official: isSealId(x.id) ? { id: x.id, number: x.certificateNumber } : undefined,
     })),
     ...personnelCredentials.map((x) => ({ code: x.code === "ASNT-TC-1A" ? "ASNT" : x.code, title: x.title[lang], body: x.body[lang], official: undefined })),
   ];
@@ -31,14 +30,10 @@ export async function Certifications({ lang, dict, index }: { lang: Locale; dict
         <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((r, i) =>
             r.official ? (
-              // CCS seal as published, upright, at the 210 px digital minimum, on a white plate so its white
-              // border holds in dark mode. Clear space of 3u (≈63 px): plate padding plus the gap below, and
-              // plate plus card padding plus grid gap to the side. Full row on sm, where two columns are too narrow.
-              <RevealItem key={r.code} className="flex flex-col items-center gap-12 rounded-[2rem] bg-surface p-6 text-center shadow-soft ring-1 ring-line sm:max-md:col-span-2">
-                <figure className="rounded-[1.5rem] bg-white p-4 ring-1 ring-line">
-                  <Image src={r.official.src} width={r.official.width} height={r.official.height} alt={r.official.alt} sizes="210px" className="size-[210px] max-w-none" />
-                  <figcaption className="mt-3 font-['Helvetica_Neue',Helvetica,Arial,sans-serif] text-base font-medium tracking-wide text-[#00539b]">{r.official.number}</figcaption>
-                </figure>
+              // CCS seal at the 210 px digital minimum with 3u (≈63 px) clear space: the gap below, and card
+              // padding plus grid gap to the side. Full row on sm, where two columns are too narrow.
+              <RevealItem key={r.code} className="flex flex-col items-center gap-16 rounded-[2rem] bg-surface p-6 pt-8 text-center shadow-soft ring-1 ring-line sm:max-md:col-span-2">
+                <CcsSeal id={r.official.id} number={r.official.number} sizes="210px" className="w-[210px] shrink-0" />
                 <div>
                   <h3 className="text-xl font-extrabold leading-tight tracking-tight text-ink">{r.title}</h3>
                   <p className="mt-2 leading-relaxed text-ink-soft">{r.body}</p>

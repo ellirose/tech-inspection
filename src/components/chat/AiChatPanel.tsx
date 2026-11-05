@@ -6,6 +6,7 @@ import { ArrowRight, ArrowsClockwise, Check, PaperPlaneRight, Phone, WhatsappLog
 import { Mascot } from "./Mascot";
 import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/leads/Turnstile";
 import { submitLead } from "@/lib/leads/client";
+import { track } from "@/lib/analytics";
 import { labelFor, locationKeys, quantityKeys, urgencyKeys } from "@/lib/leads/options";
 import { CHAT_LIMITS, chatNotes, splitReplies, type ChatError, type ChatEvent, type ChatMessage, type LeadDraft } from "@/lib/chat/protocol";
 import { cn } from "@/lib/cn";
@@ -195,6 +196,7 @@ export default function AiChatPanel(props: AiAssistantProps & { open: boolean; o
       return patch(item.id, { lead: { ...card, status: "open", error } });
     }
     patch(item.id, { lead: { ...card, status: "sent" } });
+    track({ event: "chat_lead", services: card.draft.services.join(","), urgency: card.draft.urgency ?? "" });
     add({
       role: "assistant",
       text: t.thanks.replace("{ref}", res.reference),
@@ -275,7 +277,7 @@ export default function AiChatPanel(props: AiAssistantProps & { open: boolean; o
                   href={m.link.href}
                   target="_blank"
                   rel="noopener"
-                  className={cn("mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold", m.link.whatsapp ? "bg-whatsapp text-white" : "bg-neon text-[#071a2e]")}
+                  className={cn("mt-2 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold", m.link.whatsapp ? "bg-whatsapp text-whatsapp-ink" : "bg-neon text-[#071a2e]")}
                 >
                   {m.link.whatsapp && <WhatsappLogo weight="fill" className="size-5" />}
                   {m.link.label}
@@ -287,7 +289,7 @@ export default function AiChatPanel(props: AiAssistantProps & { open: boolean; o
                 <div className="mt-2 w-[88%] rounded-3xl bg-surface p-4 ring-1 ring-line">
                   <p className="text-sm font-bold text-ink">{ai.contactTitle}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <a href={wa(props.waIntro)} target="_blank" rel="noopener" className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-4 py-2.5 text-sm font-bold text-white">
+                    <a href={wa(props.waIntro)} target="_blank" rel="noopener" className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-4 py-2.5 text-sm font-bold text-whatsapp-ink">
                       <WhatsappLogo weight="fill" className="size-5" /> WhatsApp
                     </a>
                     <a href={props.phoneHref} className="inline-flex items-center gap-2 rounded-full bg-surface-2 px-4 py-2.5 text-sm font-bold text-ink ring-1 ring-inset ring-line">

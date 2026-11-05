@@ -10,7 +10,8 @@ import { draftMode } from "next/headers";
 import { db, hasDatabase, schema as s } from "@/db";
 import { bundled } from "./bundled";
 import type { PageBlockKey, PageBlocks } from "@/db/seed/blocks";
-import type { L10n } from "@/i18n/config";
+import type { L10n, L10nList } from "@/i18n/config";
+import type { FaqCategory } from "@/content/faqs";
 import type { Method, MethodKey } from "@/content/methods";
 import type { Service, ServiceIcon } from "@/content/services";
 import type { Certification, DocItem } from "@/content/site";
@@ -27,6 +28,9 @@ export const tags = {
   team: "content:team",
   channels: "content:channels",
   documents: "content:documents",
+  faqs: "content:faqs",
+  industries: "content:industries",
+  cases: "content:cases",
   block: (key: PageBlockKey) => `content:block:${key}`,
 } as const;
 
@@ -259,4 +263,85 @@ export async function getBlock<K extends PageBlockKey>(key: K): Promise<PageBloc
     .where(and(eq(s.pageBlock.key, key), await visible(s.pageBlock)));
   if (!row) throw new Error(`page_block "${key}" is missing: run \`npm run db:seed\``);
   return row.data as PageBlocks[K];
+}
+
+// --- FAQs, industries and case studies ------------------------------------------------------
+
+export type FaqItem = { category: FaqCategory; question: L10n; answer: L10n; methods: string[]; services: string[]; home: boolean };
+export type IndustryItem = {
+  slug: string;
+  name: L10n;
+  intro: L10n;
+  components: L10nList;
+  image: string | null;
+  services: string[];
+  methods: string[];
+  seo: SeoOverride;
+};
+export type CaseItem = {
+  slug: string;
+  title: L10n;
+  clientName: string | null;
+  sector: L10n | null;
+  challenge: L10n;
+  solution: L10n;
+  outcomes: L10nList | null;
+  images: string[];
+  industries: string[];
+  services: string[];
+  methods: string[];
+};
+
+/** Published questions, in the editors' order. */
+export async function getFaqs(): Promise<FaqItem[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tags.all, tags.faqs);
+  if (!hasDatabase) return bundled.faqs();
+  const rows = await db.select().from(s.faq).where(await visible(s.faq)).orderBy(asc(s.faq.sortOrder));
+  return rows.map((r) => ({ category: r.category as FaqCategory, question: r.question, answer: r.answer, methods: r.methodKeys, services: r.serviceSlugs, home: r.showOnHome }));
+}
+
+export async function getIndustries(): Promise<IndustryItem[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tags.all, tags.industries);
+  if (!hasDatabase) return bundled.industries();
+  const rows = await db.select().from(s.industry).where(await visible(s.industry)).orderBy(asc(s.industry.sortOrder));
+  return rows.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    intro: r.intro,
+    components: r.components,
+    image: r.image,
+    services: r.serviceSlugs,
+    methods: r.methodKeys,
+    seo: { title: r.seoTitle, description: r.seoDescription },
+  }));
+}
+
+/** Case studies the client has cleared for publication. */
+export async function getCases(): Promise<CaseItem[]> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tags.all, tags.cases);
+  if (!hasDatabase) return [];
+  const rows = await db
+    .select()
+    .from(s.caseStudy)
+    .where(and(await visible(s.caseStudy), eq(s.caseStudy.publishPermission, true)))
+    .orderBy(asc(s.caseStudy.sortOrder));
+  return rows.map((r) => ({
+    slug: r.slug,
+    title: r.title,
+    clientName: r.clientName,
+    sector: r.sector,
+    challenge: r.challenge,
+    solution: r.solution,
+    outcomes: r.outcomes,
+    images: r.images,
+    industries: r.industrySlugs,
+    services: r.serviceSlugs,
+    methods: r.methodKeys,
+  }));
 }

@@ -6,15 +6,16 @@ import { can, roleLabels, isRole } from "@/lib/auth/roles";
 import { panelSections } from "@/components/admin/nav";
 import { Card } from "@/components/admin/ui";
 import { ExpiryWarnings } from "@/components/admin/content/ExpiryWarnings";
+import { LeadMetrics } from "@/components/admin/leads/LeadMetrics";
 
 export const metadata = { title: "Inicio" };
 
 const blurbs: Record<string, string> = {
   "/admin/leads": "Solicitudes de cotización del formulario y del asistente.",
-  "/admin/contenido": "Servicios, métodos, clientes, cifras, certificaciones y políticas.",
+  "/admin/contenido": "Servicios, métodos, industrias, preguntas frecuentes, casos, clientes, cifras, certificaciones y políticas.",
   "/admin/usuarios": "Cuentas del panel, roles y accesos.",
   "/admin/configuracion": "Datos de la empresa, canales y destinatarios de notificaciones.",
-  "/admin/redirecciones": "Direcciones antiguas que llevan a las páginas nuevas.",
+  "/admin/redirecciones": "Direcciones antiguas que llevan a las páginas nuevas, y direcciones no encontradas.",
   "/admin/historial": "Quién hizo qué y cuándo.",
   "/admin/seguridad": "Su contraseña y la verificación en dos pasos.",
 };
@@ -51,6 +52,7 @@ export default async function DashboardPage() {
           </Card>
         </div>
       )}
+      {leads && <LeadMetrics />}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {panelSections

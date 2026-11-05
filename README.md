@@ -20,7 +20,9 @@ npm run dev                    # http://localhost:3000 → redirects to /es
 
 `npm run build` prerenders pages from the database, so the database must be running and seeded for builds too.
 
-**Frontend-only deployments** (such as a Vercel preview): with no `DATABASE_URL`, the public pages are built from the content bundled in `src/content` (`src/lib/data/bundled.ts`, the same content `db:seed` loads) and the old Wix redirects still apply. The quote form answers "continue on WhatsApp", the chatbot falls back to the guided assistant, and `/admin` shows that the panel is unavailable.
+**Hosting:** the site, its API and the database run on one DigitalOcean server; see [`deploy/README.md`](deploy/README.md) (`npm run deploy`). Vercel is no longer used.
+
+**Frontend-only builds:** with no `DATABASE_URL`, the public pages are built from the content bundled in `src/content` (`src/lib/data/bundled.ts`, the same content `db:seed` loads) and the old Wix redirects still apply. The quote form answers "continue on WhatsApp", the chatbot falls back to the guided assistant, and `/admin` shows that the panel is unavailable.
 
 | Command | Does |
 |---|---|
@@ -107,14 +109,25 @@ Before launch: a Resend account with `send.tech-inspection.com` verified (DNS re
 
 ## Chatbot
 
-With `ANTHROPIC_API_KEY` set (at build time and at run time), the chat button opens an AI assistant (design document §12); without it, the guided rule-based assistant stays. Both create leads through `/api/leads` with the same checks as the quote form.
+With `OPENAI_API_KEY` set (at build time and at run time), the chat button opens an AI assistant (design document §12); without it, the guided rule-based assistant stays. Both create leads through `/api/leads` with the same checks as the quote form.
 
 - **Flow:** greeting with four options (TI-QMS and "talk to an advisor" are answered without the model), questions answered from the site content, qualification one question at a time with quick replies, then a summary card with the data-processing consent checkbox and Turnstile. The lead is stored only when the visitor confirms that card; the model cannot store one by itself. Asking for a person, a refusal or an API failure shows WhatsApp and phone buttons.
-- **Model:** `claude-opus-5-5` at effort `low` by default (`CHAT_MODEL`, `CHAT_EFFORT`). Tools: `get_service_info` (full text of a service or method), `create_lead` (shows the summary card; input validated with Zod) and `show_contact`. The system prompt (the rules of §12.4 plus a knowledge base written from the published content in the visitor's language) is cached, and follows content changes, since it is read through the same cached functions as the pages.
-- **History:** the browser keeps the conversation for the session (sessionStorage) and sends its visible text with each request. Earlier turns go back as plain text, so no thinking block is replayed outside the conversation that produced it; within one answer, the model's output goes back unchanged with the tool results.
+- **Model:** OpenAI `gpt-5.4-mini` at reasoning effort `low` by default (`CHAT_MODEL`, `CHAT_EFFORT`; `off` for models without reasoning), through Chat Completions with streaming. Tools: `get_service_info` (full text of a service or method), `create_lead` (shows the summary card; input validated with Zod) and `show_contact`. The system prompt (the rules of §12.4 plus a knowledge base written from the published content in the visitor's language) comes first so OpenAI caches it automatically, and follows content changes, since it is read through the same cached functions as the pages.
+- **History:** the browser keeps the conversation for the session (sessionStorage) and sends its visible text with each request. Earlier turns go back as plain text; within one answer, the model's tool calls go back with their results.
 - **Limits:** same-origin requests only; 1,000 characters per message and 30 visitor messages per conversation; 20 messages per 10 minutes and 120 per day per visitor; `CHAT_DAILY_LIMIT` (2,000) messages per day for the whole site, which caps the API bill. Answers stream as one JSON event per line (`src/lib/chat/protocol.ts`); Nginx must not buffer `/api/chat` (the route sends `X-Accel-Buffering: no`).
 - **Conversaciones** (admin, roles that see leads): each conversation as the visitor saw it, its lead when one was confirmed, and the tokens used, with a 30-day token total on the list. Conversations are deleted `CHAT_RETENTION_DAYS` (90) days after their last message. The table holds what the visitor typed, but no IP address or browser details; the data-protection policy should mention this log.
-- **Tests without a key:** point `ANTHROPIC_BASE_URL` at a stand-in that speaks the Messages streaming format. No test calls the real API.
+- **Tests without a key:** point `OPENAI_BASE_URL` at a stand-in that speaks the Chat Completions streaming format. No test calls the real API.
+
+## SEO, analytics and quality (stage 7)
+
+- **Pages added:** `/preguntas-frecuentes`, `/industrias` and `/industrias/<slug>`, `/certificaciones`, `/clientes` and `/clientes/<slug>` (a case shows only with the client's permission), `/cotizar`, `/politica-de-privacidad`, `/terminos`. FAQs, industries and cases are edited under Contenido; their seed text is in `src/content/faqs.ts` and `industries.ts`, and the text of the new pages and the cookie banner in `src/i18n/extra.ts`.
+- **Structured data** (`src/lib/jsonld.ts`): ProfessionalService with its credentials site-wide, WebSite on the home page, BreadcrumbList from every `PageHero`, Service on service, method and industry pages, FAQPage wherever questions are shown. Check templates with Google's Rich Results Test once the site has its domain.
+- **Crawlers:** `robots.ts` keeps out the admin, the API and `/gracias`, and names the AI crawlers it allows (to confirm with the client); `/llms.txt` is generated from the published content.
+- **Security headers** (`next.config.ts`, production only): CSP, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy; HSTS and COOP once `NEXT_PUBLIC_SITE_URL` is HTTPS. Inline scripts stay allowed (prerendered pages cannot carry a per-request nonce); script origins are limited to the site, Turnstile and Google Tag Manager.
+- **404s:** unknown addresses get the site's 404 page with status 404 (`app/global-not-found.tsx`; `proxy.ts` routes addresses outside the language folders there). The page reports its path to `/api/not-found`, and Redirecciones lists them with a button to redirect each one: the 404 monitoring for the weeks after the DNS switch.
+- **Analytics** (design document §18): `src/lib/analytics.ts` pushes the §18.1 events to `dataLayer` (quote steps and submission, chat open and lead, WhatsApp, phone, email, PDF and TI-QMS clicks; there is no separate contact form, so `contact_submit` is unused). Tags load only after the visitor accepts analytics in the cookie banner (Consent Mode v2, everything denied by default); the banner shows only when `NEXT_PUBLIC_GTM_ID` or `NEXT_PUBLIC_GA_ID` is set. Lead metrics by source, status, service and urgency are on the admin home page; the Looker Studio dashboard is built in Google's tools once GA4 and Search Console exist.
+- **Tests:** `npm test` (unit) and `npm run test:e2e` (Playwright: pages, SEO basics, headers, redirects, 404, menu, FAQ, chat; `E2E_BASE_URL` picks the site, and `E2E_WRITE=1` adds a real quote submission, whose lead "Prueba E2E" must be deleted afterwards).
+- **Lighthouse (mobile, 2026-11-05, staging over HTTP):** accessibility 98–100; best practices 79 and SEO 69 only because the staging site has no HTTPS yet and sends `noindex` on purpose (both clear with `ti domain` and `ti index on`); performance 60 (home) to 82, below the 90 target: the remaining cost is JavaScript start-up (React, motion, smooth scrolling) and should be measured again on the final domain with HTTP/2.
 
 ## Pending client input
 

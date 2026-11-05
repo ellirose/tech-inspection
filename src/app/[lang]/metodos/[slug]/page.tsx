@@ -6,7 +6,10 @@ import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
-import { getBlock, getMethods, getSeoOverrides, getServices } from "@/lib/data/content";
+import { getBlock, getFaqs, getMethods, getSeoOverrides, getServices } from "@/lib/data/content";
+import { serviceLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { FaqSection } from "@/components/faq/FaqSection";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
@@ -50,13 +53,14 @@ export default function MethodPage({ params }: PageProps<"/[lang]/metodos/[slug]
 
 async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const [methods, services, methodsApplied] = await Promise.all([getMethods(), getServices(), getBlock("methodsApplied")]);
+  const [methods, services, methodsApplied, faqs] = await Promise.all([getMethods(), getServices(), getBlock("methodsApplied"), getFaqs()]);
   const m = methods.find((x) => x.slug === slug);
   if (!hasLocale(lang) || !m) notFound();
   const d = getDictionary(lang);
   const t = tone[m.key];
   const related = services.filter((s) => s.methods.includes(m.key));
   const others = methods.filter((x) => x.key !== m.key);
+  const questions = faqs.filter((f) => f.methods.includes(m.key));
 
   return (
     <>
@@ -184,6 +188,8 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
           </div>
         </Container>
       </section>
+      <FaqSection lang={lang} items={questions} />
+      <JsonLd data={serviceLd({ lang, path: `/metodos/${m.slug}`, name: m.name[lang], description: m.tagline[lang], category: "Non-destructive testing" })} />
       <CtaBand lang={lang} dict={d} />
     </>
   );

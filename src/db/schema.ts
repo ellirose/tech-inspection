@@ -125,6 +125,9 @@ export const industry = pgTable("industry", {
   intro: jsonb("intro").$type<L10n>().notNull(),
   components: jsonb("components").$type<L10nList>().notNull(),
   image: text("image"),
+  /** Services (slugs) and methods (keys) this item belongs to; it is shown on their pages too. */
+  serviceSlugs: jsonb("service_slugs").$type<string[]>().notNull().default([]),
+  methodKeys: jsonb("method_keys").$type<string[]>().notNull().default([]),
   seoTitle: jsonb("seo_title").$type<L10n | null>(),
   seoDescription: jsonb("seo_description").$type<L10n | null>(),
 });
@@ -187,6 +190,12 @@ export const caseStudy = pgTable("case_study", {
   results: jsonb("results").$type<{ value: string; label: L10n }[]>().notNull().default([]),
   images: jsonb("images").$type<string[]>().notNull().default([]),
   publishPermission: boolean("publish_permission").notNull().default(false),
+  /** What was achieved, one point per line (the admin's list field). */
+  outcomes: jsonb("outcomes").$type<L10nList | null>(),
+  industrySlugs: jsonb("industry_slugs").$type<string[]>().notNull().default([]),
+  /** Services (slugs) and methods (keys) this item belongs to; it is shown on their pages too. */
+  serviceSlugs: jsonb("service_slugs").$type<string[]>().notNull().default([]),
+  methodKeys: jsonb("method_keys").$type<string[]>().notNull().default([]),
 });
 
 export const caseStudyService = pgTable(
@@ -209,6 +218,9 @@ export const faq = pgTable("faq", {
   category: text("category").notNull().default("general"),
   serviceId: uuid("service_id").references(() => service.id, { onDelete: "set null" }),
   showOnHome: boolean("show_on_home").notNull().default(false),
+  /** Services (slugs) and methods (keys) this item belongs to; it is shown on their pages too. */
+  serviceSlugs: jsonb("service_slugs").$type<string[]>().notNull().default([]),
+  methodKeys: jsonb("method_keys").$type<string[]>().notNull().default([]),
 });
 
 /** Experience counters (home hero). */
@@ -513,3 +525,23 @@ export const rateLimit = pgTable("rate_limit", {
   count: integer("count").notNull(),
   resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
 });
+
+// --- Pages not found --------------------------------------------------------------------------
+
+/**
+ * Addresses that answered 404, for the weeks after the move from Wix (design document §17.4): shown
+ * under Redirecciones so a missing old URL can get its redirect. Only the path and the referring site
+ * are kept, never who asked. Rows not seen for 90 days are deleted.
+ */
+export const notFoundHit = pgTable(
+  "not_found_hit",
+  {
+    path: text("path").primaryKey(),
+    hits: integer("hits").notNull().default(1),
+    /** Host of the last page that linked here (e.g. www.google.com), if the browser sent one. */
+    referrer: text("referrer"),
+    firstSeen: timestamp("first_seen", { withTimezone: true }).notNull().defaultNow(),
+    lastSeen: timestamp("last_seen", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("not_found_hit_last_seen_idx").on(t.lastSeen)],
+);

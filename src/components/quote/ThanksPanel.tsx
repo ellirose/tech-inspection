@@ -42,7 +42,7 @@ export function ThanksPanel({ lang, t, whatsapp }: { lang: Locale; t: Copy; what
         </ol>
       </div>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <a href={whatsappLink(whatsapp, thanks?.whatsappText ?? t.waIntro)} target="_blank" rel="noopener" className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-whatsapp px-6 font-bold text-white">
+        <a href={whatsappLink(whatsapp, thanks?.whatsappText ?? t.waIntro)} target="_blank" rel="noopener" className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-whatsapp px-6 font-bold text-whatsapp-ink">
           <WhatsappLogo weight="fill" className="size-6" /> {t.continueWa}
         </a>
         <Link href={`/${lang}/contacto#cotizar`} className="inline-flex h-14 items-center justify-center rounded-full px-6 font-bold text-ink ring-1 ring-inset ring-line">

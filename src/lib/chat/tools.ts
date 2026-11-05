@@ -3,7 +3,7 @@
 // a lead is stored only when the visitor confirms that card, through /api/leads with the same checks as
 // the quote form (consent, Turnstile, rate limits). The model can never store a lead by itself.
 import "server-only";
-import type Anthropic from "@anthropic-ai/sdk";
+import type { ChatCompletionFunctionTool } from "openai/resources/chat/completions";
 import { z } from "zod";
 import { EMAIL, isPhone, locationKeys, methodKeys, quantityKeys, urgencyKeys } from "@/lib/leads/options";
 import type { LeadDraft } from "./protocol";
@@ -37,24 +37,23 @@ export const getServiceInfoInput = z.object({ topic: z.string().trim().min(1).ma
 const text = (description: string) => ({ type: "string", description });
 
 /** In a fixed order and unchanged between requests, so the prompt cache holds. */
-export const chatTools: Anthropic.Tool[] = [
+const tools = [
   {
     name: "get_service_info",
     description:
       "Returns the full description of one service or inspection method from the website: what it covers, scope, methods, what it detects and its steps. Use it before answering detailed questions about a service or method.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: { topic: text("A service slug or a method key (ut, mt, pt, vt) from the knowledge base.") },
       required: ["topic"],
       additionalProperties: false,
     },
-    eager_input_streaming: true,
   },
   {
     name: "create_lead",
     description:
       "Shows the visitor a summary card of their quote request with a data-processing consent checkbox and a confirm button. The request is stored only if the visitor confirms on the card. Call it once you have collected what to inspect, the quantity, the place, the priority and the contact details; call it again with corrected data if the visitor asks for a change.",
-    input_schema: {
+    parameters: {
       type: "object",
       properties: {
         services: { type: "array", items: { type: "string" }, description: "Service slugs from the knowledge base." },
@@ -76,15 +75,16 @@ export const chatTools: Anthropic.Tool[] = [
       required: ["name"],
       additionalProperties: false,
     },
-    eager_input_streaming: true,
   },
   {
     name: "show_contact",
     description: "Shows the visitor buttons to continue on WhatsApp or call the sales line. Use it when they ask for a person or you cannot help.",
-    input_schema: { type: "object", properties: {}, additionalProperties: false },
-    eager_input_streaming: true,
+    parameters: { type: "object", properties: {}, additionalProperties: false },
   },
 ];
+
+/** The tools in the OpenAI function-calling format. Inputs are validated with Zod before anything runs. */
+export const chatTools: ChatCompletionFunctionTool[] = tools.map((t) => ({ type: "function", function: t }));
 
 /** Keeps only services that exist on the site; the draft is what the widget shows and sends to /api/leads. */
 export function toDraft(input: z.output<typeof leadDraftInput>, knownServices: Set<string>): LeadDraft {

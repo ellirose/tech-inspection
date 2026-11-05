@@ -40,7 +40,8 @@ export function csvField(value: string | null | undefined) {
   return /[",\r\n;]/.test(safe) || safe !== value ? `"${safe.replace(/"/g, '""')}"` : safe;
 }
 
-export function leadsToCsv(leads: Lead[]) {
+/** `separator` ";" suits Excel with Spanish (Colombia) regional settings, whose list separator is ";". */
+export function leadsToCsv(leads: Lead[], separator: "," | ";" = ",") {
   const rows = [columns.map(([h]) => h), ...leads.map((l) => columns.map(([, get]) => get(l)))];
-  return "﻿" + rows.map((r) => r.map(csvField).join(",")).join("\r\n") + "\r\n";
+  return "﻿" + rows.map((r) => r.map(csvField).join(separator)).join("\r\n") + "\r\n";
 }

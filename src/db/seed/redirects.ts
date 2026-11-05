@@ -24,4 +24,13 @@ export const legacyRedirects: [from: string, to: string][] = [
   ["/contacto", "/es/contacto"],
   ["/fullscreen-page", "/es"],
   ["/members-area", "/es/plataforma"],
+  // Policy and accountability PDFs as Wix served them (old links in emails, bookmarks and search results).
+  ["/_files/ugd/a4c078_c8769d885c0f42f0afea952973421de3.pdf", "/docs/PL-01-5-Politica-de-Gestion-Integral.pdf"],
+  ["/_files/ugd/a4c078_3e13fa799f1b4909883aff73df8017fd.pdf", "/docs/FE-02-53-3-Alcance-del-SGI-V4.pdf"],
+  ["/_files/ugd/0b1bae_1030230d1a2c45a793871295f11bce04.pdf", "/docs/PL-09-1-Politica-Proteccion-de-Datos.pdf"],
+  ["/_files/ugd/0b1bae_4c259410ea4e4f439ddeb7134d719c9c.pdf", "/docs/Rendicion-de-Cuentas-2017.pdf"],
+  ["/_files/ugd/0b1bae_98c146687237488080b5288e74ce1775.pdf", "/docs/Rendicion-de-Cuentas-2018.pdf"],
+  ["/_files/ugd/0b1bae_788e60c99fc34005be9d4ebc25858e41.pdf", "/docs/Rendicion-de-Cuentas-2019.pdf"],
+  ["/_files/ugd/a4c078_50856d3148a34e9c8aa746c0af1cab81.pdf", "/docs/Rendicion-de-Cuentas-2020.pdf"],
+  ["/_files/ugd/a4c078_03e9ad0ec3314b8b97b1a4a73b174ccc.pdf", "/docs/Rendicion-de-Cuentas-2021.pdf"],
 ];

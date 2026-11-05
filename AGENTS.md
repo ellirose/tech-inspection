@@ -10,8 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Deploying
 
-Production is one DigitalOcean server (165.245.163.217) driven by the `ti` command; see `deploy/README.md`.
+Production is one DigitalOcean server (165.245.163.217) driven by the `ti` command; see `deploy/README.md`. Deploys do not go through Git.
 
-- To deploy, push to `main`: the server deploys each new commit on `main` once its CI run has passed (within about 2 minutes of CI finishing).
-- With SSH access: `ssh root@165.245.163.217 ti status | ti deploy | ti rollback | ti logs`.
-- Settings live only on the server (`ti env`, `ti set KEY=VALUE`); never commit secrets.
+- To deploy, run `npm run deploy -- "what changed"` from `code/web`: it uploads the folder as it is on disk and the server builds it and switches to it (the live site is kept if the build or health check fails).
+- On the server: `ssh root@165.245.163.217 ti status | ti releases | ti rollback | ti logs`.
+- Settings live only on the server (`ti env`, `ti set KEY=VALUE`, then `ti restart` or `ti rebuild`); never put secrets in the code.

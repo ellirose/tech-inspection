@@ -5,7 +5,11 @@ import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "../globals.css";
 import { hasLocale, htmlLang, locales, ogLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { getDocuments, getMethods, getServices, getSite } from "@/lib/data/content";
+import { getCertifications, getDocuments, getMethods, getServices, getSite } from "@/lib/data/content";
+import { organizationLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { Analytics } from "@/components/analytics/Analytics";
+import { getExtra } from "@/i18n/extra";
 import { SITE_URL } from "@/lib/site";
 import { hasDatabase } from "@/db";
 import { Header, type NavData } from "@/components/layout/Header";
@@ -60,7 +64,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = getDictionary(lang);
-  const [site, methods, services, policyDocs, draft] = await Promise.all([getSite(), getMethods(), getServices(), getDocuments("policy"), draftMode()]);
+  const [site, methods, services, policyDocs, draft, certs] = await Promise.all([getSite(), getMethods(), getServices(), getDocuments("policy"), draftMode(), getCertifications()]);
   const { company } = site;
 
   const navData: NavData = {
@@ -68,28 +72,33 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
     nav: dict.nav,
     methods: methods.map((m) => ({ key: m.key, slug: m.slug, code: m.code, name: m.name[lang], tagline: m.tagline[lang] })),
     services: services.map((s) => ({ slug: s.slug, icon: s.icon, name: s.name[lang], short: s.short[lang] })),
+    more: (() => {
+      const x = getExtra(lang).nav;
+      return {
+        industries: { label: x.industries, desc: x.menu.industries },
+        certifications: { label: x.certifications, desc: x.menu.certifications },
+        clients: { label: x.clients, desc: x.menu.clients },
+        faq: { label: x.faq, desc: x.menu.faq },
+      };
+    })(),
   };
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ProfessionalService",
-    name: company.name,
-    url: `${SITE_URL}/${lang}`,
-    logo: `${SITE_URL}/media/brand/logo.png`,
-    image: `${SITE_URL}/${lang}/opengraph-image`,
-    telephone: company.phone,
-    email: company.email,
-    foundingDate: String(site.founded),
-    address: { "@type": "PostalAddress", streetAddress: company.address, addressCountry: "CO" },
-    areaServed: "CO",
-    knowsAbout: methods.map((m) => m.name.en),
-  };
+  const jsonLd = organizationLd({
+    lang,
+    company,
+    founded: site.founded,
+    methods: methods.map((m) => m.name[lang]),
+    certifications: [
+      ...certs.system.map((c) => ({ code: c.code, title: c.title[lang], certifier: c.certifier })),
+      ...certs.personnel.map((c) => ({ code: c.code, title: c.title[lang] })),
+    ],
+  });
 
   return (
     // Dark only: the fixed data-theme keeps every `dark:` style on.
     <html lang={htmlLang[lang as Locale]} data-theme="dark" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-svh overflow-x-clip">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <JsonLd data={jsonLd} />
         <SceneBackground />
         <SmoothScroll>
           <Header data={navData} />
@@ -97,9 +106,9 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
           <Footer lang={lang} dict={dict} />
           <FloatingActions
             whatsappLabel={dict.cta.whatsapp}
-            // Read at build time: the chatbot needs ANTHROPIC_API_KEY both when the site is built and when it runs,
+            // Read at build time: the chatbot needs OPENAI_API_KEY both when the site is built and when it runs,
             // and a database (without one the guided assistant stays).
-            ai={Boolean(process.env.ANTHROPIC_API_KEY) && hasDatabase}
+            ai={Boolean(process.env.OPENAI_API_KEY) && hasDatabase}
             assistant={{
               lang,
               t: dict.chat,
@@ -127,6 +136,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
           />
         </SmoothScroll>
         <LandingRecorder />
+        <Analytics lang={lang} t={getExtra(lang).consent} platformUrl={site.platformUrl} />
         {draft.isEnabled && <PreviewBar />}
       </body>
     </html>

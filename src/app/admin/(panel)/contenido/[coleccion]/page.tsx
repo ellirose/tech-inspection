@@ -32,7 +32,7 @@ export default async function CollectionPage({ params, searchParams }: PageProps
       <PageHead title={c.label} lead={c.lead}>
         {write && c.canCreate && (
           <Link href={`/admin/contenido/${c.key}/nuevo`} className={buttonClass}>
-            Nuevo {c.singular}
+            {c.feminine ? "Nueva" : "Nuevo"} {c.singular}
           </Link>
         )}
       </PageHead>

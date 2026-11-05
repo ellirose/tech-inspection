@@ -1,24 +1,156 @@
 import type { L10n } from "@/i18n/config";
 
 /**
- * The client's two sales decks, shown page by page on /portafolio. Slides are exported from the PDFs
- * as 1920×1080 WebP (`p-NN`) plus 480 px thumbnails (`t-NN`) in /media/brochure/<key>/; the download is
- * a compact image PDF built from the same renders (the originals weigh 25–39 MB).
- * Sources: doc/02-client-materials/presentacion cliente ulterra.pdf and doc/New file/Presentación Jaime.pdf.
+ * The client's service portfolio and two sales decks, shown as one continuous scroll on /portafolio.
+ * Pages are WebP renders (`p-NN`, 1920×1080 for the decks, 1414×2000 for the portfolio) plus small
+ * thumbnails (`t-NN`) in /media/brochure/<key>/; each download is a compact image PDF built from the
+ * same renders (the decks' originals weigh 25–39 MB).
+ * Sources: doc/02-client-materials/presentacion cliente ulterra.pdf, doc/New file/Presentación Jaime.pdf
+ * and doc/New file/Copia de PORTAFOLIO.
  */
 export type BrochurePage = { title: L10n; summary: L10n };
 
 export type Brochure = {
-  key: "ndt" | "qaqc";
+  key: "portafolio" | "ndt" | "qaqc";
   name: L10n;
   tagline: L10n;
   pdf: string;
   /** Download size shown on the button, in MB. */
   pdfMb: number;
+  /** Page size of the renders in pixels; the decks are 1920×1080. */
+  size?: [number, number];
   pages: BrochurePage[];
 };
 
+const page = (es: string, pt: string, en: string, summary: L10n): BrochurePage => ({ title: { es, pt, en }, summary });
+
 export const brochures: Brochure[] = [
+  // The company's service portfolio (doc/New file/Copia de PORTAFOLIO, Nov 2026): 22 portrait pages at
+  // 1414×2000, shown as they are; the PDF is built from the same pages.
+  {
+    key: "portafolio",
+    name: { es: "Portafolio de servicios", pt: "Portfólio de serviços", en: "Service portfolio" },
+    tagline: {
+      es: "La empresa, sus métodos de inspección, sus servicios por tipo de equipo y su equipo humano.",
+      pt: "A empresa, seus métodos de inspeção, seus serviços por tipo de equipamento e sua equipe.",
+      en: "The company, its inspection methods, its services by equipment type, and its people.",
+    },
+    pdf: "/docs/portafolio-tech-inspection.pdf",
+    pdfMb: 3.7,
+    size: [1414, 2000],
+    pages: [
+      page("Portafolio Tech-Inspection", "Portfólio Tech-Inspection", "Tech-Inspection portfolio", {
+        es: "Portafolio de servicios de inspección y ensayos no destructivos.",
+        pt: "Portfólio de serviços de inspeção e ensaios não destrutivos.",
+        en: "Non-destructive testing and inspection service portfolio.",
+      }),
+      page("Nosotros, misión y visión", "Quem somos, missão e visão", "About us, mission and vision", {
+        es: "Empresa colombiana de soluciones integrales en NDT y mantenimiento, certificada ISO 9001 e ISO 45001 y con calificación RUC.",
+        pt: "Empresa colombiana de soluções integrais em END e manutenção, certificada ISO 9001 e ISO 45001 e com qualificação RUC.",
+        en: "A Colombian company offering complete NDT and maintenance solutions, ISO 9001 and ISO 45001 certified and RUC qualified.",
+      }),
+      page("Nuestro equipo y valores", "Nossa equipe e valores", "Our team and values", {
+        es: "Un equipo comprometido y experto en inspección y mantenimiento; valores de excelencia, innovación e integridad.",
+        pt: "Uma equipe comprometida e especialista em inspeção e manutenção; valores de excelência, inovação e integridade.",
+        en: "A committed team of inspection and maintenance experts; values of excellence, innovation and integrity.",
+      }),
+      page("Métodos", "Métodos", "Methods", {
+        es: "Personal calificado y certificado bajo estándares internacionales como ASNT.",
+        pt: "Pessoal qualificado e certificado sob padrões internacionais como ASNT.",
+        en: "Qualified staff certified to international standards such as ASNT.",
+      }),
+      page("Inspección visual (VT)", "Inspeção visual (VT)", "Visual inspection (VT)", {
+        es: "El método de base: detecta defectos superficiales, desgaste y daños, y sus beneficios.",
+        pt: "O método de base: detecta defeitos superficiais, desgaste e danos, e seus benefícios.",
+        en: "The foundation method: finds surface defects, wear and damage, and its benefits.",
+      }),
+      page("Líquidos penetrantes (PT)", "Líquidos penetrantes (PT)", "Penetrant testing (PT)", {
+        es: "Revela discontinuidades abiertas a la superficie en materiales no porosos.",
+        pt: "Revela descontinuidades abertas à superfície em materiais não porosos.",
+        en: "Reveals surface-breaking discontinuities in non-porous materials.",
+      }),
+      page("Partículas magnéticas (MT)", "Partículas magnéticas (MT)", "Magnetic particle testing (MT)", {
+        es: "Detecta discontinuidades superficiales y subsuperficiales en materiales ferromagnéticos.",
+        pt: "Detecta descontinuidades superficiais e subsuperficiais em materiais ferromagnéticos.",
+        en: "Finds surface and near-surface discontinuities in ferromagnetic materials.",
+      }),
+      page("Ultrasonido convencional (UT)", "Ultrassom convencional (UT)", "Conventional ultrasonic testing (UT)", {
+        es: "Mide espesores y detecta defectos internos con ondas sonoras de alta frecuencia.",
+        pt: "Mede espessuras e detecta defeitos internos com ondas sonoras de alta frequência.",
+        en: "Measures thickness and finds internal flaws with high-frequency sound.",
+      }),
+      page("Ultrasonido phased array (PAUT)", "Ultrassom phased array (PAUT)", "Phased array ultrasonics (PAUT)", {
+        es: "Imágenes de la estructura interna para evaluar soldaduras y componentes con mayor detalle.",
+        pt: "Imagens da estrutura interna para avaliar soldas e componentes com mais detalhe.",
+        en: "Images of the internal structure to assess welds and components in more detail.",
+      }),
+      page("Inspección electromagnética (EMI)", "Inspeção eletromagnética (EMI)", "Electromagnetic inspection (EMI)", {
+        es: "Evaluación rápida de tubería: corrosión, picaduras, grietas y pérdida de espesor.",
+        pt: "Avaliação rápida de tubulação: corrosão, pites, trincas e perda de espessura.",
+        en: "Fast tubular assessment: corrosion, pitting, cracks and wall loss.",
+      }),
+      page("Servicios", "Serviços", "Services", {
+        es: "Inspección según el tipo de equipo, bajo las normativas que aplican a cada uno.",
+        pt: "Inspeção segundo o tipo de equipamento, sob as normas aplicáveis a cada um.",
+        en: "Inspection by equipment type, to the codes that apply to each.",
+      }),
+      page("Inspección de tubería", "Inspeção de tubulação", "Tubular inspection", {
+        es: "Drill pipe, casing, tubing y tubería de perforación, con sus normativas aplicables.",
+        pt: "Drill pipe, casing, tubing e tubulação de perfuração, com suas normas aplicáveis.",
+        en: "Drill pipe, casing, tubing and drilling tubulars, with the applicable codes.",
+      }),
+      page("Componentes de BHA", "Componentes de BHA", "BHA components", {
+        es: "Inspección de los componentes del ensamblaje de fondo (bottom hole assembly).",
+        pt: "Inspeção dos componentes da composição de fundo (bottom hole assembly).",
+        en: "Inspection of bottom hole assembly components.",
+      }),
+      page("Líneas de presión", "Linhas de pressão", "Pressure lines", {
+        es: "Inspección de líneas y conexiones que trabajan a alta presión.",
+        pt: "Inspeção de linhas e conexões que trabalham em alta pressão.",
+        en: "Inspection of high-pressure lines and connections.",
+      }),
+      page("Herramientas de fishing y wireline", "Ferramentas de fishing e wireline", "Fishing and wireline tools", {
+        es: "Inspección de herramientas de pesca y de wireline.",
+        pt: "Inspeção de ferramentas de pescaria e de wireline.",
+        en: "Inspection of fishing and wireline tools.",
+      }),
+      page("Equipos de cementación y herramientas de levante", "Equipamentos de cimentação e ferramentas de elevação", "Cementing equipment and lifting tools", {
+        es: "Inspección de equipos de cementación y de herramientas de levante.",
+        pt: "Inspeção de equipamentos de cimentação e de ferramentas de elevação.",
+        en: "Inspection of cementing equipment and lifting tools.",
+      }),
+      page("Inspección de tanques", "Inspeção de tanques", "Tank inspection", {
+        es: "Espesores, soldaduras y estado general de tanques.",
+        pt: "Espessuras, soldas e estado geral de tanques.",
+        en: "Thickness, welds and overall condition of tanks.",
+      }),
+      page("Inspección estructural", "Inspeção estrutural", "Structural inspection", {
+        es: "Estructuras metálicas y sus uniones soldadas.",
+        pt: "Estruturas metálicas e suas uniões soldadas.",
+        en: "Steel structures and their welded joints.",
+      }),
+      page("Herramientas de levante e izaje", "Ferramentas de elevação e içamento", "Lifting and hoisting tools", {
+        es: "Inspección de elementos de levante e izaje.",
+        pt: "Inspeção de elementos de elevação e içamento.",
+        en: "Inspection of lifting and hoisting gear.",
+      }),
+      page("Personal", "Equipe", "Our people", {
+        es: "El equipo de Tech-Inspection.",
+        pt: "A equipe da Tech-Inspection.",
+        en: "The Tech-Inspection team.",
+      }),
+      page("Personal operativo y administrativo", "Equipe operacional e administrativa", "Field and office staff", {
+        es: "Los equipos operativo y administrativo.",
+        pt: "As equipes operacional e administrativa.",
+        en: "The field and office teams.",
+      }),
+      page("Contacto", "Contato", "Contact", {
+        es: "gestion.integral@tech-inspection.com · gerencia-operaciones@tech-inspection.com · www.tech-inspection.com",
+        pt: "gestion.integral@tech-inspection.com · gerencia-operaciones@tech-inspection.com · www.tech-inspection.com",
+        en: "gestion.integral@tech-inspection.com · gerencia-operaciones@tech-inspection.com · www.tech-inspection.com",
+      }),
+    ],
+  },
   {
     key: "ndt",
     name: { es: "Inspección NDT", pt: "Inspeção END", en: "NDT inspection" },

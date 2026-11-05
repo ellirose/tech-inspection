@@ -1,0 +1,6 @@
+[Unit]
+Description=Tech-Inspection: health check, restart after two failures
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ti watchdog

@@ -22,7 +22,8 @@ export async function GET(request: NextRequest) {
     ip: requestIp(request.headers),
   });
   const stamp = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Bogota" }).format(new Date());
-  return new Response(leadsToCsv(leads), {
+  // Semicolons: the team opens it in Excel with Colombian settings, which splits columns on ";".
+  return new Response(leadsToCsv(leads, ";"), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="leads-${stamp}.csv"`,

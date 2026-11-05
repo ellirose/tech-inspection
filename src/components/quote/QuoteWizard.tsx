@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Paperclip } from "@phosphor-icons/react/ssr";
@@ -13,6 +13,7 @@ import { Turnstile, TURNSTILE_SITE_KEY } from "@/components/leads/Turnstile";
 import { saveThanks, submitLead } from "@/lib/leads/client";
 import { ATTACHMENTS, formatBytes, labelFor, locationKeys, quantityKeys, urgencyKeys, type LeadMethod, type LocationKey, type QuantityKey, type UrgencyKey } from "@/lib/leads/options";
 import { cn } from "@/lib/cn";
+import { track } from "@/lib/analytics";
 
 type Props = {
   lang: Locale;
@@ -45,6 +46,7 @@ function Choice({ on, onClick, children, className }: { on: boolean; onClick: ()
 export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
   const router = useRouter();
   const [step, setStep] = useState(0);
+  const started = useRef(false);
   const [dir, setDir] = useState(1);
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -88,6 +90,7 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
 
   const go = (to: number) => {
     if (to > step && !valid[step]) return setError(t.required);
+    if (to > step) track({ event: "quote_step", step_number: step + 1 });
     setError("");
     setDir(to > step ? 1 : -1);
     setStep(to);
@@ -122,6 +125,7 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
       turnstileToken: token ?? undefined,
     }, files);
     if (res.ok) {
+      track({ event: "quote_submit", services: form.services.join(","), urgency: form.urgency, source_page: window.location.pathname });
       saveThanks({ reference: res.reference, whatsappText: summary(res.reference), emailed: !!form.email });
       return router.push(`/${lang}/gracias`);
     }
@@ -135,7 +139,15 @@ export function QuoteWizard({ lang, t, services, methods, policyHref }: Props) {
   };
 
   return (
-    <form onSubmit={submit} className="relative overflow-hidden rounded-[2.5rem] rounded-tr-[5rem] bg-surface p-6 shadow-card ring-1 ring-line sm:p-10" noValidate>
+    <form
+      onSubmit={submit}
+      // First interaction with the form (design document §18.1 quote_start).
+      onFocusCapture={() => {
+        if (started.current) return;
+        started.current = true;
+        track({ event: "quote_start", ...(form.services[0] ? { prefilled_service: form.services[0] } : {}) });
+      }}
+      className="relative overflow-hidden rounded-[2.5rem] rounded-tr-[5rem] bg-surface p-6 shadow-card ring-1 ring-line sm:p-10" noValidate>
       {/* Stepper */}
       <ol className="flex items-center gap-2">
         {t.steps.map((s, i) => (

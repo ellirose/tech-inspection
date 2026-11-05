@@ -2,7 +2,8 @@
 // into an empty database. Refuses to touch a database that already has content unless --force is given,
 // so it can never overwrite edits made in the admin panel by accident. --blocks reloads only the named
 // page sections (for a change to their structure, which the admin cannot make) and leaves the rest alone.
-// Usage: npm run db:seed [-- --force | --blocks tiqms,home]
+// --services adds only the service lines the database is missing.
+// Usage: npm run db:seed [-- --force | --blocks tiqms,home | --services]
 import { existsSync } from "node:fs";
 import { sql } from "drizzle-orm";
 import { createDb } from "../index";
@@ -10,6 +11,8 @@ import * as s from "../schema";
 import { blocks, homeBlock } from "./blocks";
 import { legacyRedirects } from "./redirects";
 import { home } from "@/content/home";
+import { faqs } from "@/content/faqs";
+import { industries } from "@/content/industries";
 import { methods } from "@/content/methods";
 import { services } from "@/content/services";
 import {
@@ -49,6 +52,29 @@ const contentTables = [
   s.siteSettings,
 ];
 
+type Tx = Parameters<Parameters<ReturnType<typeof createDb>["db"]["transaction"]>[0]>[0];
+
+const faqRows = () =>
+  faqs.map((f, i) => ({ sortOrder: i, category: f.category, question: f.question, answer: f.answer, methodKeys: f.methods ?? [], serviceSlugs: f.services ?? [], showOnHome: f.home ?? false }));
+const industryRows = () =>
+  industries.map((x, i) => ({ sortOrder: i, slug: x.slug, name: x.name, intro: x.intro, components: x.components, image: x.image, serviceSlugs: x.services, methodKeys: x.methods }));
+
+/** FAQs and industries came after the first seed: load them into a live database while still empty. */
+async function fillNewContent(tx: Tx) {
+  const added: string[] = [];
+  const [{ n: faqCount }] = await tx.select({ n: sql<number>`count(*)::int` }).from(s.faq);
+  if (faqCount === 0) {
+    await tx.insert(s.faq).values(faqRows());
+    added.push(`${faqs.length} FAQs`);
+  }
+  const [{ n: industryCount }] = await tx.select({ n: sql<number>`count(*)::int` }).from(s.industry);
+  if (industryCount === 0) {
+    await tx.insert(s.industry).values(industryRows());
+    added.push(`${industries.length} industries`);
+  }
+  return added;
+}
+
 async function main() {
   if (!process.env.DATABASE_URL && existsSync(".env.local")) process.loadEnvFile(".env.local");
   const force = process.argv.includes("--force");
@@ -71,10 +97,37 @@ async function main() {
       return;
     }
 
+    // --services adds service lines that are in src/content/services.ts but not yet in the database
+    // (e.g. QA/QC), with their methods; existing services and their admin edits stay untouched.
+    if (process.argv.includes("--services")) {
+      const have = new Set((await db.select({ slug: s.service.slug }).from(s.service)).map((r) => r.slug));
+      const methodId = new Map((await db.select({ id: s.method.id, key: s.method.key }).from(s.method)).map((r) => [r.key, r.id]));
+      const missing = services.map((svc, i) => ({ svc, i })).filter(({ svc }) => !have.has(svc.slug));
+      await db.transaction(async (tx) => {
+        for (const { svc, i } of missing) {
+          const [row] = await tx
+            .insert(s.service)
+            .values({ sortOrder: i, slug: svc.slug, icon: svc.icon, image: svc.image, gallery: svc.gallery, name: svc.name, short: svc.short, body: svc.body, scope: svc.scope, needsReview: svc.draft ?? false })
+            .returning({ id: s.service.id });
+          if (svc.methods.length) await tx.insert(s.serviceMethod).values(svc.methods.map((key, j) => ({ serviceId: row.id, methodId: methodId.get(key)!, sortOrder: j })));
+        }
+      });
+      console.log(missing.length ? `Added services: ${missing.map(({ svc }) => svc.slug).join(", ")}. Restart the site to refresh its cache.` : "No services missing; nothing changed.");
+      return;
+    }
+
 
     const [{ count }] = await db.select({ count: sql<number>`count(*)::int` }).from(s.siteSettings);
     if (count > 0 && !force) {
-      console.log("Content already present; nothing changed. Use --force to wipe content tables and reload.");
+      const content = await db.transaction(fillNewContent);
+      if (content.length) console.log(`Added ${content.join(" and ")}.`);
+      // Old Wix URLs added to the seed later still reach a live database (edited ones stay as they are).
+      const added = await db
+        .insert(s.redirect)
+        .values(legacyRedirects.map(([fromPath, toPath]) => ({ fromPath, toPath, statusCode: 308 })))
+        .onConflictDoNothing({ target: s.redirect.fromPath })
+        .returning({ id: s.redirect.id });
+      console.log(`Content already present; nothing changed${added.length ? `, except ${added.length} new redirects` : ""}. Use --force to wipe content tables and reload.`);
       return;
     }
 
@@ -126,9 +179,11 @@ async function main() {
             needsReview: svc.draft ?? false,
           })
           .returning({ id: s.service.id });
-        await tx.insert(s.serviceMethod).values(
-          svc.methods.map((key, j) => ({ serviceId: row.id, methodId: methodId.get(key)!, sortOrder: j })),
-        );
+        // QA/QC links no methods, and an empty insert is an error
+        if (svc.methods.length)
+          await tx.insert(s.serviceMethod).values(
+            svc.methods.map((key, j) => ({ serviceId: row.id, methodId: methodId.get(key)!, sortOrder: j })),
+          );
       }
 
       await tx.insert(s.certification).values([
@@ -196,6 +251,8 @@ async function main() {
           year: d.year ?? null,
         })),
       ]);
+
+      await fillNewContent(tx);
 
       await tx.insert(s.pageBlock).values([
         { key: "home", data: homeBlock },

@@ -6,7 +6,7 @@ import { Pool } from "pg";
 import * as schema from "./schema";
 
 /**
- * False on a frontend-only deployment (a Vercel preview without a database): the public pages then read
+ * False when no database is configured (a frontend-only build): the public pages then read
  * the content bundled in src/content (lib/data/bundled.ts) and the features that store data are off.
  */
 export const hasDatabase = Boolean(process.env.DATABASE_URL);

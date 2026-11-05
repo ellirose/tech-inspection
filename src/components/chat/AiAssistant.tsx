@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { AssistantProps } from "./Assistant";
 import { ChatLauncher } from "./ChatLauncher";
+import { track } from "@/lib/analytics";
 
 export type AiAssistantProps = AssistantProps & {
   quote: Pick<Dictionary["quote"], "quantities" | "locations" | "urgencies" | "unsure" | "consent" | "consentLink" | "captcha" | "invalid" | "rateLimited">;
@@ -16,7 +17,7 @@ export type AiAssistantProps = AssistantProps & {
 const load = () => import("./AiChatPanel");
 const AiChatPanel = lazy(load);
 
-/** The chatbot (stage 6): used instead of the guided assistant when the site has an Anthropic API key. */
+/** The chatbot (stage 6): used instead of the guided assistant when the site has an OpenAI API key. */
 export function AiAssistant(props: AiAssistantProps) {
   const [open, setOpen] = useState(false);
   const [opened, setOpened] = useState(false);
@@ -27,6 +28,7 @@ export function AiAssistant(props: AiAssistantProps) {
   }, []);
 
   const toggle = () => {
+    if (!open) track({ event: "chat_open", page: location.pathname });
     setOpened(true);
     setOpen((o) => !o);
   };

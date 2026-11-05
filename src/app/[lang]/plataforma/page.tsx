@@ -49,6 +49,7 @@ export default async function PlatformPage({ params }: PageProps<"/[lang]/plataf
             {access.map((a, i) => (
               <RevealItem
                 key={a.t}
+                data-audience={i === 0 ? "clientes" : "colaboradores"}
                 className={
                   i === 0
                     ? "relative overflow-hidden rounded-[2.5rem] rounded-tr-[6rem] bg-brand-600 p-8 text-white shadow-float sm:p-10 dark:bg-brand-700"

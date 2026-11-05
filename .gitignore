@@ -37,9 +37,11 @@ yarn-error.log*
 # local database (scripts/dev-db.mjs)
 /.data/
 
-# vercel
-.vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# playwright
+/test-results/
+/playwright-report/

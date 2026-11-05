@@ -2,9 +2,9 @@ import Image from "next/image";
 import { Crosshair } from "@phosphor-icons/react/ssr";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { getBlock, getClients, getStats } from "@/lib/data/content";
+import { getBlock, getCertifications, getClients, getStats } from "@/lib/data/content";
 import { Container, Eyebrow } from "@/components/ui/Section";
-import { Reveal } from "@/components/ui/Reveal";
+import { Rise } from "@/components/ui/Rise";
 import { ButtonLink } from "@/components/ui/Button";
 import { Counter } from "@/components/ui/Counter";
 import { LineReveal } from "@/components/ui/LineReveal";
@@ -16,16 +16,17 @@ import { HeroVisual } from "./HeroVisual";
 
 /** One-screen hero: the promise, what we inspect right now, proof in numbers, and who trusts us. */
 export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
-  const [home, stats, clients] = await Promise.all([getBlock("home"), getStats(), getClients()]);
+  const [home, stats, clients, { system }] = await Promise.all([getBlock("home"), getStats(), getClients(), getCertifications()]);
   const h = home.hero;
+  const certificate = (id: string) => system.find((c) => c.id === id)?.certificateNumber;
   const lastSpace = h.titleB[lang].lastIndexOf(" ");
   const tail = h.titleB[lang].slice(lastSpace + 1).replace(/[.]$/, "");
 
   return (
     <section {...cue({ mode: "yard", intensity: 0.8, veil: 0.12 })} className="relative isolate flex min-h-[100svh] flex-col overflow-hidden lg:min-h-[max(100svh,44rem)]">
       {/* Background: the inspection-yard scene behind the page, ultrasonic rings centred on the visual, a soft glow, and a wash that keeps the text column readable */}
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-rings opacity-60 [--rx:72%] [--ry:58%] mask-radial" />
-      <div className="pointer-events-none absolute -right-48 -top-48 -z-20 size-[44rem] rounded-full bg-neon/10 blur-[130px]" />
+      <div className="pointer-events-none absolute inset-0 -z-20 hidden bg-rings opacity-60 [--rx:72%] [--ry:58%] mask-radial sm:block" />
+      <div className="pointer-events-none absolute -right-48 -top-48 -z-20 hidden size-[44rem] rounded-full bg-neon/10 blur-[130px] sm:block" />
       <div className="pointer-events-none absolute inset-y-0 left-0 -z-20 hidden w-[58%] bg-gradient-to-r from-[#030a12]/80 via-[#030a12]/40 to-transparent lg:block" />
 
       {/* Who trusts us, first thing on the page: the header sits below it until it scrolls away (Header.tsx) */}
@@ -53,9 +54,9 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
 
       <Container className="grid flex-1 items-center gap-10 pt-28 lg:grid-cols-12 lg:gap-6">
         <div className="lg:col-span-6 xl:col-span-6">
-          <Reveal y={14}>
+          <Rise y={14}>
             <Eyebrow>{h.eyebrow[lang]}</Eyebrow>
-          </Reveal>
+          </Rise>
 
           <h1 className="mt-[3vh] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink [font-size:clamp(2.6rem,min(4.75vw,8.6vh),4.75rem)]">
             <LineReveal delay={0.05}>{h.titleA[lang]}</LineReveal>
@@ -67,27 +68,27 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
             </LineReveal>
           </h1>
 
-          <Reveal delay={0.35} y={16} className="mt-[3vh] flex items-center gap-3">
+          <Rise delay={0.35} y={16} className="mt-[3vh] flex items-center gap-3">
             <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-ink text-neon dark:bg-corp-blue dark:text-white">
               <Crosshair weight="duotone" className="size-6 animate-spin-slow motion-reduce:animate-none" />
             </span>
             <span className="text-[clamp(1.1rem,1.6vw,1.45rem)] font-bold text-ink-soft">
               {h.inspecting[lang]}: <RotatingWord words={h.words[lang]} className="font-extrabold text-ink" />
             </span>
-          </Reveal>
+          </Rise>
 
-          <Reveal delay={0.45} y={16}>
+          <Rise delay={0.45} y={16}>
             <p className="mt-[2.4vh] max-w-xl text-pretty text-lg leading-relaxed text-ink-soft sm:text-xl [@media(max-height:820px)]:hidden">{h.lead[lang]}</p>
-          </Reveal>
+          </Rise>
 
-          <Reveal delay={0.55} y={16} className="mt-[3.4vh] flex flex-col gap-3 sm:flex-row">
+          <Rise delay={0.55} y={16} className="mt-[3.4vh] flex flex-col gap-3 sm:flex-row">
             <ButtonLink href={`/${lang}/contacto#cotizar`}>{dict.cta.quote}</ButtonLink>
             <ButtonLink href="#servicios" variant="ghost">
               {h.services[lang]}
             </ButtonLink>
-          </Reveal>
+          </Rise>
 
-          <Reveal delay={0.65} y={16}>
+          <Rise delay={0.65} y={16}>
             <dl className="mt-[4vh] flex max-w-xl divide-x divide-line">
               {stats.map((s) => (
                 <div key={s.label.es} className="flex-1 px-4 first:pl-0 sm:px-6">
@@ -98,20 +99,23 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
                 </div>
               ))}
             </dl>
-          </Reveal>
+          </Rise>
 
           {/* Phones: the rig clip in a compact arch */}
-          <Reveal delay={0.3} className="relative mt-10 h-52 overflow-hidden rounded-[2rem] rounded-tr-[6rem] shadow-float ring-4 ring-surface sm:h-64 lg:hidden [@media(max-height:700px)]:hidden">
+          <Rise delay={0.3} className="relative mt-10 h-52 overflow-hidden rounded-[2rem] rounded-tr-[6rem] shadow-float ring-4 ring-surface sm:h-64 lg:hidden [@media(max-height:700px)]:hidden">
             <BackgroundVideo src="/media/video/rig-hero.mp4" poster="/media/video/rig-hero.jpg" className="absolute inset-0 size-full object-cover" />
             <div className="absolute inset-x-0 top-0 h-1/2 animate-scan motion-reduce:hidden">
               <div className="h-full bg-gradient-to-b from-transparent to-neon/25" />
               <div className="h-0.5 bg-neon" />
             </div>
-          </Reveal>
+          </Rise>
         </div>
 
         <div className="relative hidden h-[min(70svh,42rem)] lg:col-span-6 lg:block">
-          <HeroVisual t={{ wall: h.wall[lang], indication: h.indication[lang], live: h.live[lang], personnel: h.personnel[lang], bitAlt: dict.ui.bitService }} />
+          <HeroVisual
+            t={{ wall: h.wall[lang], indication: h.indication[lang], live: h.live[lang], personnel: h.personnel[lang], bitAlt: dict.ui.bitService }}
+            certificates={{ iso9001: certificate("iso9001"), iso45001: certificate("iso45001") }}
+          />
         </div>
       </Container>
     </section>

@@ -38,10 +38,18 @@ export async function proxy(request: NextRequest) {
     if (!url.search && search) url.search = search;
     return NextResponse.redirect(url, target.status);
   }
+  // An address outside the language folders with no redirect (an old link, a typo) would reach the
+  // [lang] layout as an unknown language and fail without the site's 404 page: send it to a path no
+  // route matches, so the global 404 page answers, with status 404, at the address that was asked for.
+  if (pathname !== "/" && !SITE_ROOTS.has(pathname.split("/")[1])) return NextResponse.rewrite(new URL("/es/__no-existe", request.url));
   return NextResponse.next();
 }
 
+/** First path segments the app serves: the languages, the admin, the API and file routes. */
+const SITE_ROOTS = new Set(["es", "pt", "en", "admin", "api", "docs", "media", "_next"]);
+
 export const config = {
   // Every page and the auth API; not Next's assets, other API routes or files with an extension.
-  matcher: ["/((?!_next/|api/(?!auth)|.*\\.[a-zA-Z0-9]+$).*)"],
+  // Old Wix file links (/_files/…) too, even with an extension: they redirect to the documents' new addresses.
+  matcher: ["/((?!_next/|api/(?!auth)|.*\\.[a-zA-Z0-9]+$).*)", "/_files/:path*"],
 };

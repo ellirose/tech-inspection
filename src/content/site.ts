@@ -1,12 +1,7 @@
 import type { L10n } from "@/i18n/config";
 
-/**
- * Absolute base for canonical URLs, sitemap and OG images. Set NEXT_PUBLIC_SITE_URL in Vercel;
- * until the domain moves off Wix, Vercel's own production URL is used so share previews work.
- */
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://www.tech-inspection.com");
+/** Absolute base for canonical URLs, sitemap and OG images; NEXT_PUBLIC_SITE_URL is set on the server (deploy/README.md). */
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.tech-inspection.com";
 /** Founded as Tecninspection NDT S.A.S.; renamed Tech-Inspection S.A.S. in 2017 (client deck, slide 2). */
 export const FOUNDED = 2014;
 /** The deck states "+10 años de experiencia Oil & Gas"; shown as-is so the site and the deck agree. */
@@ -50,16 +45,18 @@ export type Certification = {
 
 export const CCS = "Consejo Colombiano de Seguridad (CCS)";
 
-// Official CCS seals as published (transparent margin trimmed only), fixed in code because the manuals
-// forbid altering the mark. They always carry the certificate code, so a seal renders only once
-// certificateNumber is set. Rules: reference/ccs-certification/README.md.
-export const officialSeals: Record<string, { src: string; width: number; height: number; alt: string }> = {
-  iso9001: { src: "/media/certifications/ccs-iso-9001.png", width: 342, height: 342, alt: "Sello Certificación ISO 9001 del Consejo Colombiano de Seguridad" },
-  iso45001: { src: "/media/certifications/ccs-iso-45001.png", width: 791, height: 790, alt: "Sello Certificación ISO 45001 del Consejo Colombiano de Seguridad" },
-};
+// Official CCS seals, the badges on ccs.org.co/certificacion, fixed in code because the manuals forbid
+// altering the mark. Both normalised to the same 342 px canvas with the same 5 px margin, so they
+// match at any size. Rules: reference/ccs-certification/README.md.
+export const officialSeals = {
+  iso9001: { src: "/media/certifications/ccs-iso-9001.png", alt: "Sello Certificación ISO 9001 del Consejo Colombiano de Seguridad" },
+  iso45001: { src: "/media/certifications/ccs-iso-45001.png", alt: "Sello Certificación ISO 45001 del Consejo Colombiano de Seguridad" },
+} as const;
+export type SealId = keyof typeof officialSeals;
+export const isSealId = (id: string): id is SealId => id in officialSeals;
 
 // ISO 9001 and 45001 certified by the CCS since 2022 (Bureau Veritas before; Rendición de Cuentas 2021).
-// Text badges until the client sends the certificate codes.
+// The manuals want the certificate code beside the seal: it shows under the seal once certificateNumber is set.
 export const certifications: Certification[] = [
   {
     id: "iso9001",

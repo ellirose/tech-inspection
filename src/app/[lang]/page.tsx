@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
-import { getBlock } from "@/lib/data/content";
+import { getBlock, getFaqs } from "@/lib/data/content";
+import { websiteLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { FaqSection } from "@/components/faq/FaqSection";
 import { HomeHero } from "@/components/home/HomeHero";
 import { ServicesGrid } from "@/components/home/ServicesGrid";
 import { Methods } from "@/components/home/Methods";
@@ -17,10 +20,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = getDictionary(lang);
-  const home = await getBlock("home");
+  const [home, faqs] = await Promise.all([getBlock("home"), getFaqs()]);
 
   return (
     <>
+      <JsonLd data={websiteLd(lang, "Tech-Inspection")} />
       <HomeHero lang={lang} dict={dict} />
       <ServicesGrid lang={lang} dict={dict} />
       <Methods lang={lang} dict={dict} />
@@ -28,6 +32,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <ProcessBand lang={lang} process={home.process} />
       <PlatformShowcase lang={lang} dict={dict} compact title={home.platform.title[lang]} />
       <FieldGallery dict={dict} />
+      <FaqSection lang={lang} items={faqs.filter((f) => f.home).slice(0, 6)} />
       <QuoteSection lang={lang} dict={dict} className="sheet" />
     </>
   );

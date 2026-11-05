@@ -5,7 +5,10 @@ import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
-import { getMethods, getService, getServices } from "@/lib/data/content";
+import { getFaqs, getMethods, getService, getServices } from "@/lib/data/content";
+import { serviceLd } from "@/lib/jsonld";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { FaqSection } from "@/components/faq/FaqSection";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
@@ -16,6 +19,8 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Showcase } from "@/components/media/Showcase";
 import { WhyBit } from "@/components/home/WhyBit";
 import { Standards } from "@/components/home/Standards";
+import { QaqcMark, logoPlate } from "@/components/ui/Logo";
+import { QAQC_SLUG } from "@/content/modules";
 import { photos } from "@/lib/media";
 import { cn } from "@/lib/cn";
 
@@ -25,6 +30,9 @@ const tile: Record<MethodKey, string> = {
   pt: "bg-pt text-white",
   ut: "bg-ut text-[#071a2e]",
 };
+
+// QA/QC is not an inspection, so its hero does not say "what we inspect"
+const qaqcEyebrow = { es: "Aseguramiento y control de calidad", pt: "Garantia e controle da qualidade", en: "Quality assurance and control" };
 
 export async function generateStaticParams() {
   const services = await getServices();
@@ -49,12 +57,16 @@ export default function ServicePage({ params }: PageProps<"/[lang]/servicios/[sl
 
 async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const [s, services, methods] = await Promise.all([getService(slug), getServices(), getMethods()]);
+  const [s, services, methods, faqs] = await Promise.all([getService(slug), getServices(), getMethods(), getFaqs()]);
   const methodByKey = (key: MethodKey) => methods.find((m) => m.key === key)!;
   if (!hasLocale(lang) || !s) notFound();
   const d = getDictionary(lang);
   const others = services.filter((x) => x.slug !== s.slug);
+  // Questions about this service first, then about the methods it uses.
+  const questions = [...faqs.filter((f) => f.services.includes(s.slug)), ...faqs.filter((f) => !f.services.includes(s.slug) && f.methods.some((k) => s.methods.includes(k as MethodKey)))].slice(0, 6);
   const bits = s.slug === "brocas";
+  // QA/QC is its own line: its logo, and no NDT methods
+  const qaqc = s.slug === QAQC_SLUG;
   const gallery = s.gallery.filter((g) => g !== s.image);
   // Services with their own brochure on /portafolio
   const brochure = ({ brocas: "ndt", "aseguramiento-calidad": "qaqc" } as Record<string, string>)[s.slug];
@@ -63,15 +75,21 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
     <>
       <PageHero
         crumbs={[{ label: d.nav.home, href: `/${lang}` }, { label: d.nav.services, href: `/${lang}/servicios` }, { label: s.name[lang] }]}
-        eyebrow={d.servicesSection.eyebrow}
+        eyebrow={qaqc ? qaqcEyebrow[lang] : d.servicesSection.eyebrow}
         title={s.name[lang]}
         lead={s.short[lang]}
         image={s.image}
-        caption={s.methods.map((k) => methodByKey(k).code).join(" · ")}
+        caption={qaqc ? "QA/QC" : s.methods.map((k) => methodByKey(k).code).join(" · ")}
       >
-        <span className="mt-8 grid size-20 place-items-center rounded-3xl bg-brand-600 text-white shadow-float dark:bg-corp-blue dark:text-white">
-          <ServiceGlyph name={s.icon} className="size-11" />
-        </span>
+        {qaqc ? (
+          <span className={cn("mt-8 block w-fit p-3", logoPlate)}>
+            <QaqcMark preload sizes="120px" className="h-32 w-auto" />
+          </span>
+        ) : (
+          <span className="mt-8 grid size-20 place-items-center rounded-3xl bg-brand-600 text-white shadow-float dark:bg-corp-blue dark:text-white">
+            <ServiceGlyph name={s.icon} className="size-11" />
+          </span>
+        )}
       </PageHero>
 
       <section className="band py-20 sm:py-28">
@@ -115,31 +133,33 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
 
       {bits && <WhyBit lang={lang} dict={d} index="03" link={false} />}
 
-      <section className="band py-20 sm:py-28">
-        <Container>
-          <Eyebrow index={bits ? "04" : "03"}>{d.servicesSection.methodsUsed}</Eyebrow>
-          <RevealGroup className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]">
-            {s.methods.map((k, i) => {
-              const m = methodByKey(k);
-              return (
-                <RevealItem key={k}>
-                  <Link href={`/${lang}/metodos/${m.slug}`} className={cn("group flex h-full flex-col bg-surface p-6 shadow-soft ring-1 ring-line transition hover:-translate-y-1 hover:shadow-card", i % 2 ? "rounded-[2rem] rounded-tr-[4rem]" : "rounded-[2rem]")}>
-                    <div className="flex items-center justify-between">
-                      <span className={cn("grid size-16 place-items-center rounded-2xl", tile[k])}>
-                        <MethodGlyph name={k} className="size-9" />
-                      </span>
-                      <span className="font-mono text-lg font-bold text-mute">{m.code}</span>
-                    </div>
-                    <p className="mt-5 text-xl font-extrabold tracking-tight text-ink">{m.name[lang]}</p>
-                    <p className="mt-2 line-clamp-3 text-ink-soft">{m.tagline[lang]}</p>
-                    <ArrowUpRight weight="bold" className="mt-auto size-6 pt-4 text-accent transition group-hover:rotate-45" />
-                  </Link>
-                </RevealItem>
-              );
-            })}
-          </RevealGroup>
-        </Container>
-      </section>
+      {s.methods.length > 0 && (
+        <section className="band py-20 sm:py-28">
+          <Container>
+            <Eyebrow index={bits ? "04" : "03"}>{d.servicesSection.methodsUsed}</Eyebrow>
+            <RevealGroup className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(15rem,1fr))]">
+              {s.methods.map((k, i) => {
+                const m = methodByKey(k);
+                return (
+                  <RevealItem key={k}>
+                    <Link href={`/${lang}/metodos/${m.slug}`} className={cn("group flex h-full flex-col bg-surface p-6 shadow-soft ring-1 ring-line transition hover:-translate-y-1 hover:shadow-card", i % 2 ? "rounded-[2rem] rounded-tr-[4rem]" : "rounded-[2rem]")}>
+                      <div className="flex items-center justify-between">
+                        <span className={cn("grid size-16 place-items-center rounded-2xl", tile[k])}>
+                          <MethodGlyph name={k} className="size-9" />
+                        </span>
+                        <span className="font-mono text-lg font-bold text-mute">{m.code}</span>
+                      </div>
+                      <p className="mt-5 text-xl font-extrabold tracking-tight text-ink">{m.name[lang]}</p>
+                      <p className="mt-2 line-clamp-3 text-ink-soft">{m.tagline[lang]}</p>
+                      <ArrowUpRight weight="bold" className="mt-auto size-6 pt-4 text-accent transition group-hover:rotate-45" />
+                    </Link>
+                  </RevealItem>
+                );
+              })}
+            </RevealGroup>
+          </Container>
+        </section>
+      )}
 
       {bits && <Standards lang={lang} index="05" />}
 
@@ -158,6 +178,8 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
           </div>
         </Container>
       </section>
+      <FaqSection lang={lang} items={questions} />
+      <JsonLd data={serviceLd({ lang, path: `/servicios/${s.slug}`, name: s.name[lang], description: s.short[lang], category: qaqc ? "Quality assurance" : "Non-destructive testing" })} />
       <CtaBand lang={lang} dict={d} />
     </>
   );

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowDown, FilePdf, FirstAidKit, Heart, HardHat, Plant, ShieldCheck, Certificate, UsersThree } from "@phosphor-icons/react/ssr";
+import { ArrowDown, FilePdf, FirstAidKit, Heart, HardHat, Plant, ShieldCheck, UsersThree } from "@phosphor-icons/react/ssr";
 import { hasLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getBlock, getDocuments } from "@/lib/data/content";
@@ -12,6 +12,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { Polaroids } from "@/components/media/Polaroids";
 import { Filmstrip } from "@/components/media/Filmstrip";
 import { Certifications } from "@/components/home/Certifications";
+import { CcsSeal } from "@/components/visuals/CcsSeal";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { cn } from "@/lib/cn";
 
@@ -74,10 +75,18 @@ export default async function HseqPage({ params }: PageProps<"/[lang]/hseq">) {
         imagePosition="50% 20%"
         caption="ISO 9001 · ISO 45001 · RUC"
       >
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
+        <div className="mt-8 grid max-w-xl gap-3">
           {deckFacts.map((c, i) => (
-            <div key={c.key} className="flex items-center gap-4 rounded-[1.75rem] bg-surface p-4 shadow-soft ring-1 ring-line">
-              <IconBadge icon={i ? ShieldCheck : Certificate} size="lg" tone={i ? "lime" : "solid"} />
+            <div key={c.key} className="flex items-center gap-5 rounded-[1.75rem] bg-surface p-4 shadow-soft ring-1 ring-line">
+              {i ? (
+                <IconBadge icon={ShieldCheck} size="lg" tone="lime" />
+              ) : (
+                // ISO 9001 and 45001: the official CCS seals, a 3u gap apart
+                <span className="flex shrink-0 gap-5">
+                  <CcsSeal id="iso9001" sizes="64px" className="w-16" />
+                  <CcsSeal id="iso45001" sizes="64px" className="w-16" />
+                </span>
+              )}
               <div>
                 <p className="font-extrabold text-ink">{c.t[lang]}</p>
                 <p className="text-sm font-medium text-ink-soft">{c.d[lang]}</p>

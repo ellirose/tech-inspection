@@ -9,6 +9,7 @@ import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/auth/roles";
 import { findCollection } from "@/lib/admin/collections";
 import { publicFiles } from "@/lib/admin/files";
+import { refOptions, type RefOption } from "@/lib/admin/refs";
 import { Card, Notice } from "@/components/admin/ui";
 import { formatBogota } from "@/components/admin/format";
 import { ContentEditor } from "@/components/admin/content/ContentEditor";
@@ -30,6 +31,9 @@ const publicPath = (collection: string, row: Record<string, unknown>) =>
     documentos: "/es/hseq",
     equipo: "/es/nosotros",
     canales: "/es/contacto",
+    preguntas: "/es/preguntas-frecuentes",
+    industrias: `/es/industrias/${row.slug}`,
+    casos: `/es/clientes/${row.slug}`,
   })[collection];
 
 export default async function EditContentPage({ params, searchParams }: PageProps<"/admin/contenido/[coleccion]/[id]">) {
@@ -55,10 +59,12 @@ export default async function EditContentPage({ params, searchParams }: PageProp
     // Linked methods first, in the service's own order (the order the form submits them in), then the rest.
     methods = [...linked.map((id) => methods.find((m) => m.id === id)!).filter(Boolean), ...methods.filter((m) => !linked.includes(m.id))];
   }
+  const refs: Record<string, RefOption[]> = {};
+  for (const f of c.fields) if (f.type === "refs") refs[f.name] = await refOptions(f.source);
   // Only plain data crosses to the browser form.
   const plain = JSON.parse(JSON.stringify(values)) as Record<string, unknown>;
   const created = (await searchParams).creado;
-  const title = row ? c.title(row) : `Nuevo ${c.singular}`;
+  const title = row ? c.title(row) : `${c.feminine ? "Nueva" : "Nuevo"} ${c.singular}`;
   const href = row && publicPath(c.key, row);
 
   return (
@@ -87,6 +93,7 @@ export default async function EditContentPage({ params, searchParams }: PageProp
           values={plain}
           files={await publicFiles()}
           methods={methods}
+          refs={refs}
           readOnly={!write}
         />
         {row && (
