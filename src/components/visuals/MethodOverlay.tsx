@@ -1,15 +1,18 @@
-"use client";
-
-import { motion } from "motion/react";
+import type { CSSProperties } from "react";
 import type { MethodKey } from "@/content/methods";
 import { Waveform } from "./Waveform";
 
-const loop = { repeat: Infinity, repeatDelay: 1.2 } as const;
 // Jagged fatigue-crack path with a short branch, shared by the MT and PT overlays.
 const CRACK = "M62 214 L92 206 L108 219 L131 201 L152 212 L171 196 L197 207 L214 188 L238 199 L259 183 L281 197 L303 191 L322 207 L347 196 L368 203";
 const BRANCH = "M238 199 L246 214 L241 231 L250 246";
 
-/** Animated, method-specific annotations drawn over a field photo. */
+/** Per-element timing for the CSS loops in globals.css (`.ov-*`). */
+const time = (duration: number, delay = 0) => ({ "--ov-d": `${duration}s`, "--ov-delay": `${delay}s` }) as CSSProperties;
+
+/**
+ * Animated, method-specific annotations drawn over a field photo. The loops are CSS animations
+ * (globals.css, `.ov-*`), so they cost no JavaScript per frame and stop for reduced-motion visitors.
+ */
 export function MethodOverlay({ method }: { method: MethodKey }) {
   if (method === "mt") {
     return (
@@ -24,7 +27,7 @@ export function MethodOverlay({ method }: { method: MethodKey }) {
           </filter>
         </defs>
         {[120, 160, 250, 290].map((y, i) => (
-          <motion.path
+          <path
             key={y}
             d={`M20 ${y} C 140 ${y - 40}, 290 ${y + 40}, 410 ${y}`}
             fill="none"
@@ -32,34 +35,13 @@ export function MethodOverlay({ method }: { method: MethodKey }) {
             strokeOpacity="0.45"
             strokeWidth="1.4"
             strokeDasharray="4 8"
-            animate={{ strokeDashoffset: [0, -48] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: "linear", delay: i * 0.2 }}
+            className="ov-flow"
+            style={time(2.4, i * 0.2)}
           />
         ))}
-        <motion.path
-          d={CRACK}
-          fill="none"
-          stroke="#b6ff5c"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          filter="url(#mt-glow)"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: [0, 1, 1] }}
-          transition={{ duration: 3, ease: "easeInOut", ...loop }}
-        />
-        <motion.path
-          d={BRANCH}
-          fill="none"
-          stroke="#b6ff5c"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          filter="url(#mt-glow)"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: [0, 0, 1, 1] }}
-          transition={{ duration: 3, ease: "easeInOut", times: [0, 0.5, 0.8, 1], ...loop }}
-        />
-        <motion.circle cx="215" cy="190" r="70" fill="none" stroke="#b6ff5c" strokeWidth="2" strokeDasharray="6 6" animate={{ rotate: 360 }} transition={{ duration: 14, repeat: Infinity, ease: "linear" }} style={{ originX: "215px", originY: "190px" }} />
+        <path d={CRACK} pathLength={1} fill="none" stroke="#b6ff5c" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" filter="url(#mt-glow)" className="ov-draw" style={time(4.2)} />
+        <path d={BRANCH} pathLength={1} fill="none" stroke="#b6ff5c" strokeWidth="3.5" strokeLinecap="round" filter="url(#mt-glow)" className="ov-draw-late" style={time(4.2)} />
+        <circle cx="215" cy="190" r="70" fill="none" stroke="#b6ff5c" strokeWidth="2" strokeDasharray="6 6" className="ov-spin" style={time(14)} />
       </svg>
     );
   }
@@ -67,8 +49,8 @@ export function MethodOverlay({ method }: { method: MethodKey }) {
   if (method === "pt") {
     return (
       <svg viewBox="0 0 430 400" className="absolute inset-0 size-full" aria-hidden="true">
-        <motion.path d={CRACK} fill="none" stroke="#ff2d4a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1] }} transition={{ duration: 2.4, ease: "easeInOut", ...loop }} />
-        <motion.path d={BRANCH} fill="none" stroke="#ff2d4a" strokeWidth="3" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 0, 1, 1] }} transition={{ duration: 2.4, times: [0, 0.5, 0.85, 1], ...loop }} />
+        <path d={CRACK} pathLength={1} fill="none" stroke="#ff2d4a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="ov-draw" style={time(3.6)} />
+        <path d={BRANCH} pathLength={1} fill="none" stroke="#ff2d4a" strokeWidth="3" strokeLinecap="round" className="ov-draw-late" style={time(3.6)} />
         {[
           [108, 219],
           [171, 196],
@@ -76,20 +58,12 @@ export function MethodOverlay({ method }: { method: MethodKey }) {
           [303, 191],
           [347, 196],
         ].map(([cx, cy], i) => (
-          <motion.circle
-            key={i}
-            cx={cx}
-            cy={cy}
-            fill="#ff2d4a"
-            initial={{ r: 0, opacity: 0.75 }}
-            animate={{ r: [0, 16, 22], opacity: [0.75, 0.35, 0] }}
-            transition={{ duration: 2.6, delay: 0.6 + i * 0.25, repeat: Infinity, repeatDelay: 1 }}
-          />
+          <circle key={i} cx={cx} cy={cy} r="22" fill="#ff2d4a" className="ov-bleed" style={time(3.6, 0.6 + i * 0.25)} />
         ))}
-        <motion.g animate={{ y: [0, 14, 0] }} transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}>
+        <g className="ov-bob" style={time(2.4)}>
           <path d="M215 64 C 215 64, 196 92, 196 104 a19 19 0 0 0 38 0 C 234 92, 215 64, 215 64Z" fill="#ff2d4a" fillOpacity="0.92" />
           <ellipse cx="208" cy="100" rx="4" ry="7" fill="#fff" fillOpacity="0.5" />
-        </motion.g>
+        </g>
       </svg>
     );
   }
@@ -113,9 +87,9 @@ export function MethodOverlay({ method }: { method: MethodKey }) {
   return (
     <svg viewBox="0 0 430 400" className="absolute inset-0 size-full" aria-hidden="true">
       <g stroke="#ffb53d" strokeWidth="2" fill="none">
-        <motion.path d="M80 300 H350" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1] }} transition={{ duration: 1.8, ...loop }} />
+        <path d="M80 300 H350" pathLength={1} className="ov-draw" style={time(3)} />
         <path d="M80 286 V314 M350 286 V314" />
-        <motion.path d="M372 90 V270" initial={{ pathLength: 0 }} animate={{ pathLength: [0, 1, 1] }} transition={{ duration: 1.8, delay: 0.4, ...loop }} />
+        <path d="M372 90 V270" pathLength={1} className="ov-draw" style={time(3, 0.4)} />
         <path d="M358 90 H386 M358 270 H386" />
         <circle cx="215" cy="180" r="44" strokeDasharray="5 6" />
         <path d="M215 120 V240 M155 180 H275" strokeOpacity="0.6" />

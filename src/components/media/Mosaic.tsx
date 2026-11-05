@@ -33,9 +33,9 @@ export function Mosaic({ items, alt, className }: { items: (Photo & { pos?: stri
             viewport={{ once: true, margin: "0px 0px -8% 0px" }}
             transition={{ duration: 0.7, delay: (i % 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
             className={cn("group relative overflow-hidden bg-surface-2 shadow-card", tiles[i % tiles.length])}
-            aria-label={p.caption ?? `${alt} ${i + 1}`}
+            aria-label={p.alt ?? p.caption ?? `${alt} ${i + 1}`}
           >
-            <Image src={p.src} alt={p.caption ?? `${alt} ${i + 1}`} fill sizes="(min-width:640px) 50vw, 100vw" className="object-cover transition duration-700 group-hover:scale-[1.04]" style={{ objectPosition: p.pos }} />
+            <Image src={p.src} alt={p.alt ?? p.caption ?? `${alt} ${i + 1}`} fill sizes="(min-width:640px) 50vw, 100vw" className="object-cover transition duration-700 group-hover:scale-[1.04]" style={{ objectPosition: p.pos }} />
           </motion.button>
         ))}
       </div>

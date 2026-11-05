@@ -3,25 +3,11 @@ import "server-only";
 import { and, asc, count, desc, eq, gte, ilike, inArray, lt, or, SQL, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/db";
-import { getDictionary } from "@/i18n/dictionaries";
 import { can } from "@/lib/auth/roles";
-import { labelFor, urgencyKeys } from "./options";
+export { sourceLabels, statusLabels, urgencyLabel } from "./labels";
 
 const l = schema.lead;
 
-export const statusLabels: Record<(typeof l.status.enumValues)[number], string> = {
-  new: "Nuevo",
-  contacted: "Contactado",
-  quoted: "Cotizado",
-  won: "Ganado",
-  lost: "Perdido",
-};
-export const sourceLabels: Record<(typeof l.source.enumValues)[number], string> = {
-  form_quote: "Formulario de cotización",
-  form_contact: "Formulario de contacto",
-  chatbot: "Asistente",
-};
-export const urgencyLabel = (key: string | null) => labelFor(urgencyKeys, getDictionary("es").quote.urgencies, key as (typeof urgencyKeys)[number]) ?? "—";
 
 const optionalEnum = <T extends readonly [string, ...string[]]>(values: T) => z.enum(values).optional().catch(undefined);
 const day = z

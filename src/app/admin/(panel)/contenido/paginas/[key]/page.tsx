@@ -7,7 +7,9 @@ import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/auth/roles";
 import { blockInfo } from "@/lib/admin/blocks";
 import { publicFiles } from "@/lib/admin/files";
-import { Notice } from "@/components/admin/ui";
+import { Card, Notice } from "@/components/admin/ui";
+import { formatBogota } from "@/components/admin/format";
+import { DiscardDraftButton } from "@/components/admin/content/RowActions";
 import { BlockEditor } from "@/components/admin/content/BlockEditor";
 
 export const metadata = { title: "Editar sección" };
@@ -40,7 +42,20 @@ export default async function BlockPage({ params }: PageProps<"/admin/contenido/
           <Notice tone="info">Solo lectura para su rol.</Notice>
         </div>
       )}
-      <BlockEditor blockKey={key} updatedAt={row.updatedAt.toISOString()} value={row.data} images={(await publicFiles()).images} readOnly={!write} />
+      {row.pending && (
+        <Card title="Borrador sin publicar" className="mb-5">
+          <p className="text-sm text-ink-soft">
+            El formulario muestra un borrador guardado el {formatBogota(new Date(row.pending.at))}. El sitio sigue mostrando la versión publicada hasta que pulse «Publicar cambios».
+          </p>
+          <div className="mt-3 flex flex-wrap items-start gap-4">
+            <a href={`/admin/vista-previa?ruta=${encodeURIComponent(`/es${info.pages[0]}`)}`} target="_blank" rel="noopener" className="text-sm font-bold text-accent">
+              Vista previa del borrador ↗
+            </a>
+            {write && <DiscardDraftButton blockKey={key} />}
+          </div>
+        </Card>
+      )}
+      <BlockEditor key={row.updatedAt.toISOString()} blockKey={key} updatedAt={row.updatedAt.toISOString()} value={row.pending?.data ?? row.data} images={(await publicFiles()).images} readOnly={!write} />
     </div>
   );
 }

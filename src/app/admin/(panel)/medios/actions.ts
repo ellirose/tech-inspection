@@ -1,6 +1,6 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import { audit, requestIp } from "@/lib/audit";
 import { authorize } from "@/lib/auth/session";
 import { findUsage } from "@/lib/admin/media";
 import { storage } from "@/lib/storage";
+import { tags } from "@/lib/data/content";
 
 export type MediaState = { ok?: string; error?: string };
 
@@ -26,6 +27,7 @@ export async function updateMedia(_: MediaState, form: FormData): Promise<MediaS
   if (alt.length > 200 || (caption?.length ?? 0) > 300) return { error: "La descripción es demasiado larga." };
   if (alt === (row.alt ?? "") && caption === row.caption) return { ok: "Sin cambios." };
   await db.update(schema.media).set({ alt: alt || null, caption }).where(eq(schema.media.id, row.id));
+  updateTag(tags.media);
   await audit({ userId: user.id, action: "media_updated", entity: "media", entityId: row.id, diff: { archivo: row.url }, ip: requestIp(await headers()) });
   refresh();
   return { ok: "Descripción guardada." };

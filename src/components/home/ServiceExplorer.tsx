@@ -9,7 +9,7 @@ import type { ServiceIcon } from "@/content/services";
 import { ServiceGlyph } from "@/components/ui/Icons";
 import { cn } from "@/lib/cn";
 
-export type ExplorerItem = { slug: string; href: string; icon: ServiceIcon; name: string; short: string; image: string; scope: string[]; methods: string[] };
+export type ExplorerItem = { slug: string; href: string; icon: ServiceIcon; name: string; short: string; image: string; imageAlt: string; scope: string[]; methods: string[] };
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -55,7 +55,7 @@ export function ServiceExplorer({ items, featured, cta }: { items: ExplorerItem[
             <div className="relative aspect-[5/6] max-h-[44rem] w-full overflow-hidden rounded-[3rem] rounded-tl-[9rem] bg-brand-900 shadow-float xl:aspect-[1/1.05]">
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.div key={s.slug} className="absolute inset-0" initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, ease }}>
-                  <Image src={s.image} alt={s.name} fill sizes="(min-width:1024px) 52vw, 100vw" className="animate-kenburns object-cover motion-reduce:animate-none" quality={80} />
+                  <Image src={s.image} alt={s.imageAlt} fill sizes="(min-width:1024px) 52vw, 100vw" className="animate-kenburns object-cover motion-reduce:animate-none" quality={80} />
                 </motion.div>
               </AnimatePresence>
               <div className="absolute inset-0 bg-gradient-to-t from-brand-950/80 via-brand-950/10 to-transparent" />

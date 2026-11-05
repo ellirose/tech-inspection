@@ -92,8 +92,8 @@ describe("leads CSV", () => {
 
   it("starts with a BOM and a header row", () => {
     const csv = leadsToCsv([lead]);
-    expect(csv.startsWith("﻿reference,created_at,status")).toBe(true);
-    expect(csv).toContain("TI-ABCD2345,2026-11-01T15:30:00.000Z,new,form_quote,en,");
+    expect(csv.startsWith("﻿Referencia,Fecha (hora de Colombia),Estado,Canal,Idioma")).toBe(true);
+    expect(csv).toContain("TI-ABCD2345,2026-11-01 10:30,Nuevo,Formulario de cotización,Inglés,");
     expect(csv).toContain(`"'=HYPERLINK(""x"")"`);
     expect(leadsToCsv([{ ...lead, attachments: [{ key: "k", name: "a.pdf", size: 1, mime: "application/pdf" }, { key: "k2", name: "b.jpg", size: 1, mime: "image/jpeg" }] }])).toContain(`,"a.pdf; b.jpg",`);
   });

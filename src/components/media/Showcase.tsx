@@ -24,12 +24,12 @@ export function Showcase({ items, alt, className }: { items: Photo[]; alt: strin
         type="button"
         onClick={() => lb.open(active)}
         className="group relative aspect-[16/10] overflow-hidden rounded-[2.5rem] rounded-tr-[5rem] bg-brand-900 shadow-float"
-        aria-label={p.caption ?? `${alt} ${active + 1}`}
+        aria-label={p.alt ?? p.caption ?? `${alt} ${active + 1}`}
       >
         <AnimatePresence initial={false}>
           <motion.div key={p.src} className="absolute inset-0" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.45 }}>
             <Image src={p.src} alt="" fill sizes="10vw" className="scale-125 object-cover opacity-60 blur-2xl" />
-            <Image src={p.src} alt={p.caption ?? `${alt} ${active + 1}`} fill sizes="(min-width:1024px) 60vw, 100vw" quality={90} className="object-contain" />
+            <Image src={p.src} alt={p.alt ?? p.caption ?? `${alt} ${active + 1}`} fill sizes="(min-width:1024px) 60vw, 100vw" quality={90} className="object-contain" />
           </motion.div>
         </AnimatePresence>
         <span className="absolute bottom-5 left-5 rounded-full bg-white/90 px-4 py-1.5 font-mono text-sm font-bold text-[#071a2e]">
@@ -48,7 +48,7 @@ export function Showcase({ items, alt, className }: { items: Photo[]; alt: strin
               key={t.src}
               type="button"
               onClick={() => setActive(i)}
-              aria-label={`${alt} ${i + 1}`}
+              aria-label={t.alt ?? `${alt} ${i + 1}`}
               aria-current={i === active ? "true" : undefined}
               className={cn(
                 "relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-2xl ring-2 transition lg:w-full",

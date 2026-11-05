@@ -5,6 +5,7 @@ import type { PgColumn, PgTable } from "drizzle-orm/pg-core";
 import { ArrowLeft } from "@phosphor-icons/react/ssr";
 import { z } from "zod";
 import { db, schema } from "@/db";
+import type { PendingChanges } from "@/db/schema";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/auth/roles";
 import { findCollection } from "@/lib/admin/collections";
@@ -13,7 +14,7 @@ import { refOptions, type RefOption } from "@/lib/admin/refs";
 import { Card, Notice } from "@/components/admin/ui";
 import { formatBogota } from "@/components/admin/format";
 import { ContentEditor } from "@/components/admin/content/ContentEditor";
-import { DeleteButton, StatusButton } from "@/components/admin/content/RowActions";
+import { DeleteButton, DiscardDraftButton, StatusButton } from "@/components/admin/content/RowActions";
 
 export const metadata = { title: "Editar contenido" };
 
@@ -47,17 +48,20 @@ export default async function EditContentPage({ params, searchParams }: PageProp
   if (!creating && !z.uuid().safeParse(id).success) notFound();
 
   const t = c.table as unknown as PgTable & { id: PgColumn };
-  const row = creating ? null : ((await db.select().from(t).where(eq(t.id, id)))[0] as (Record<string, unknown> & { id: string; status: string; updatedAt: Date }) | undefined);
+  const row = creating ? null : ((await db.select().from(t).where(eq(t.id, id)))[0] as (Record<string, unknown> & { id: string; status: string; pending: PendingChanges | null; updatedAt: Date }) | undefined);
   if (!creating && !row) notFound();
 
-  const values: Record<string, unknown> = { ...row };
+  // A draft saved on a published item is what the editor continues from.
+  const draft = row?.pending ?? null;
+  const values: Record<string, unknown> = { ...row, ...(draft?.values ?? {}) };
   const hasMethods = c.fields.some((f) => f.type === "methods");
   let methods = hasMethods ? (await db.select({ id: schema.method.id, code: schema.method.code, name: schema.method.name }).from(schema.method).orderBy(asc(schema.method.sortOrder))).map((m) => ({ id: m.id, label: `${m.code} · ${m.name.es}` })) : [];
   if (hasMethods && row) {
     const linked = (await db.select({ id: schema.serviceMethod.methodId }).from(schema.serviceMethod).where(eq(schema.serviceMethod.serviceId, row.id)).orderBy(asc(schema.serviceMethod.sortOrder))).map((r) => r.id);
-    values.methods = linked;
+    const chosen = draft?.methodIds ?? linked;
+    values.methods = chosen;
     // Linked methods first, in the service's own order (the order the form submits them in), then the rest.
-    methods = [...linked.map((id) => methods.find((m) => m.id === id)!).filter(Boolean), ...methods.filter((m) => !linked.includes(m.id))];
+    methods = [...chosen.map((id) => methods.find((m) => m.id === id)!).filter(Boolean), ...methods.filter((m) => !chosen.includes(m.id))];
   }
   const refs: Record<string, RefOption[]> = {};
   for (const f of c.fields) if (f.type === "refs") refs[f.name] = await refOptions(f.source);
@@ -83,9 +87,18 @@ export default async function EditContentPage({ params, searchParams }: PageProp
           <Notice tone="info">Solo lectura para su rol.</Notice>
         </div>
       )}
+      {draft && (
+        <div className="mb-5">
+          <Notice tone="info">
+            Este formulario muestra un borrador guardado el {formatBogota(new Date(draft.at))}. El sitio sigue mostrando la versión publicada hasta que pulse «Publicar cambios».
+          </Notice>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_17rem]">
         <ContentEditor
+          key={row ? row.updatedAt.toISOString() : "nuevo"}
+          published={row?.status === "published"}
           collection={c.key}
           id={row?.id ?? null}
           updatedAt={row ? row.updatedAt.toISOString() : null}
@@ -112,6 +125,17 @@ export default async function EditContentPage({ params, searchParams }: PageProp
               )}
               {href && row.status !== "published" && <p className="mt-1 text-xs text-mute">Muestra la última versión guardada, con los borradores; solo la ven quienes entran al panel.</p>}
             </Card>
+            {draft && (
+              <Card title="Borrador sin publicar">
+                <p className="mb-3 text-sm text-ink-soft">Guardado el {formatBogota(new Date(draft.at))}. Solo lo ven quienes entran al panel.</p>
+                {href && (
+                  <a href={previewHref(href)} target="_blank" rel="noopener" className="mb-3 block text-sm font-bold text-accent">
+                    Vista previa del borrador ↗
+                  </a>
+                )}
+                {write && <DiscardDraftButton collection={c.key} id={row.id} />}
+              </Card>
+            )}
             {c.canDelete && can(user.role, "content:delete") && (
               <Card title="Eliminar">
                 <DeleteButton collection={c.key} id={row.id} title={title} />

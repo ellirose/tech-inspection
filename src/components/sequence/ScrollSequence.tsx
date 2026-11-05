@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useScroll, type MotionValue } from "motion/react";
-import { useLenis } from "lenis/react";
+import { getLenis } from "@/components/layout/SmoothScroll";
 import type { SequenceSpec } from "@/lib/sequences";
 import { cue } from "@/lib/scene";
 import { cn } from "@/lib/cn";
@@ -29,7 +29,6 @@ export function ScrollSequence({ spec, id, className, children }: { spec: Sequen
   const player = useRef<FramePlayer | null>(null);
   const stages = spec.scenes.length;
   const [stage, setStage] = useState(0);
-  const lenis = useLenis();
   const { scrollYProgress } = useScroll({ target: wrap, offset: ["start start", "end end"] });
 
   useEffect(() => {
@@ -53,6 +52,7 @@ export function ScrollSequence({ spec, id, className, children }: { spec: Sequen
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY;
     const target = top + (el.offsetHeight - window.innerHeight) * ((i + 0.5) / stages);
+    const lenis = getLenis();
     if (lenis) lenis.scrollTo(target, { duration: 1.2 });
     else window.scrollTo({ top: target, behavior: "smooth" });
   };

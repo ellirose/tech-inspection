@@ -38,6 +38,8 @@ const actions: Record<string, string> = {
   content_updated: "Editó contenido",
   content_published: "Publicó contenido",
   content_unpublished: "Retiró contenido del sitio",
+  content_draft_saved: "Guardó un borrador",
+  content_draft_discarded: "Descartó un borrador",
   content_reordered: "Reordenó contenido",
   content_deleted: "Eliminó contenido",
   media_uploaded: "Subió un archivo",

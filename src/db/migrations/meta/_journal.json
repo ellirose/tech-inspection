@@ -50,6 +50,13 @@
       "when": 1793846841101,
       "tag": "0006_content_links",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793881027363,
+      "tag": "0007_pending_drafts",
+      "breakpoints": true
     }
   ]
 }

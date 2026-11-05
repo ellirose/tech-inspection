@@ -2,11 +2,13 @@
 //   • admin: keep search engines out and send visitors without a session cookie to the login page
 //     (only a shortcut; pages and actions verify the session on the server themselves);
 //   • public site: end a preview of drafts once the admin session cookie is gone (signed out), and
-//     apply the redirects managed under Redirecciones (old Wix URLs and any added later).
+//     apply the redirects managed under Redirecciones (old Wix URLs and any added later), and answer
+//     unknown addresses with the 404 page.
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 import { PREVIEW_COOKIE } from "@/lib/preview";
 import { findRedirect } from "@/lib/redirects";
+import { isMissingDetailPage } from "@/lib/known-pages";
 
 const PUBLIC_ADMIN = ["/admin/login", "/admin/recuperar", "/admin/acceso"];
 
@@ -42,6 +44,10 @@ export async function proxy(request: NextRequest) {
   // [lang] layout as an unknown language and fail without the site's 404 page: send it to a path no
   // route matches, so the global 404 page answers, with status 404, at the address that was asked for.
   if (pathname !== "/" && !SITE_ROOTS.has(pathname.split("/")[1])) return NextResponse.rewrite(new URL("/es/__no-existe", request.url));
+  // Same for a service, method, industry or case that is not published (an editor previewing drafts
+  // still sees them). Their pages stream, so they cannot set the 404 status themselves.
+  const previewing = request.cookies.has(PREVIEW_COOKIE);
+  if (!previewing && (await isMissingDetailPage(pathname))) return NextResponse.rewrite(new URL("/es/__no-existe", request.url));
   return NextResponse.next();
 }
 

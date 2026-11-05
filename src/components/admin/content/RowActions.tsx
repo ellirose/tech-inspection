@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowDown, ArrowUp } from "@phosphor-icons/react/ssr";
-import { deleteContent, moveContent, setContentStatus, type SimpleState } from "@/app/admin/(panel)/contenido/actions";
+import { deleteContent, discardPending, moveContent, setContentStatus, type SimpleState } from "@/app/admin/(panel)/contenido/actions";
+import { discardBlockPending } from "@/app/admin/(panel)/contenido/paginas/actions";
 import { Notice, quietButtonClass } from "@/components/admin/ui";
 import { useFormAction } from "@/components/admin/useFormAction";
 import { cn } from "@/lib/cn";
@@ -32,6 +33,26 @@ export function StatusButton({ collection, id, published }: { collection: string
       <input type="hidden" name="id" value={id} />
       <button disabled={pending} className={small}>
         {published ? "Retirar del sitio" : "Publicar"}
+      </button>
+      {state.error && <Notice>{state.error}</Notice>}
+      {state.ok && <Notice tone="ok">{state.ok}</Notice>}
+    </form>
+  );
+}
+
+/** Throws away the draft saved on a published item (or page section, with `blockKey`). */
+export function DiscardDraftButton({ collection, id, blockKey }: { collection?: string; id?: string; blockKey?: string }) {
+  const [state, onSubmit, pending] = useFormAction<SimpleState>(blockKey ? discardBlockPending : discardPending, {}, "¿Descartar el borrador? Se pierden los cambios que no se publicaron.");
+  return (
+    <form onSubmit={onSubmit} className="space-y-2">
+      {blockKey ? <input type="hidden" name="key" value={blockKey} /> : (
+        <>
+          <input type="hidden" name="collection" value={collection} />
+          <input type="hidden" name="id" value={id} />
+        </>
+      )}
+      <button disabled={pending} className={cn(small, "text-pt")}>
+        Descartar borrador
       </button>
       {state.error && <Notice>{state.error}</Notice>}
       {state.ok && <Notice tone="ok">{state.ok}</Notice>}

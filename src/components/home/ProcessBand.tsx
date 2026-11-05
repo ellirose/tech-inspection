@@ -9,6 +9,7 @@ import type { PageBlocks } from "@/db/seed/blocks";
 import type { Locale } from "@/i18n/config";
 import { sequences } from "@/lib/sequences";
 import { cn } from "@/lib/cn";
+import { DESKTOP, useMedia } from "@/lib/use-media";
 
 const icons = [ClipboardText, Broom, MagnifyingGlass, Scales, SealCheck];
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -17,10 +18,12 @@ type Text = { eyebrow: string; title: string; lead: string; steps: { t: string; 
 
 /** The inspection route over the process video: one step per scene, the route track filling as the part moves on. */
 export function ProcessBand({ lang, process: p }: { lang: Locale; process: PageBlocks["home"]["process"] }) {
+  const desktop = useMedia(DESKTOP);
   const t: Text = { eyebrow: p.eyebrow[lang], title: p.title[lang], lead: p.lead[lang], steps: p.steps.map((s) => ({ t: s.t[lang], d: s.d[lang] })) };
   return (
     <ScrollSequence spec={sequences.process} id="proceso">
-      <Stage t={t} />
+      {/* The pinned stage is desktop only: phones do not hydrate it */}
+      {desktop && <Stage t={t} />}
       <Stacked t={t} />
     </ScrollSequence>
   );

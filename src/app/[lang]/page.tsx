@@ -33,7 +33,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       <PlatformShowcase lang={lang} dict={dict} compact title={home.platform.title[lang]} />
       <FieldGallery dict={dict} />
       <FaqSection lang={lang} items={faqs.filter((f) => f.home).slice(0, 6)} />
-      <QuoteSection lang={lang} dict={dict} className="sheet" />
+      <QuoteSection lang={lang} dict={dict} className="sheet" deferForm />
     </>
   );
 }

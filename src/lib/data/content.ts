@@ -8,6 +8,7 @@ import type { PgColumn } from "drizzle-orm/pg-core";
 import { cacheLife, cacheTag } from "next/cache";
 import { draftMode } from "next/headers";
 import { db, hasDatabase, schema as s } from "@/db";
+import type { PendingChanges } from "@/db/schema";
 import { bundled } from "./bundled";
 import type { PageBlockKey, PageBlocks } from "@/db/seed/blocks";
 import type { L10n, L10nList } from "@/i18n/config";
@@ -31,6 +32,7 @@ export const tags = {
   faqs: "content:faqs",
   industries: "content:industries",
   cases: "content:cases",
+  media: "content:media",
   block: (key: PageBlockKey) => `content:block:${key}`,
 } as const;
 
@@ -42,6 +44,26 @@ export const tags = {
 async function visible(t: { status: PgColumn }) {
   const { isEnabled } = await draftMode();
   return isEnabled ? undefined : eq(t.status, "published");
+}
+
+/**
+ * In preview, rows show the changes saved as a draft on top of their published version (the `pending`
+ * column, see PendingChanges in db/schema.ts). Visitors always get the rows as published.
+ */
+async function withPending<T extends { pending: PendingChanges | null }>(query: PromiseLike<T[]>): Promise<T[]> {
+  const rows = await query;
+  if (!rows.some((r) => r.pending?.values) || !(await draftMode()).isEnabled) return rows;
+  return rows.map((r) => (r.pending?.values ? { ...r, ...(r.pending.values as Partial<T>) } : r));
+}
+
+/** In preview, the methods of services whose draft changes them, by service id. */
+async function draftMethodKeys(rows: { id: string; pending: PendingChanges | null }[]) {
+  const out = new Map<string, MethodKey[]>();
+  const drafted = rows.filter((r) => r.pending?.methodIds);
+  if (!drafted.length || !(await draftMode()).isEnabled) return out;
+  const keys = new Map((await db.select({ id: s.method.id, key: s.method.key }).from(s.method)).map((m) => [m.id, m.key as MethodKey]));
+  for (const r of drafted) out.set(r.id, r.pending!.methodIds!.map((id) => keys.get(id)).filter((k) => k !== undefined));
+  return out;
 }
 
 export async function getSite() {
@@ -59,7 +81,7 @@ export async function getMethods(): Promise<Method[]> {
   cacheLife("max");
   cacheTag(tags.all, tags.methods);
   if (!hasDatabase) return bundled.methods();
-  const rows = await db.select().from(s.method).where(await visible(s.method)).orderBy(asc(s.method.sortOrder));
+  const rows = await withPending(db.select().from(s.method).where(await visible(s.method)).orderBy(asc(s.method.sortOrder)));
   return rows.map((m) => ({
     key: m.key as MethodKey,
     slug: m.slug,
@@ -83,13 +105,14 @@ export async function getServices(): Promise<Service[]> {
   cacheTag(tags.all, tags.services, tags.methods);
   if (!hasDatabase) return bundled.services();
   const [rows, links] = await Promise.all([
-    db.select().from(s.service).where(await visible(s.service)).orderBy(asc(s.service.sortOrder)),
+    withPending(db.select().from(s.service).where(await visible(s.service)).orderBy(asc(s.service.sortOrder))),
     db
       .select({ serviceId: s.serviceMethod.serviceId, key: s.method.key })
       .from(s.serviceMethod)
       .innerJoin(s.method, and(eq(s.method.id, s.serviceMethod.methodId), await visible(s.method)))
       .orderBy(asc(s.serviceMethod.sortOrder)),
   ]);
+  const drafted = await draftMethodKeys(rows);
   return rows.map((r) => ({
     slug: r.slug,
     icon: r.icon as ServiceIcon,
@@ -99,7 +122,7 @@ export async function getServices(): Promise<Service[]> {
     short: r.short,
     body: r.body,
     scope: r.scope,
-    methods: links.filter((l) => l.serviceId === r.id).map((l) => l.key as MethodKey),
+    methods: drafted.get(r.id) ?? links.filter((l) => l.serviceId === r.id).map((l) => l.key as MethodKey),
     ...(r.needsReview ? { draft: true } : {}),
   }));
 }
@@ -116,10 +139,12 @@ export async function getService(slug: string): Promise<(Service & { seo: SeoOve
     const svc = bundled.services().find((x) => x.slug === slug);
     return svc ? { ...svc, seo: { title: null, description: null } } : null;
   }
-  const [row] = await db
-    .select()
-    .from(s.service)
-    .where(and(await visible(s.service), eq(s.service.slug, slug)));
+  const [row] = await withPending(
+    db
+      .select()
+      .from(s.service)
+      .where(and(await visible(s.service), eq(s.service.slug, slug))),
+  );
   if (!row) return null;
   const links = await db
     .select({ key: s.method.key })
@@ -136,7 +161,7 @@ export async function getService(slug: string): Promise<(Service & { seo: SeoOve
     short: row.short,
     body: row.body,
     scope: row.scope,
-    methods: links.map((l) => l.key as MethodKey),
+    methods: (await draftMethodKeys([row])).get(row.id) ?? links.map((l) => l.key as MethodKey),
     ...(row.needsReview ? { draft: true } : {}),
     seo: { title: row.seoTitle, description: row.seoDescription },
   };
@@ -148,11 +173,13 @@ export async function getCertifications() {
   cacheLife("days");
   cacheTag(tags.all, tags.certifications);
   if (!hasDatabase) return bundled.certifications();
-  const rows = await db
-    .select()
-    .from(s.certification)
-    .where(and(await visible(s.certification), or(isNull(s.certification.expiryDate), gte(s.certification.expiryDate, sql`current_date`))))
-    .orderBy(asc(s.certification.sortOrder));
+  const rows = await withPending(
+    db
+      .select()
+      .from(s.certification)
+      .where(and(await visible(s.certification), or(isNull(s.certification.expiryDate), gte(s.certification.expiryDate, sql`current_date`))))
+      .orderBy(asc(s.certification.sortOrder)),
+  );
   const system: Certification[] = rows
     .filter((r) => r.kind === "system")
     .map((r) => ({ id: r.key, code: r.code, ring: r.ring ?? "", title: r.title, body: r.body, certifier: r.certifier ?? undefined, certificateNumber: r.certificateNumber ?? undefined }));
@@ -168,11 +195,13 @@ export async function getClients(): Promise<{ name: string; logo: string; square
   cacheLife("max");
   cacheTag(tags.all, tags.clients);
   if (!hasDatabase) return bundled.clients();
-  const rows = await db
-    .select()
-    .from(s.client)
-    .where(and(await visible(s.client), eq(s.client.showLogo, true)))
-    .orderBy(asc(s.client.sortOrder));
+  const rows = await withPending(
+    db
+      .select()
+      .from(s.client)
+      .where(and(await visible(s.client), eq(s.client.showLogo, true)))
+      .orderBy(asc(s.client.sortOrder)),
+  );
   return rows.map((c) => ({ name: c.name, logo: c.logo, ...(c.square ? { square: true } : {}) }));
 }
 
@@ -181,7 +210,7 @@ export async function getStats(): Promise<{ value: number; prefix?: string; labe
   cacheLife("max");
   cacheTag(tags.all, tags.stats);
   if (!hasDatabase) return bundled.stats();
-  const rows = await db.select().from(s.stat).where(await visible(s.stat)).orderBy(asc(s.stat.sortOrder));
+  const rows = await withPending(db.select().from(s.stat).where(await visible(s.stat)).orderBy(asc(s.stat.sortOrder)));
   return rows.map((r) => ({ value: r.value, ...(r.prefix ? { prefix: r.prefix } : {}), label: r.label }));
 }
 
@@ -190,11 +219,13 @@ export async function getLeadership() {
   cacheLife("max");
   cacheTag(tags.all, tags.team);
   if (!hasDatabase) return bundled.leadership();
-  const rows = await db
-    .select()
-    .from(s.teamMember)
-    .where(and(await visible(s.teamMember), eq(s.teamMember.isLeadership, true)))
-    .orderBy(asc(s.teamMember.sortOrder));
+  const rows = await withPending(
+    db
+      .select()
+      .from(s.teamMember)
+      .where(and(await visible(s.teamMember), eq(s.teamMember.isLeadership, true)))
+      .orderBy(asc(s.teamMember.sortOrder)),
+  );
   return rows.map((p) => ({ name: p.name, photo: p.photo ?? "", email: p.email ?? "", role: p.role, bio: p.bio ?? p.role }));
 }
 
@@ -203,11 +234,13 @@ export async function getChannels() {
   cacheLife("max");
   cacheTag(tags.all, tags.channels);
   if (!hasDatabase) return bundled.channels();
-  const rows = await db
-    .select()
-    .from(s.contactChannel)
-    .where(await visible(s.contactChannel))
-    .orderBy(asc(s.contactChannel.sortOrder));
+  const rows = await withPending(
+    db
+      .select()
+      .from(s.contactChannel)
+      .where(await visible(s.contactChannel))
+      .orderBy(asc(s.contactChannel.sortOrder)),
+  );
   return rows.map((c) => ({ role: c.role, scope: c.scope, phone: c.phone, email: c.email }));
 }
 
@@ -218,11 +251,13 @@ export async function getDocuments(kind: "policy" | "accountability"): Promise<C
   cacheLife("max");
   cacheTag(tags.all, tags.documents);
   if (!hasDatabase) return bundled.documents(kind);
-  const rows = await db
-    .select()
-    .from(s.companyDocument)
-    .where(and(await visible(s.companyDocument), eq(s.companyDocument.kind, kind)))
-    .orderBy(asc(s.companyDocument.sortOrder));
+  const rows = await withPending(
+    db
+      .select()
+      .from(s.companyDocument)
+      .where(and(await visible(s.companyDocument), eq(s.companyDocument.kind, kind)))
+      .orderBy(asc(s.companyDocument.sortOrder)),
+  );
   return rows.map((d) => ({
     code: d.code,
     title: d.title,
@@ -258,11 +293,13 @@ export async function getBlock<K extends PageBlockKey>(key: K): Promise<PageBloc
   cacheTag(tags.all, tags.block(key));
   if (!hasDatabase) return bundled.block(key);
   const [row] = await db
-    .select({ data: s.pageBlock.data })
+    .select({ data: s.pageBlock.data, pending: s.pageBlock.pending })
     .from(s.pageBlock)
     .where(and(eq(s.pageBlock.key, key), await visible(s.pageBlock)));
   if (!row) throw new Error(`page_block "${key}" is missing: run \`npm run db:seed\``);
-  return row.data as PageBlocks[K];
+  // In preview, a draft saved on the section shows instead of the published version.
+  const draft = row.pending?.data !== undefined && (await draftMode()).isEnabled;
+  return (draft ? row.pending!.data : row.data) as PageBlocks[K];
 }
 
 // --- FAQs, industries and case studies ------------------------------------------------------
@@ -298,7 +335,7 @@ export async function getFaqs(): Promise<FaqItem[]> {
   cacheLife("max");
   cacheTag(tags.all, tags.faqs);
   if (!hasDatabase) return bundled.faqs();
-  const rows = await db.select().from(s.faq).where(await visible(s.faq)).orderBy(asc(s.faq.sortOrder));
+  const rows = await withPending(db.select().from(s.faq).where(await visible(s.faq)).orderBy(asc(s.faq.sortOrder)));
   return rows.map((r) => ({ category: r.category as FaqCategory, question: r.question, answer: r.answer, methods: r.methodKeys, services: r.serviceSlugs, home: r.showOnHome }));
 }
 
@@ -307,7 +344,7 @@ export async function getIndustries(): Promise<IndustryItem[]> {
   cacheLife("max");
   cacheTag(tags.all, tags.industries);
   if (!hasDatabase) return bundled.industries();
-  const rows = await db.select().from(s.industry).where(await visible(s.industry)).orderBy(asc(s.industry.sortOrder));
+  const rows = await withPending(db.select().from(s.industry).where(await visible(s.industry)).orderBy(asc(s.industry.sortOrder)));
   return rows.map((r) => ({
     slug: r.slug,
     name: r.name,
@@ -326,11 +363,13 @@ export async function getCases(): Promise<CaseItem[]> {
   cacheLife("max");
   cacheTag(tags.all, tags.cases);
   if (!hasDatabase) return [];
-  const rows = await db
-    .select()
-    .from(s.caseStudy)
-    .where(and(await visible(s.caseStudy), eq(s.caseStudy.publishPermission, true)))
-    .orderBy(asc(s.caseStudy.sortOrder));
+  const rows = await withPending(
+    db
+      .select()
+      .from(s.caseStudy)
+      .where(and(await visible(s.caseStudy), eq(s.caseStudy.publishPermission, true)))
+      .orderBy(asc(s.caseStudy.sortOrder)),
+  );
   return rows.map((r) => ({
     slug: r.slug,
     title: r.title,
@@ -345,3 +384,17 @@ export async function getCases(): Promise<CaseItem[]> {
     methods: r.methodKeys,
   }));
 }
+
+/**
+ * Spanish descriptions written in Medios, by file path ({"/media/uploads/2026/foto-....webp": "Inspector midiendo..."}).
+ * Pages use them as the alt text of uploaded photos (see describe() in lib/media.ts).
+ */
+export async function getMediaAlts(): Promise<Record<string, string>> {
+  "use cache";
+  cacheLife("max");
+  cacheTag(tags.all, tags.media);
+  if (!hasDatabase) return {};
+  const rows = await db.select({ url: s.media.url, alt: s.media.alt }).from(s.media).where(sql`${s.media.alt} is not null`);
+  return Object.fromEntries(rows.filter((r) => r.alt).map((r) => [r.url, r.alt as string]));
+}
+

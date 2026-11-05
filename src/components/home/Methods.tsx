@@ -1,11 +1,12 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { getBlock, getMethods } from "@/lib/data/content";
+import { getBlock, getMediaAlts, getMethods } from "@/lib/data/content";
+import { altFor } from "@/lib/media";
 import { MethodsScroll } from "./MethodsScroll";
 
 /** The four NDT methods over the scroll-scrubbed methods video. */
 export async function Methods({ lang, dict }: { lang: Locale; dict: Dictionary }) {
-  const [methods, home] = await Promise.all([getMethods(), getBlock("home")]);
+  const [methods, home, alts] = await Promise.all([getMethods(), getBlock("home"), getMediaAlts()]);
   const s = dict.methodsSection;
   return (
     <MethodsScroll
@@ -19,6 +20,7 @@ export async function Methods({ lang, dict }: { lang: Locale; dict: Dictionary }
         name: m.name[lang],
         tagline: m.tagline[lang],
         cover: m.cover,
+        coverAlt: altFor(m.cover, alts, lang, m.name[lang]),
         detects: m.detects[lang],
         steps: m.steps.map((x) => x.title[lang]),
       }))}

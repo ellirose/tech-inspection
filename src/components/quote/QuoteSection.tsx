@@ -10,10 +10,13 @@ import { cn } from "@/lib/cn";
 import { cue } from "@/lib/scene";
 import { Email } from "@/components/ui/Email";
 import { QuoteWizard } from "./QuoteWizard";
+import { DeferredQuoteWizard } from "./DeferredQuoteWizard";
 
-export async function QuoteSection({ lang, dict, heading = true, index, className }: { lang: Locale; dict: Dictionary; heading?: boolean; index?: string; className?: string }) {
+/** `deferForm`: load the form only when the visitor scrolls near it (for pages where it sits far down). */
+export async function QuoteSection({ lang, dict, heading = true, index, className, deferForm = false }: { lang: Locale; dict: Dictionary; heading?: boolean; index?: string; className?: string; deferForm?: boolean }) {
   const [{ company }, policyDocs, methods, services] = await Promise.all([getSite(), getDocuments("policy"), getMethods(), getServices()]);
   const q = dict.quote;
+  const Form = deferForm ? DeferredQuoteWizard : QuoteWizard;
   const c = dict.contact;
   const contactRows = [
     { icon: Phone, label: c.phone, value: company.phone, href: company.phoneHref },
@@ -29,7 +32,7 @@ export async function QuoteSection({ lang, dict, heading = true, index, classNam
         {heading && <SectionHeading index={index} eyebrow={q.eyebrow} title={q.title} lead={q.lead} />}
         <div className={cn("grid gap-6 lg:grid-cols-12", heading && "mt-14")}>
           <Reveal className="lg:col-span-8">
-            <QuoteWizard
+            <Form
               lang={lang}
               t={q}
               policyHref={policyDocs.find((d) => d.code === "PL-09-1")?.file ?? `/${lang}/hseq`}

@@ -1,24 +1,31 @@
-// Checks and prepares an uploaded image or PDF for the media library. The file type is read from its
+// Checks and prepares an uploaded image, video or PDF for the media library. The file type is read from its
 // first bytes, not from its name. Images are turned upright, stripped of camera data (GPS included),
 // reduced to at most 2400 px on the long side and saved as WebP; the size goes into the file name so
-// pages can lay the image out without looking it up (see photo() in media.ts).
+// pages can lay the image out without looking it up (see photo() in media.ts). Videos (MP4 or WebM, for
+// background and method videos) are stored as uploaded: compress them before uploading.
 import "server-only";
 import { randomBytes } from "node:crypto";
 import sharp from "sharp";
 
 export const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 export const MAX_PDF_BYTES = 20 * 1024 * 1024;
+export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+/** The largest upload of any kind (the route refuses bigger requests before reading them). */
+export const MAX_UPLOAD_BYTES = Math.max(MAX_IMAGE_BYTES, MAX_PDF_BYTES, MAX_VIDEO_BYTES);
 const LONG_EDGE = 2400;
 
 export type PreparedUpload = { key: string; mime: string; body: Uint8Array; width: number | null; height: number | null };
 
 /** The type of a file read from its first bytes, for the formats uploads accept. */
-export function detectFile(b: Uint8Array): { ext: "jpg" | "png" | "webp" | "pdf"; mime: string } | null {
+export function detectFile(b: Uint8Array): { ext: "jpg" | "png" | "webp" | "pdf" | "mp4" | "webm"; mime: string } | null {
   const ascii = (from: number, to: number) => String.fromCharCode(...b.subarray(from, to));
   if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return { ext: "jpg", mime: "image/jpeg" };
   if (b[0] === 0x89 && ascii(1, 4) === "PNG") return { ext: "png", mime: "image/png" };
   if (ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return { ext: "webp", mime: "image/webp" };
   if (ascii(0, 5) === "%PDF-") return { ext: "pdf", mime: "application/pdf" };
+  // MP4: an "ftyp" box first. QuickTime (.mov, brand "qt  ") is refused: most browsers outside Safari cannot play it.
+  if (ascii(4, 8) === "ftyp" && ascii(8, 12) !== "qt  ") return { ext: "mp4", mime: "video/mp4" };
+  if (b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3 && ascii(0, 64).includes("webm")) return { ext: "webm", mime: "video/webm" };
   return null;
 }
 
@@ -40,13 +47,18 @@ export function slugifyName(name: string) {
 export async function prepareUpload(file: File, now = new Date()): Promise<PreparedUpload | { error: string }> {
   const input = new Uint8Array(await file.arrayBuffer());
   const type = detectFile(input);
-  if (!type) return { error: "Formato no admitido. Use JPG, PNG o WebP para imágenes y PDF para documentos (las fotos HEIC del iPhone se pueden exportar como JPG)." };
+  if (!type) return { error: "Formato no admitido. Use JPG, PNG o WebP para imágenes, MP4 o WebM para videos y PDF para documentos (las fotos HEIC del iPhone se pueden exportar como JPG; los videos .mov, como MP4)." };
   const name = `${slugifyName(file.name)}-${randomBytes(4).toString("hex")}`;
   const year = now.getUTCFullYear();
 
   if (type.ext === "pdf") {
     if (input.byteLength > MAX_PDF_BYTES) return { error: "El PDF supera 20 MB." };
     return { key: `docs/uploads/${year}/${name}.pdf`, mime: "application/pdf", body: input, width: null, height: null };
+  }
+
+  if (type.ext === "mp4" || type.ext === "webm") {
+    if (input.byteLength > MAX_VIDEO_BYTES) return { error: "El video supera 100 MB. Redúzcalo (por ejemplo a 1920 px y unos 20 segundos) y vuelva a intentarlo." };
+    return { key: `media/uploads/${year}/${name}.${type.ext}`, mime: type.mime, body: input, width: null, height: null };
   }
 
   if (input.byteLength > MAX_IMAGE_BYTES) return { error: "La imagen supera 15 MB." };

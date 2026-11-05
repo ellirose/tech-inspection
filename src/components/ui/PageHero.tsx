@@ -73,7 +73,7 @@ export function PageHero({
               <span aria-hidden className="absolute inset-0 translate-x-4 translate-y-4 rounded-[2.5rem] rounded-tr-[6rem] border-2 border-dashed border-neon/60" />
               <div className="relative aspect-[4/3.3] overflow-hidden rounded-[2.5rem] rounded-tr-[6rem] bg-surface-2 shadow-float">
                 {video ? (
-                  <BackgroundVideo src={video} poster={image} className="absolute inset-0 size-full" />
+                  <BackgroundVideo src={video} poster={image} preload sizes="(min-width:1024px) 40vw, 100vw" className="absolute inset-0 size-full" />
                 ) : (
                   <Image src={image} alt="" fill preload sizes="(min-width:1024px) 40vw, 100vw" className="object-cover" style={{ objectPosition: imagePosition }} quality={80} />
                 )}

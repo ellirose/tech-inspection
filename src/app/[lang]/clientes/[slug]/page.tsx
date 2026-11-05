@@ -6,7 +6,8 @@ import { CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getExtra } from "@/i18n/extra";
-import { getCases, getServices } from "@/lib/data/content";
+import { getCases, getMediaAlts, getServices } from "@/lib/data/content";
+import { altFor } from "@/lib/media";
 import { pageMeta } from "@/lib/metadata";
 import { PageHero } from "@/components/ui/PageHero";
 import { Container, Eyebrow } from "@/components/ui/Section";
@@ -37,7 +38,7 @@ export default function CasePage({ params }: PageProps<"/[lang]/clientes/[slug]"
 /** One case study: challenge, solution, results, photos and the services involved. */
 async function CasePageContent({ params }: Pick<PageProps<"/[lang]/clientes/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const [cases, services] = await Promise.all([getCases(), getServices()]);
+  const [cases, services, alts] = await Promise.all([getCases(), getServices(), getMediaAlts()]);
   const c = cases.find((x) => x.slug === slug);
   if (!hasLocale(lang) || !c) notFound();
   const d = getDictionary(lang);
@@ -108,7 +109,7 @@ async function CasePageContent({ params }: Pick<PageProps<"/[lang]/clientes/[slu
           <Container className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {c.images.slice(1).map((src) => (
               <div key={src} className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] ring-1 ring-line">
-                <Image src={src} alt={c.title[lang]} fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
+                <Image src={src} alt={altFor(src, alts, lang, c.title[lang])} fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" />
               </div>
             ))}
           </Container>

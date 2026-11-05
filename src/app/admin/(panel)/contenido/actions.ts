@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { and, asc, eq, max, sql } from "drizzle-orm";
 import type { PgColumn, PgTable } from "drizzle-orm/pg-core";
 import { db, schema } from "@/db";
+import type { PendingChanges } from "@/db/schema";
 import { audit, requestIp } from "@/lib/audit";
 import { authorize } from "@/lib/auth/session";
 import { findCollection, type Collection } from "@/lib/admin/collections";
@@ -19,7 +20,7 @@ import { refOptions } from "@/lib/admin/refs";
 
 export type SaveState = { ok?: string; error?: string; fieldErrors?: Record<string, string> };
 
-type ContentTable = PgTable & { id: PgColumn; status: PgColumn; sortOrder: PgColumn; updatedAt: PgColumn };
+type ContentTable = PgTable & { id: PgColumn; status: PgColumn; pending: PgColumn; sortOrder: PgColumn; updatedAt: PgColumn };
 const tableOf = (c: Collection) => c.table as unknown as ContentTable;
 
 // PostgreSQL returns JSONB objects with their keys reordered; compare with sorted keys.
@@ -91,14 +92,39 @@ export async function saveContent(_: SaveState, form: FormData): Promise<SaveSta
     if ((before.updatedAt as Date).toISOString() !== String(form.get("updatedAt"))) {
       return { error: "Otra persona guardó cambios en este elemento mientras usted editaba. Copie sus cambios, recargue la página y vuelva a aplicarlos." };
     }
+    // Compared with the published version (the row), not with a draft saved earlier.
     const changed = Object.keys(values).filter((k) => !same(values[k], before[k]));
     const methodsBefore = methodIds && (await serviceMethodIds(id));
     const methodsChanged = Boolean(methodIds && !same(methodIds, methodsBefore));
-    if (!changed.length && !methodsChanged) return { ok: "Sin cambios." };
+    const hadPending = Boolean(before.pending);
+
+    // A published item saved as a draft: the site keeps the published version until "Publicar cambios".
+    if (before.status === "published" && form.get("mode") === "draft") {
+      if (!changed.length && !methodsChanged) {
+        if (!hadPending) return { ok: "Sin cambios." };
+        await db.update(t).set({ pending: null, updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
+        refresh();
+        return { ok: "Igual a lo publicado: no queda ningún borrador." };
+      }
+      const pending: PendingChanges = {
+        values: Object.fromEntries(changed.map((k) => [k, values[k]])),
+        ...(methodsChanged ? { methodIds } : {}),
+        by: user.id,
+        at: new Date().toISOString(),
+      };
+      await db.update(t).set({ pending, updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
+      const draftLabels = [...c.fields.filter((f) => changed.includes(f.name)).map((f) => f.label), ...(methodsChanged ? ["Métodos"] : [])];
+      await audit({ userId: user.id, action: "content_draft_saved", entity: c.key, entityId: id, diff: { campos: draftLabels.join(", ") }, ip });
+      refresh();
+      return { ok: "Borrador guardado. El sitio sigue mostrando la versión publicada; revise el borrador en la vista previa." };
+    }
+
+    if (!changed.length && !methodsChanged && !hadPending) return { ok: "Sin cambios." };
 
     await db.transaction(async (tx) => {
-      if (changed.length) await tx.update(t).set({ ...Object.fromEntries(changed.map((k) => [k, values[k]])), updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
-      else await tx.update(t).set({ updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
+      // Saving directly (or publishing) also clears any draft: the form already held its changes.
+      if (changed.length) await tx.update(t).set({ ...Object.fromEntries(changed.map((k) => [k, values[k]])), pending: null, updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
+      else await tx.update(t).set({ pending: null, updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
       if (methodsChanged) {
         await tx.delete(schema.serviceMethod).where(eq(schema.serviceMethod.serviceId, id));
         if (methodIds!.length) await tx.insert(schema.serviceMethod).values(methodIds!.map((methodId, i) => ({ serviceId: id, methodId, sortOrder: i })));
@@ -109,7 +135,7 @@ export async function saveContent(_: SaveState, form: FormData): Promise<SaveSta
     updateTag(c.tag);
     await refreshPublicPages(c.pages({ ...before, ...values, id }));
     refresh();
-    return { ok: before.status === "published" ? "Guardado. El sitio se actualiza en unos segundos." : "Guardado como borrador." };
+    return { ok: before.status === "published" ? "Publicado. El sitio se actualiza en unos segundos." : "Guardado como borrador." };
   } catch (error) {
     if (pgCode(error) === "23505") return { error: "Ya existe un elemento con esa dirección o código." };
     throw error;
@@ -133,12 +159,33 @@ export async function setContentStatus(_: SimpleState, form: FormData): Promise<
   if (!found) return { error: "Este elemento ya no existe." };
   const { c, t, id, row } = found;
   const status = row.status === "published" ? "draft" : "published";
-  await db.update(t).set({ status, updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
+  // Publishing also applies a draft saved on top of the item, if there is one.
+  const pending = status === "published" ? (row.pending as PendingChanges | null) : null;
+  await db.transaction(async (tx) => {
+    await tx.update(t).set({ ...(pending?.values ?? {}), ...(pending ? { pending: null } : {}), status, updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
+    if (pending?.methodIds) {
+      await tx.delete(schema.serviceMethod).where(eq(schema.serviceMethod.serviceId, id));
+      if (pending.methodIds.length) await tx.insert(schema.serviceMethod).values(pending.methodIds.map((methodId, i) => ({ serviceId: id, methodId, sortOrder: i })));
+    }
+  });
   await audit({ userId: user.id, action: status === "published" ? "content_published" : "content_unpublished", entity: c.key, entityId: id, diff: { titulo: c.title(row as never) }, ip: requestIp(await headers()) });
   updateTag(c.tag);
-  await refreshPublicPages(c.pages(row as never));
+  await refreshPublicPages(c.pages({ ...row, ...(pending?.values ?? {}) } as never));
   refresh();
   return { ok: status === "published" ? "Publicado: aparece en el sitio en unos segundos." : "Retirado del sitio (queda como borrador)." };
+}
+
+/** Throws away the draft saved on a published item; the published version stays as it is. */
+export async function discardPending(_: SimpleState, form: FormData): Promise<SimpleState> {
+  const user = await authorize("content:write");
+  const found = await loadRow(form);
+  if (!found) return { error: "Este elemento ya no existe." };
+  const { c, t, id, row } = found;
+  if (!row.pending) return { ok: "No había borrador." };
+  await db.update(t).set({ pending: null, updatedBy: user.id, updatedAt: new Date() }).where(eq(t.id, id));
+  await audit({ userId: user.id, action: "content_draft_discarded", entity: c.key, entityId: id, diff: { titulo: c.title(row as never) }, ip: requestIp(await headers()) });
+  refresh();
+  return { ok: "Borrador descartado." };
 }
 
 export async function moveContent(_: SimpleState, form: FormData): Promise<SimpleState> {

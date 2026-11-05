@@ -61,7 +61,7 @@ export function Lightbox({ items, alt, index, close, step }: { items: Photo[]; a
             className="relative m-4 flex-1 sm:mx-24 sm:my-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image src={item.src} alt={item.caption ?? `${alt} ${index + 1}`} fill sizes="100vw" quality={90} className="object-contain" />
+            <Image src={item.src} alt={item.alt ?? item.caption ?? `${alt} ${index + 1}`} fill sizes="100vw" quality={90} className="object-contain" />
           </motion.div>
           <div className="flex items-center justify-center gap-3 px-4 pb-6" onClick={(e) => e.stopPropagation()}>
             <span className="rounded-full bg-white px-4 py-1.5 font-mono text-sm font-bold text-[#071a2e]">

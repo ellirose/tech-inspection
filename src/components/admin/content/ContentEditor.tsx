@@ -21,6 +21,8 @@ export type EditorProps = {
   /** Options of each "refs" field, by field name. */
   refs: Record<string, { id: string; label: string }[]>;
   readOnly: boolean;
+  /** Published items get two buttons: publish the changes, or keep them as a draft for now. */
+  published?: boolean;
 };
 
 const langName = { es: "ES", pt: "PT", en: "EN" } as const;
@@ -206,7 +208,7 @@ function FieldInput({ field, value, methods, refs }: { field: Field; value: unkn
 }
 
 /** Form for one content item, generated from its field definitions. */
-export function ContentEditor({ collection, id, updatedAt, fields, values, files, methods, refs, readOnly }: EditorProps) {
+export function ContentEditor({ collection, id, updatedAt, fields, values, files, methods, refs, readOnly, published = false }: EditorProps) {
   const [state, onSubmit, pending] = useFormAction<SaveState>(saveContent, {});
   // The save result current when the form was last edited: still dirty until a later save succeeds.
   const [editedAt, setEditedAt] = useState<SaveState | null>(null);
@@ -257,9 +259,20 @@ export function ContentEditor({ collection, id, updatedAt, fields, values, files
 
       {!readOnly && (
         <div className="sticky bottom-0 z-10 -mx-1 flex flex-wrap items-center gap-3 rounded-2xl bg-canvas/95 px-1 py-3 backdrop-blur">
-          <button className={buttonClass} disabled={pending}>
-            {pending ? "Guardando…" : id ? "Guardar cambios" : "Crear borrador"}
-          </button>
+          {id && published ? (
+            <>
+              <button name="mode" value="publish" className={buttonClass} disabled={pending}>
+                {pending ? "Guardando…" : "Publicar cambios"}
+              </button>
+              <button name="mode" value="draft" className={quietButtonClass} disabled={pending}>
+                Guardar borrador
+              </button>
+            </>
+          ) : (
+            <button className={buttonClass} disabled={pending}>
+              {pending ? "Guardando…" : id ? "Guardar cambios" : "Crear borrador"}
+            </button>
+          )}
           {dirty && !pending && <span className="text-sm font-bold text-vt">Cambios sin guardar</span>}
           {state.error && <Notice>{state.error}</Notice>}
           {state.ok && <Notice tone="ok">{state.ok}</Notice>}

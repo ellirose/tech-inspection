@@ -24,11 +24,11 @@ export function Masonry({ items, alt, className }: { items: Photo[]; alt: string
             viewport={{ once: true, margin: "0px 0px -8% 0px" }}
             transition={{ duration: 0.6, delay: (i % 4) * 0.05, ease: [0.16, 1, 0.3, 1] }}
             className="group relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-[1.6rem] bg-surface-2 shadow-soft ring-1 ring-line sm:mb-4"
-            aria-label={p.caption ?? `${alt} ${i + 1}`}
+            aria-label={p.alt ?? p.caption ?? `${alt} ${i + 1}`}
           >
             <Image
               src={p.src}
-              alt={p.caption ?? `${alt} ${i + 1}`}
+              alt={p.alt ?? p.caption ?? `${alt} ${i + 1}`}
               width={p.w}
               height={p.h}
               sizes="(min-width:1280px) 25vw, (min-width:768px) 33vw, 50vw"

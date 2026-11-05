@@ -27,10 +27,18 @@ const timestamps = {
   updatedBy: text("updated_by"),
 };
 
+/**
+ * Changes saved as a draft on something already published: the site keeps showing the published
+ * version, the preview shows these on top of it, and publishing copies them into the row.
+ * `values` holds content fields by name (and `methodIds` a service's methods); `data` a page section.
+ */
+export type PendingChanges = { values?: Record<string, unknown>; methodIds?: string[]; data?: unknown; by: string | null; at: string };
+
 /** Shared columns of every editable content table. */
 const contentColumns = {
   id: uuid("id").primaryKey().defaultRandom(),
   status: publishStatus("status").notNull().default("published"),
+  pending: jsonb("pending").$type<PendingChanges | null>(),
   sortOrder: integer("sort_order").notNull().default(0),
   ...timestamps,
 };
@@ -274,6 +282,7 @@ export const pageBlock = pgTable("page_block", {
   key: text("key").primaryKey(),
   data: jsonb("data").notNull(),
   status: publishStatus("status").notNull().default("published"),
+  pending: jsonb("pending").$type<PendingChanges | null>(),
   ...timestamps,
 });
 

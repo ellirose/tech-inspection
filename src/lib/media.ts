@@ -1,6 +1,7 @@
 import sizes from "@/content/media-sizes.json";
 
-export type Photo = { src: string; w: number; h: number; caption?: string };
+/** `alt` is the description written in Medios for an upload (Spanish pages only, see describe()). */
+export type Photo = { src: string; w: number; h: number; caption?: string; alt?: string };
 
 const table: Record<string, number[]> = sizes;
 
@@ -17,3 +18,16 @@ export function photo(src: string, caption?: string): Photo {
 }
 
 export const photos = (srcs: string[]) => srcs.map((s) => photo(s));
+
+/**
+ * Give uploaded photos the description written for them in Medios (getMediaAlts()). Those
+ * descriptions are in Spanish, so the Portuguese and English pages keep their generated labels.
+ */
+export function describe<T extends Photo>(items: T[], alts: Record<string, string>, lang: string): T[] {
+  if (lang !== "es") return items;
+  return items.map((p) => (alts[p.src] ? { ...p, alt: alts[p.src] } : p));
+}
+
+/** Alt text for one image: its Medios description on Spanish pages, otherwise `fallback`. */
+export const altFor = (src: string | null | undefined, alts: Record<string, string>, lang: string, fallback: string) =>
+  (lang === "es" && src && alts[src]) || fallback;

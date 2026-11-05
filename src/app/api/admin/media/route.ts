@@ -4,7 +4,9 @@ import { headers } from "next/headers";
 import { db, schema } from "@/db";
 import { audit, requestIp } from "@/lib/audit";
 import { authorize } from "@/lib/auth/session";
-import { MAX_PDF_BYTES, prepareUpload } from "@/lib/media-upload";
+import { MAX_UPLOAD_BYTES, prepareUpload } from "@/lib/media-upload";
+import { revalidateTag } from "next/cache";
+import { tags } from "@/lib/data/content";
 import { storage } from "@/lib/storage";
 
 export type UploadResponse = { ok: true; url: string } | { ok: false; error: string };
@@ -21,7 +23,7 @@ export async function POST(request: Request) {
   } catch {
     return reply({ ok: false, error: "Su rol no puede subir archivos o la sesión terminó." }, 403);
   }
-  if (Number(request.headers.get("content-length") ?? 0) > MAX_PDF_BYTES + 1024 * 1024) return reply({ ok: false, error: "El archivo es demasiado grande." }, 413);
+  if (Number(request.headers.get("content-length") ?? 0) > MAX_UPLOAD_BYTES + 1024 * 1024) return reply({ ok: false, error: "El archivo es demasiado grande." }, 413);
 
   const form = await request.formData().catch(() => null);
   const file = form?.get("file");
@@ -53,6 +55,8 @@ export async function POST(request: Request) {
       uploadedBy: user.id,
     })
     .returning({ id: schema.media.id });
+  // Pages read the descriptions by file path (getMediaAlts).
+  if (alt) revalidateTag(tags.media, "max");
   await audit({ userId: user.id, action: "media_uploaded", entity: "media", entityId: row.id, diff: { archivo: url }, ip: requestIp(await headers()) });
   return reply({ ok: true, url });
 }

@@ -1,6 +1,7 @@
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { getBlock, getMethods, getServices } from "@/lib/data/content";
+import { getBlock, getMediaAlts, getMethods, getServices } from "@/lib/data/content";
+import { altFor } from "@/lib/media";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { cn } from "@/lib/cn";
 import { cue } from "@/lib/scene";
@@ -8,7 +9,7 @@ import { ServiceExplorer } from "./ServiceExplorer";
 
 /** The service lines as an interactive explorer. */
 export async function ServicesGrid({ lang, dict, heading = true, className }: { lang: Locale; dict: Dictionary; heading?: boolean; className?: string }) {
-  const [home, services, methods] = await Promise.all([getBlock("home"), getServices(), getMethods()]);
+  const [home, services, methods, alts] = await Promise.all([getBlock("home"), getServices(), getMethods(), getMediaAlts()]);
   const methodByKey = (key: string) => methods.find((m) => m.key === key)!;
   const t = home.services;
   return (
@@ -28,6 +29,7 @@ export async function ServicesGrid({ lang, dict, heading = true, className }: { 
               name: s.name[lang],
               short: s.short[lang],
               image: s.image,
+              imageAlt: altFor(s.image, alts, lang, s.name[lang]),
               scope: s.scope[lang],
               methods: s.methods.map((k) => methodByKey(k).code),
             }))}

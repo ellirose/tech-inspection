@@ -16,8 +16,25 @@ export function Logo({ className, preload }: { className?: string; preload?: boo
   );
 }
 
+/**
+ * Plain <img> over WebP copies made from logo.png (160/320/480 px wide): the header logo is often the
+ * largest element of the first screen, and static files skip the image optimizer's first-request delay.
+ */
 export function LogoMark({ className, preload }: { className?: string; preload?: boolean }) {
-  return <Image src="/media/brand/logo.png" alt="Tech-Inspection S.A.S." width={900} height={317} preload={preload} sizes="240px" className={className} />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/media/brand/logo-320.webp"
+      srcSet="/media/brand/logo-160.webp 160w, /media/brand/logo-320.webp 320w, /media/brand/logo-480.webp 480w"
+      sizes="160px"
+      alt="Tech-Inspection S.A.S."
+      width={900}
+      height={317}
+      fetchPriority={preload ? "high" : undefined}
+      decoding="async"
+      className={className}
+    />
+  );
 }
 
 /**

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { locales } from "@/i18n/config";
 import { isEditableString, isL10n, isL10nList, keyLabel } from "@/lib/admin/blocks";
 import { saveBlock, type BlockState } from "@/app/admin/(panel)/contenido/paginas/actions";
-import { buttonClass, fieldClass, Notice } from "@/components/admin/ui";
+import { buttonClass, fieldClass, Notice, quietButtonClass } from "@/components/admin/ui";
 import { useFormAction } from "@/components/admin/useFormAction";
 import { cn } from "@/lib/cn";
 
@@ -129,8 +129,11 @@ export function BlockEditor({ blockKey, updatedAt, value, images, readOnly }: { 
       </fieldset>
       {!readOnly && (
         <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-3 rounded-2xl bg-canvas/95 py-3 backdrop-blur">
-          <button className={buttonClass} disabled={pending}>
-            {pending ? "Guardando…" : "Guardar cambios"}
+          <button name="mode" value="publish" className={buttonClass} disabled={pending}>
+            {pending ? "Guardando…" : "Publicar cambios"}
+          </button>
+          <button name="mode" value="draft" className={quietButtonClass} disabled={pending}>
+            Guardar borrador
           </button>
           {dirty && !pending && <span className="text-sm font-bold text-vt">Cambios sin guardar</span>}
           {state.error && <Notice>{state.error}</Notice>}

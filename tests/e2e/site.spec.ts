@@ -64,7 +64,7 @@ test.describe("redirects and not found", () => {
   });
 
   test("unknown addresses get the site's 404 page", async ({ page }) => {
-    for (const path of ["/pagina-que-no-existe", "/es/pagina-que-no-existe"]) {
+    for (const path of ["/pagina-que-no-existe", "/es/pagina-que-no-existe", "/es/servicios/no-existe", "/en/metodos/no-existe", "/es/industrias/no-existe", "/pt/clientes/no-existe"]) {
       const res = await page.goto(path);
       expect(res?.status()).toBe(404);
       await expect(page.getByText("ERROR 404")).toBeVisible();

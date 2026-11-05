@@ -12,8 +12,9 @@ import { Eyebrow, SectionHeading } from "@/components/ui/Section";
 import { ScrollSequence, SequenceRail, useSequence } from "@/components/sequence/ScrollSequence";
 import { METHODS_SEQUENCE_ORDER, sequences } from "@/lib/sequences";
 import { cn } from "@/lib/cn";
+import { DESKTOP, useMedia } from "@/lib/use-media";
 
-export type MethodCard = { key: MethodKey; slug: string; code: string; name: string; tagline: string; cover: string; detects: string[]; steps: string[] };
+export type MethodCard = { key: MethodKey; slug: string; code: string; name: string; tagline: string; cover: string; coverAlt: string; detects: string[]; steps: string[] };
 
 const tone: Record<MethodKey, { hex: string; chip: string }> = {
   vt: { hex: "#f5a524", chip: "bg-vt/15 text-vt" },
@@ -32,10 +33,12 @@ const ease = [0.16, 1, 0.3, 1] as const;
  * Phones get stacked cards over the looping video.
  */
 export function MethodsScroll({ items, t, base, id }: { items: MethodCard[]; t: Text; base: string; id?: string }) {
+  const desktop = useMedia(DESKTOP);
   const ordered = METHODS_SEQUENCE_ORDER.map((k) => items.find((m) => m.key === k)).filter((m): m is MethodCard => Boolean(m));
   return (
     <ScrollSequence spec={sequences.methods} id={id}>
-      <Stage items={ordered} t={t} base={base} />
+      {/* The pinned stage is desktop only: phones do not hydrate it */}
+      {desktop && <Stage items={ordered} t={t} base={base} />}
       <Stacked items={ordered} t={t} base={base} />
     </ScrollSequence>
   );
@@ -125,7 +128,7 @@ function Stacked({ items, t, base }: { items: MethodCard[]; t: Text; base: strin
         {items.map((it, i) => (
           <article key={it.key} className={cn("overflow-hidden bg-surface shadow-card ring-1 ring-line", i % 2 ? "rounded-[2rem] rounded-tl-[4rem]" : "rounded-[2rem] rounded-tr-[4rem]")}>
             <div className="relative aspect-[4/3] bg-brand-900">
-              <Image src={it.cover} alt={it.name} fill sizes="100vw" className="object-cover" />
+              <Image src={it.cover} alt={it.coverAlt} fill sizes="100vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-950/60 to-transparent" />
               <MethodOverlay method={it.key} />
             </div>

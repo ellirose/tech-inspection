@@ -12,7 +12,7 @@ import { RotatingWord } from "@/components/ui/RotatingWord";
 import { BackgroundVideo } from "@/components/media/BackgroundVideo";
 import { cn } from "@/lib/cn";
 import { cue } from "@/lib/scene";
-import { HeroVisual } from "./HeroVisual";
+import { HeroVisualDesktop } from "./HeroVisualDesktop";
 
 /** One-screen hero: the promise, what we inspect right now, proof in numbers, and who trusts us. */
 export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary }) {
@@ -43,6 +43,8 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
                     width={200}
                     height={100}
                     loading="eager"
+                    // Low priority: React would otherwise preload every logo ahead of the page's own logo and text.
+                    fetchPriority="low"
                     className={cn("w-auto object-contain opacity-80 grayscale transition hover:opacity-100 hover:grayscale-0", c.square ? "h-10" : "h-8")}
                   />
                 </span>
@@ -112,7 +114,7 @@ export async function HomeHero({ lang, dict }: { lang: Locale; dict: Dictionary 
         </div>
 
         <div className="relative hidden h-[min(70svh,42rem)] lg:col-span-6 lg:block">
-          <HeroVisual
+          <HeroVisualDesktop
             t={{ wall: h.wall[lang], indication: h.indication[lang], live: h.live[lang], personnel: h.personnel[lang], bitAlt: dict.ui.bitService }}
             certificates={{ iso9001: certificate("iso9001"), iso45001: certificate("iso45001") }}
           />

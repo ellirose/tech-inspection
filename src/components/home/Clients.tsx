@@ -30,7 +30,7 @@ export async function Clients({ lang, dict, className }: { lang: Locale; dict: D
           <div className="flex w-max animate-marquee items-center gap-4 py-4 hover:[animation-play-state:paused] motion-reduce:animate-none">
             {[...clients, ...clients].map((c, i) => (
               <div key={i} className="flex h-28 w-60 shrink-0 items-center justify-center rounded-[1.75rem] bg-white px-7 shadow-soft ring-1 ring-line">
-                <Image src={c.logo} alt={i < clients.length ? c.name : ""} width={220} height={120} loading="eager" className={cn("object-contain", c.square ? "size-20" : "max-h-16 w-auto")} />
+                <Image src={c.logo} alt={i < clients.length ? c.name : ""} width={220} height={120} className={cn("object-contain", c.square ? "size-20" : "max-h-16 w-auto")} />
               </div>
             ))}
           </div>

@@ -6,7 +6,7 @@ import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
-import { getBlock, getFaqs, getMethods, getSeoOverrides, getServices } from "@/lib/data/content";
+import { getBlock, getFaqs, getMediaAlts, getMethods, getSeoOverrides, getServices } from "@/lib/data/content";
 import { serviceLd } from "@/lib/jsonld";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { FaqSection } from "@/components/faq/FaqSection";
@@ -17,7 +17,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { MethodGlyph, ServiceGlyph } from "@/components/ui/Icons";
 import { FieldMonitor } from "@/components/visuals/FieldMonitor";
 import { Masonry } from "@/components/media/Masonry";
-import { photos } from "@/lib/media";
+import { describe, photos } from "@/lib/media";
 import { CtaBand } from "@/components/ui/CtaBand";
 import { cn } from "@/lib/cn";
 
@@ -53,7 +53,7 @@ export default function MethodPage({ params }: PageProps<"/[lang]/metodos/[slug]
 
 async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const [methods, services, methodsApplied, faqs] = await Promise.all([getMethods(), getServices(), getBlock("methodsApplied"), getFaqs()]);
+  const [methods, services, methodsApplied, faqs, alts] = await Promise.all([getMethods(), getServices(), getBlock("methodsApplied"), getFaqs(), getMediaAlts()]);
   const m = methods.find((x) => x.slug === slug);
   if (!hasLocale(lang) || !m) notFound();
   const d = getDictionary(lang);
@@ -149,7 +149,7 @@ async function MethodPageContent({ params }: Pick<PageProps<"/[lang]/metodos/[sl
           <Container>
             <Eyebrow index="04">{d.pages.methods.gallery}</Eyebrow>
             <div className="mt-8">
-              <Masonry items={photos(m.gallery)} alt={m.name[lang]} />
+              <Masonry items={describe(photos(m.gallery), alts, lang)} alt={m.name[lang]} />
             </div>
           </Container>
         </section>

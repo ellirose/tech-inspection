@@ -380,11 +380,96 @@ html:has(#top-strip) {
   transition: opacity 0.7s var(--ease-out-expo);
 }
 
+/* Method overlays and the A-scan trace (MethodOverlay.tsx, Waveform.tsx). CSS loops instead of
+   JavaScript ones: nothing runs per frame on the main thread. Paths that draw use pathLength="1". */
+.ov-draw,
+.ov-draw-late,
+.ov-trace {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.ov-draw { animation: ov-draw var(--ov-d, 3s) ease-in-out var(--ov-delay, 0s) infinite both; }
+.ov-draw-late { animation: ov-draw-late var(--ov-d, 3s) ease-in-out var(--ov-delay, 0s) infinite both; }
+.ov-flow { animation: ov-flow var(--ov-d, 2.4s) linear var(--ov-delay, 0s) infinite both; }
+.ov-spin,
+.ov-bleed {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ov-spin { animation: ov-spin var(--ov-d, 14s) linear infinite; }
+.ov-bleed { animation: ov-bleed var(--ov-d, 3.6s) ease-out var(--ov-delay, 0s) infinite both; }
+.ov-bob { animation: ov-bob var(--ov-d, 2.4s) ease-in-out infinite; }
+.ov-gate { animation: ov-gate 3.2s ease-in-out infinite; }
+.ov-trace { animation: ov-trace 3s ease-in-out infinite both; }
+
+@keyframes ov-draw {
+  0% { stroke-dashoffset: 1; }
+  36%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes ov-draw-late {
+  0%, 36% { stroke-dashoffset: 1; }
+  57%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes ov-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes ov-flow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -48; }
+}
+@keyframes ov-bleed {
+  0% { transform: scale(0); opacity: 0.75; }
+  36% { transform: scale(0.73); opacity: 0.35; }
+  72%, 100% { transform: scale(1); opacity: 0; }
+}
+@keyframes ov-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(14px); }
+}
+@keyframes ov-gate {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(16px); }
+}
+@keyframes ov-trace {
+  0% { stroke-dashoffset: 1; opacity: 1; }
+  43% { stroke-dashoffset: 0; opacity: 1; }
+  87%, 100% { stroke-dashoffset: 0; opacity: 0.35; }
+}
+
+/* Reduced motion: animations jump to their last frame and transitions are off. A tiny transition
+   duration here would make every style change start a transition (and fire its events) instead. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Reveal (components/ui/Reveal.tsx): hidden until the layout's script marks the element shown, then a
+   one-off animation (not a transition, so the element's own hover transitions stay as they are). */
+.reveal:not([data-shown]),
+.reveal-group:not([data-shown]) > .reveal-item {
+  opacity: 0;
+}
+.reveal[data-shown] {
+  animation: reveal-in 0.8s var(--ease-out-expo) var(--reveal-delay, 0s) backwards;
+}
+.reveal-group[data-shown] > .reveal-item {
+  animation: reveal-item-in 0.75s var(--ease-out-expo) calc(var(--reveal-i, 0) * var(--reveal-stagger, 0.08s)) backwards;
+}
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(var(--reveal-y, 28px)); }
+}
+@keyframes reveal-item-in {
+  from { opacity: 0; transform: translateY(26px) scale(0.98); }
+}
+@media print {
+  .reveal,
+  .reveal-group > .reveal-item {
+    opacity: 1 !important;
   }
 }

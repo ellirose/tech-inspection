@@ -23,7 +23,7 @@ export function PhotoRibbon({ rows, className }: { rows: [Photo[], Photo[]]; cla
                 className={cn("relative h-[var(--h)] shrink-0 overflow-hidden bg-surface-2 shadow-card ring-4 ring-surface", i % 3 === 1 ? "rounded-[2rem] rounded-tr-[4rem]" : "rounded-[2rem]")}
                 style={{ width: `calc(var(--h) * ${Math.min(Math.max(p.w / p.h, 0.75), 1.9).toFixed(3)})` }}
               >
-                <Image src={p.src} alt="" fill sizes="26rem" loading="eager" className="object-cover" />
+                <Image src={p.src} alt="" fill sizes="26rem" className="object-cover" />
               </div>
             ))}
           </div>

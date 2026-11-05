@@ -11,7 +11,8 @@ import { CopyPath } from "./CopyPath";
 export function MediaUpload() {
   const router = useRouter();
   const form = useRef<HTMLFormElement>(null);
-  const [pdf, setPdf] = useState(false);
+  // PDFs and videos (decorative backgrounds) do not need a text alternative.
+  const [optionalAlt, setOptionalAlt] = useState(false);
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<UploadResponse | null>(null);
 
@@ -25,7 +26,7 @@ export function MediaUpload() {
       setResult(body);
       if (body.ok) {
         form.current?.reset();
-        setPdf(false);
+        setOptionalAlt(false);
         router.refresh();
       }
     } catch {
@@ -43,15 +44,15 @@ export function MediaUpload() {
           type="file"
           name="file"
           required
-          accept="image/jpeg,image/png,image/webp,application/pdf"
-          onChange={(e) => setPdf(e.currentTarget.files?.[0]?.type === "application/pdf")}
+          accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,application/pdf"
+          onChange={(e) => setOptionalAlt(/^(application\/pdf|video\/)/.test(e.currentTarget.files?.[0]?.type ?? ""))}
           className={cn(fieldClass, "text-sm file:mr-3 file:rounded-full file:border-0 file:bg-tint file:px-3 file:py-1 file:font-bold file:text-accent-ink")}
         />
-        <span className="mt-1 block text-xs text-mute">JPG, PNG o WebP hasta 15 MB (se reducen a 2400 px y se guardan en WebP), o PDF hasta 20 MB.</span>
+        <span className="mt-1 block text-xs text-mute">JPG, PNG o WebP hasta 15 MB (se reducen a 2400 px y se guardan en WebP), video MP4 o WebM hasta 100 MB (se guarda tal cual: comprímalo antes), o PDF hasta 20 MB.</span>
       </label>
       <label className="block">
-        <span className={labelClass}>Texto alternativo {pdf ? "(opcional)" : ""}</span>
-        <input name="alt" required={!pdf} minLength={pdf ? undefined : 3} maxLength={200} placeholder="Ej.: Inspector midiendo una broca PDC con ultrasonido" className={fieldClass} />
+        <span className={labelClass}>Texto alternativo {optionalAlt ? "(opcional)" : ""}</span>
+        <input name="alt" required={!optionalAlt} minLength={optionalAlt ? undefined : 3} maxLength={200} placeholder="Ej.: Inspector midiendo una broca PDC con ultrasonido" className={fieldClass} />
         <span className="mt-1 block text-xs text-mute">Qué muestra la imagen, en español, para quien no puede verla.</span>
       </label>
       <label className="block">

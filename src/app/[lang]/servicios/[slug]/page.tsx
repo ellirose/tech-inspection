@@ -5,7 +5,7 @@ import { ArrowUpRight, CheckCircle } from "@phosphor-icons/react/ssr";
 import { hasLocale, locales } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import type { MethodKey } from "@/content/methods";
-import { getFaqs, getMethods, getService, getServices } from "@/lib/data/content";
+import { getFaqs, getMediaAlts, getMethods, getService, getServices } from "@/lib/data/content";
 import { serviceLd } from "@/lib/jsonld";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { FaqSection } from "@/components/faq/FaqSection";
@@ -21,7 +21,7 @@ import { WhyBit } from "@/components/home/WhyBit";
 import { Standards } from "@/components/home/Standards";
 import { QaqcMark, logoPlate } from "@/components/ui/Logo";
 import { QAQC_SLUG } from "@/content/modules";
-import { photos } from "@/lib/media";
+import { describe, photos } from "@/lib/media";
 import { cn } from "@/lib/cn";
 
 const tile: Record<MethodKey, string> = {
@@ -57,7 +57,7 @@ export default function ServicePage({ params }: PageProps<"/[lang]/servicios/[sl
 
 async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/[slug]">, "params">) {
   const { lang, slug } = await params;
-  const [s, services, methods, faqs] = await Promise.all([getService(slug), getServices(), getMethods(), getFaqs()]);
+  const [s, services, methods, faqs, alts] = await Promise.all([getService(slug), getServices(), getMethods(), getFaqs(), getMediaAlts()]);
   const methodByKey = (key: MethodKey) => methods.find((m) => m.key === key)!;
   if (!hasLocale(lang) || !s) notFound();
   const d = getDictionary(lang);
@@ -125,7 +125,7 @@ async function ServicePageContent({ params }: Pick<PageProps<"/[lang]/servicios/
           <Container>
             <Eyebrow index="02">{d.pages.services.gallery}</Eyebrow>
             <Reveal className="mt-8">
-              <Showcase items={photos(gallery)} alt={s.name[lang]} />
+              <Showcase items={describe(photos(gallery), alts, lang)} alt={s.name[lang]} />
             </Reveal>
           </Container>
         </section>

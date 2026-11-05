@@ -65,6 +65,10 @@ const nextConfig: NextConfig = {
   images: {
     qualities: [70, 80, 90],
     formats: ["image/avif", "image/webp"],
+    // Fewer widths than the defaults (16 in all): every image's srcset lists each of them, and the home
+    // page alone has over a hundred images, so the HTML is noticeably smaller.
+    deviceSizes: [640, 828, 1200, 1920, 2560],
+    imageSizes: [64, 128, 256, 384],
   },
   async redirects() {
     // Old Wix URLs are redirected by src/proxy.ts from the `redirect` table (editable in the admin).

@@ -19,6 +19,7 @@ import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { LandingRecorder } from "@/components/leads/LandingRecorder";
 import { PreviewBar } from "@/components/layout/PreviewBar";
 import { SceneBackground } from "@/components/scene/SceneBackground";
+import { revealScript } from "@/components/ui/Reveal";
 
 const sans = Plus_Jakarta_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-jakarta", display: "swap" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
@@ -99,6 +100,11 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
     <html lang={htmlLang[lang as Locale]} data-theme="dark" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-svh overflow-x-clip">
         <JsonLd data={jsonLd} />
+        {/* Before the page content, so it also catches sections as they stream in (components/ui/Reveal.tsx) */}
+        <script dangerouslySetInnerHTML={{ __html: revealScript }} />
+        <noscript>
+          <style>{".reveal,.reveal-item{opacity:1!important}"}</style>
+        </noscript>
         <SceneBackground />
         <SmoothScroll>
           <Header data={navData} />
